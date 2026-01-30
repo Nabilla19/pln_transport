@@ -1,0 +1,19 @@
+# CodeIgniter 3 Gitignore
+/vendor/
+/user_guide/
+application/cache/*
+application/logs/*
+!application/cache/index.html
+!application/logs/index.html
+
+# Database and sensitive config
+application/config/database.php
+application/config/google_service_account.json
+
+# Evidence Photos
+uploads/transport/*
+!uploads/transport/index.html
+
+# OS Files
+.DS_Store
+Thumbs.db
