@@ -11,7 +11,9 @@ export async function GET(req) {
     try {
         const { searchParams } = new URL(req.url);
         const filter = searchParams.get('filter');
-        const canSeeAll = ['Asmen', 'KKU', 'Admin', 'Security', 'Admin Fleet'].some(r => user.role.includes(r));
+
+        const userRole = user?.role || '';
+        const canSeeAll = ['Asmen', 'KKU', 'Admin', 'Security', 'Admin Fleet'].some(r => userRole.includes(r));
 
         let whereClause = { user_id: user.id }; // Default: only own requests
 
@@ -37,7 +39,7 @@ export async function GET(req) {
         return NextResponse.json(requests);
     } catch (err) {
         console.error("API Error [GET /api/requests]:", err);
-        return NextResponse.json({ message: 'Server Error', error: err.message }, { status: 500 });
+        return NextResponse.json({ message: 'Server Error' }, { status: 500 });
     }
 }
 
@@ -64,7 +66,7 @@ export async function POST(req) {
 
         return NextResponse.json(newRequest);
     } catch (err) {
-        console.error(err);
-        return NextResponse.json({ message: 'Server Error' }, { status: 500 });
+        console.error("API Error [POST /api/requests]:", err);
+        return NextResponse.json({ message: 'Server Error', error: err.message }, { status: 500 });
     }
 }
