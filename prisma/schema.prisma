@@ -8,17 +8,20 @@ datasource db {
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(100)
-  email       String    @unique(map: "email") @db.VarChar(100)
-  password    String    @db.VarChar(255)
-  role_id     Int?
-  role        String    @db.VarChar(50)
-  is_active   Boolean   @default(true)
-  login_count Int?      @default(0)
-  last_login  DateTime? @db.DateTime(0)
-  created_at  DateTime  @default(now()) @db.Timestamp(0)
-  requests    TransportRequest[]
+  id                 Int                    @id @default(autoincrement())
+  name               String                 @db.VarChar(100)
+  email              String                 @unique(map: "email") @db.VarChar(100)
+  password           String                 @db.VarChar(255)
+  role_id            Int?
+  role               String                 @db.VarChar(50)
+  is_active          Boolean                @default(true)
+  login_count        Int?                   @default(0)
+  last_login         DateTime?              @db.DateTime(0)
+  created_at         DateTime               @default(now()) @db.Timestamp(0)
+  requests           TransportRequest[]
+  approved_requests  TransportApproval[]
+  fleet_assignments  TransportFleet[]
+  security_logs      TransportSecurityLog[]
 
   @@index([role_id], map: "role_id")
   @@map("users")
@@ -32,70 +35,79 @@ model Role {
 }
 
 model TransportRequest {
-  id                    Int      @id @default(autoincrement())
+  id                    Int                    @id @default(autoincrement())
   user_id               Int
-  nama                  String   @db.VarChar(100)
-  jabatan               String?  @db.VarChar(100)
-  bagian                String?  @db.VarChar(100)
-  macam_kendaraan       String?  @db.VarChar(50)
+  nama                  String                 @db.VarChar(100)
+  jabatan               String?                @db.VarChar(100)
+  bagian                String?                @db.VarChar(100)
+  macam_kendaraan       String?                @db.VarChar(50)
   jumlah_penumpang      Int?
-  tujuan                String   @db.Text
-  keperluan             String   @db.Text
-  tanggal_jam_berangkat DateTime @db.DateTime(0)
-  lama_pakai            String?  @db.VarChar(50)
-  status                String?  @default("Pending Asmen") @db.VarChar(50)
-  barcode_pemohon       String?  @db.VarChar(255)
-  created_at            DateTime @default(now()) @db.Timestamp(0)
-  updated_at            DateTime @default(now()) @db.Timestamp(0)
-  user                  User     @relation(fields: [user_id], references: [id])
+  tujuan                String                 @db.Text
+  keperluan             String                 @db.Text
+  tanggal_jam_berangkat DateTime               @db.DateTime(0)
+  lama_pakai            String?                @db.VarChar(50)
+  status                String?                @default("Pending Asmen") @db.VarChar(50)
+  barcode_pemohon       String?                @db.VarChar(255)
+  created_at            DateTime               @default(now()) @db.Timestamp(0)
+  updated_at            DateTime               @default(now()) @db.Timestamp(0)
+  user                  User                   @relation(fields: [user_id], references: [id])
+  approvals             TransportApproval[]
+  fleet                 TransportFleet[]
+  securityLogs          TransportSecurityLog[]
 
   @@index([user_id], map: "user_id")
   @@map("transport_requests")
 }
 
 model TransportApproval {
-  id            Int       @id @default(autoincrement())
+  id            Int               @id @default(autoincrement())
   request_id    Int
   asmen_id      Int?
   is_approved   Boolean?
-  catatan       String?   @db.Text
-  approved_at   DateTime? @db.DateTime(0)
-  barcode_asmen String?   @db.VarChar(255)
+  catatan       String?           @db.Text
+  approved_at   DateTime?         @db.DateTime(0)
+  barcode_asmen String?           @db.VarChar(255)
+  request       TransportRequest @relation(fields: [request_id], references: [id])
+  asmen         User?             @relation(fields: [asmen_id], references: [id])
 
   @@index([request_id], map: "request_id")
   @@map("transport_approvals")
 }
 
 model TransportFleet {
-  id            Int      @id @default(autoincrement())
+  id            Int               @id @default(autoincrement())
   request_id    Int
   admin_id      Int?
-  mobil         String?  @db.VarChar(100)
-  plat_nomor    String?  @db.VarChar(20)
-  pengemudi     String?  @db.VarChar(100)
-  barcode_fleet String?  @db.VarChar(255)
-  created_at    DateTime @default(now()) @db.Timestamp(0)
+  mobil         String?           @db.VarChar(100)
+  plat_nomor    String?           @db.VarChar(20)
+  pengemudi     String?           @db.VarChar(100)
+  barcode_fleet String?           @db.VarChar(255)
+  created_at    DateTime          @default(now()) @db.Timestamp(0)
+  request       TransportRequest @relation(fields: [request_id], references: [id])
+  admin         User?             @relation(fields: [admin_id], references: [id])
 
   @@index([request_id], map: "request_id")
   @@map("transport_fleet")
 }
 
 model TransportSecurityLog {
-  id                    Int       @id @default(autoincrement())
+  id                    Int               @id @default(autoincrement())
   request_id            Int
   km_awal               Int?
   km_akhir              Int?
-  jam_berangkat         DateTime? @db.DateTime(0)
-  jam_kembali           DateTime? @db.DateTime(0)
-  lama_waktu            String?   @db.VarChar(50)
+  jam_berangkat         DateTime?         @db.DateTime(0)
+  jam_kembali           DateTime?         @db.DateTime(0)
+  lama_waktu            String?           @db.VarChar(50)
   jarak_tempuh          Int?
-  foto_driver_berangkat String?   @db.VarChar(255)
-  foto_km_berangkat     String?   @db.VarChar(255)
-  foto_driver_kembali   String?   @db.VarChar(255)
-  foto_km_kembali       String?   @db.VarChar(255)
+  foto_driver_berangkat String?           @db.VarChar(255)
+  foto_km_berangkat     String?           @db.VarChar(255)
+  foto_driver_kembali   String?           @db.VarChar(255)
+  foto_km_kembali       String?           @db.VarChar(255)
   logged_by             Int?
-  created_at            DateTime  @default(now()) @db.Timestamp(0)
-  updated_at            DateTime  @default(now()) @db.Timestamp(0)
+  created_at            DateTime          @default(now()) @db.Timestamp(0)
+  updated_at            DateTime          @default(now()) @db.Timestamp(0)
+  request               TransportRequest @relation(fields: [request_id], references: [id])
+  security              User?             @relation(fields: [logged_by], references: [id])
 
   @@index([request_id], map: "request_id")
   @@map("transport_security_logs")
