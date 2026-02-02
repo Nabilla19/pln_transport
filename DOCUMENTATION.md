@@ -1,106 +1,126 @@
-# DOKUMENTASI LENGKAP: SISTEM E-TRANSPORT PLN UP2D RIAU
+# DOKUMENTASI STRATEGIS & TEKNIS: E-TRANSPORT PLN UP2D RIAU
 
-Selamat datang di Dokumentasi Utama E-Transport. Dokumen ini dirancang sebagai panduan komprehensif untuk pengembang, admin, dan bahan materi Sidang Tugas Akhir yang menjelaskan alur, fitur, peran, dan struktur data secara detail.
-
----
-
-## 1. PENDAHULUAN & FITUR UTAMA
-Sistem E-Transport adalah platform digital untuk mengelola perjalanan dinas pegawai PLN UP2D Riau, mulai dari pengajuan hingga pemantauan unit kendaraan.
-
-### Fitur Unggulan:
-- **Live Camera Capture**: Pengambilan foto driver dan odometer secara real-time via WebRTC untuk validasi di pos security.
-- **Digital Approval Hierarchy**: Persetujuan berjenjang berdasarkan bidang kerja user.
-- **Fleet Management**: Pengaturan unit armada dan penugasan pengemudi yang terintegrasi.
-- **Automated Logging**: Kalkulasi otomatis jarak tempuh (KM) dan durasi perjalanan.
-- **Surat Jalan Digital**: Generate PDF surat jalan profesional dengan sistem validasi digital.
+Dokumen ini adalah panduan tunggal komprehensif yang menggabungkan aspek operasional dan arsitektur teknis sistem E-Transport. Dirancang sebagai materi utama untuk monitoring sistem dan bahan presentasi Sidang Tugas Akhir.
 
 ---
 
-## 2. PERAN & WEWENANG (ROLES & RESPONSIBILITIES)
-Sistem menggunakan **Role-Based Access Control (RBAC)** untuk memastikan setiap fungsi dijalankan oleh personil yang tepat:
+## 1. ARSITEKTUR FOLDER (FULL-STACK NEXT.JS)
+Sistem telah dimigrasikan sepenuhnya ke JavaScript (Next.js 16). Berikut adalah pembagian folder berdasarkan fungsinya:
 
-| Role | Tanggung Jawab Utama |
-| :--- | :--- |
-| **User Bidang** | Mengisi form pengajuan dari bidang masing-masing (Perencanaan, Pemeliharaan, Operasi, Fasop, dll). |
-| **Asmen (Assistant Manager)** | Melakukan verifikasi dan menyetujui/menolak pengajuan berdasarkan bidang masing-masing. |
-| **KKU (Kepala Keuangan & Umum)** | Menyetujui pengajuan lintas bidang dan bertindak sebagai manajer armada (Fleet Manager). |
-| **Admin Fleet** | Menugaskan unit mobil fisik dan pengemudi (driver) untuk permohonan yang telah disetujui. |
-| **Security** | Melakukan Check-In (saat mobil keluar) dan Check-Out (saat mobil kembali) dengan bukti foto kamera live. |
-| **Administrator** | Manajemen user (tambah/hapus/nonaktifkan) dan monitoring dashboard global. |
+### A. Backend (Logika & API)
+Seluruh logika server-side berada di direktori root dan sub-folder `api`:
+- **`/app/api/`**: Berisi seluruh endpoint API (Routes). Setiap folder di dalamnya merepresentasikan fungsi (Contoh: `api/requests`, `api/approval`).
+- **`/lib/prisma.js`**: Konfigurasi koneksi database menggunakan Prisma ORM.
+- **`/lib/auth.js`**: Logika autentikasi dan verifikasi JWT.
+- **`/prisma/schema.prisma`**: Definisi skema database dan relasi antar tabel.
+
+### B. Frontend (Antarmuka & UI)
+Bagian yang berinteraksi langsung dengan pengguna:
+- **`/app/`**: Folder utama untuk halaman (Pages). Contoh: `app/dashboard/`, `app/request/form/`.
+- **`/components/`**: Komponen UI yang dapat digunakan kembali (Sidebar, Navbar, Toast, Live Camera).
+- **`/public/`**: Asset statis seperti logo PLN, gambar latar belakang, dan folder `uploads` untuk foto operasional.
 
 ---
 
-## 3. ALUR KERJA SISTEM (WORKFLOW & APPROVALS)
+## 2. USE CASE DIAGRAM
+Menggambarkan interaksi antara aktor (personil) dengan fungsionalitas sistem.
 
-### A. Lifecycle Permohonan (Status Transitions)
-1.  **Pending Asmen**: Keadaan awal setelah pegawai melakukan submit form.
-2.  **Pending Fleet**: Keadaan setelah Asmen memberikan persetujuan (Approved).
-3.  **In Progress**: Keadaan setelah mobil dan driver ditugaskan, dan security klik "Berangkat" (Check-In).
-4.  **Selesai**: Keadaan akhir setelah mobil kembali dan security klik "Kembali" (Check-Out).
-5.  **Ditolak**: Keadaan jika Asmen atau KKU tidak memberikan izin perjalanan.
+```mermaid
+usecaseDiagram
+    actor "Pegawai/User" as U
+    actor "Asmen/KKU" as A
+    actor "Admin Fleet" as F
+    actor "Security" as S
+    actor "Administrator" as AD
 
-### B. Flowchart Alur Sistem (Activity Diagram)
+    U --> (Input Pengajuan)
+    U --> (Cek Status)
+    A --> (Verifikasi & Approval)
+    F --> (Penugasan Mobil & Driver)
+    S --> (Check-In: Foto KM & Driver)
+    S --> (Check-Out: Foto KM & Driver)
+    AD --> (Manajemen Akun)
+    AD --> (Monitoring Dashboard)
+```
+
+---
+
+## 3. FLOWCHART SISTEM (ACTIVITY DIAGRAM)
+Alur proses bisnis dari awal pengajuan hingga kendaraan kembali ke kantor.
 
 ```mermaid
 graph TD
-    A[Pegawai: Input Form Pengajuan] --> B{Persetujuan Asmen/KKU}
-    B -- Ditolak --> C[Selesai: Status Ditolak]
-    B -- Disetujui --> D[Manajemen Fleet: Pilih Mobil & Driver]
-    D --> E[Status: Pending Fleet]
-    E --> F[Security: Check-In / Berangkat]
-    F --> G[Cetak Surat Jalan & Status: In Progress]
-    G --> H[Operasional Lapangan]
-    H --> I[Security: Check-Out / Kembali]
-    I --> J[Kalkulasi KM & Waktu]
-    J --> K[Status: Selesai]
-    K --> L[Update Mobil: Available]
+    Start([Mulai]) --> Form[Pegawai: Isi Form Pengajuan]
+    Form --> Appr{Persetujuan Asmen?}
+    Appr -- Ditolak --> End([Selesai: Ditolak])
+    Appr -- Disetujui --> Fleet[Fleet: Pilih Unit & Driver]
+    Fleet --> SecIn[Security: Check-In & Foto Live]
+    SecIn --> Trip[Operasional Perjalanan]
+    Trip --> SecOut[Security: Check-Out & Foto Akhir]
+    SecOut --> Finish([Selesai: Mobil Available])
 ```
 
-### C. Detail Proses Approval
-- **Sistem Cerdas**: Permohonan dari Bagian Perencanaan akan muncul secara otomatis di dashboard Asmen Perencanaan.
-- **Validasi Digital**: Setiap persetujuan tercatat secara permanen dalam database dengan timestamp dan identitas penyetuju yang otentik.
+---
+
+## 4. API SEQUENCE DIAGRAMS
+Detail teknis urutan pesan antar objek/sistem untuk setiap proses utama.
+
+### A. Autentikasi (Login)
+```mermaid
+sequenceDiagram
+    participant Client as Browser (UI)
+    participant API as API /auth/login
+    participant DB as MySQL (Prisma)
+
+    Client->>API: Kirim Email & Password
+    API->>DB: Cari User berdasarkan Email
+    DB-->>API: Data User & Password Terenkripsi
+    API->>API: Validasi Password (Bcrypt)
+    API->>API: Generate Token JWT
+    API-->>Client: Token & Role (Success)
+```
+
+### B. Pengajuan Transport (Request)
+```mermaid
+sequenceDiagram
+    participant Client as Browser (UI)
+    participant API as API /requests
+    participant DB as MySQL (Prisma)
+
+    Client->>API: POST Data Perjalanan + Token
+    API->>API: Verifikasi JWT
+    API->>DB: Insert ke tabel transport_requests
+    DB-->>API: ID Request Baru
+    API-->>Client: Notification Success
+```
+
+### C. Operasional Security (Live Camera Capture)
+```mermaid
+sequenceDiagram
+    participant Client as Browser (Security UI)
+    participant Device as Camera (WebRTC)
+    participant API as API /security/log
+    participant DB as MySQL (Prisma)
+
+    Client->>Device: Ambil Foto Live (Blob/JPEG)
+    Client->>API: Kirim Foto + KM + ID Request
+    API->>API: Simpan File ke Storage /public
+    API->>DB: Update transport_security_logs
+    API->>DB: Update transport_vehicles (Status)
+    DB-->>API: Update Berhasil
+    API-->>Client: Berhasil Check-In/Out
+```
 
 ---
 
-## 4. STRUKTUR DATABASE (DATA REQUIREMENTS)
-Sistem ini menggunakan basis data relasional MySQL dengan skema yang terintegrasi:
-
-### A. Tabel Utama E-Transport:
-- **`transport_requests`**: Menyimpan data dasar perjalanan (Nama, Tujuan, Keperluan, Tanggal Berangkat).
-- **`transport_approvals`**: Menyimpan log persetujuan (ID Asmen, Keputusan, Catatan, Timestamp).
-- **`transport_fleet`**: Menyimpan penugasan unit (Mobil, Plat Nomor, Nama Pengemudi).
-- **`transport_security_logs`**: Menyimpan data operasional real-time (KM Awal/Akhir, Jam Berangkat/Kembali, Foto Odometer).
-- **`transport_vehicles`**: Master data armada kantor.
-
-### B. Relasi Data:
-- Primary Key (PK) `id` pada `transport_requests` menjadi Foreign Key (FK) `request_id` di tabel log (`approvals`, `fleet`, `security`).
-- Relasi antara `transport_fleet` dan `transport_vehicles` dihubungkan melalui `plat_nomor`.
+## 5. REKAP TEKNOLOGI (TECH STACK)
+Sistem ini dibangun dengan pondasi teknologi terkini untuk menjamin skalabilitas:
+1.  **Framework**: Next.js 16.1 (Modern JavaScript Platform).
+2.  **Language**: JavaScript / Node.js.
+3.  **ORM**: Prisma (Type-safe Database Access).
+4.  **Database**: MySQL (Reliable Data Storage).
+5.  **Design**: Vanilla CSS & Tailwind CSS (Premium UI Look).
+6.  **Real-time Capture**: WebRTC API.
 
 ---
-
-## 5. MANAJEMEN KENDARAAN (VEHICLE DATA)
-Data mobil dikelola secara dinamis untuk efisiensi operasional.
-
-### Atribut Data Mobil (`transport_vehicles`):
-- **Brand & Model**: Merk dan tipe spesifik (Contoh: Toyota Innova, Daihatsu Terios).
-- **Plat Nomor**: Identitas unik kendaraan.
-- **Status Kendaraan**:
-    - `Available`: Siap digunakan.
-    - `In Use`: Sedang digunakan dalam perjalanan dinas.
-
-### Logika Ketersediaan:
-Saat security melakukan **Check-In**, status mobil di database otomatis berubah menjadi `In Use`.
-Saat security melakukan **Check-Out**, status mobil otomatis kembali menjadi `Available`.
-
----
-
-## 6. TEKNOLOGI & METODOLOGI (DEVELOPMENT SPECS)
-Sistem ini telah dimigrasikan ke arsitektur modern untuk performa dan keamanan maksimal:
-- **Framework**: **Next.js 15 (Full-Stack)** dengan App Router.
-- **Database ORM**: **Prisma**, memberikan tipe data yang aman (Type-safe) dan query efisien ke MySQL.
-- **Styling**: **Tailwind CSS**, dengan desain **Light Theme** yang premium dan responsif.
-- **Kamera**: **React hooks + WebRTC API** untuk pengambilan foto live di berbagai perangkat.
-- **Security**: **JWT (JSON Web Token)** untuk autentikasi API dan **Bcrypt** untuk enkripsi password.
-
----
-*Dokumentasi ini diperbarui pada Januari 2026 sebagai panduan final sistem E-Transport PLN UP2D Riau berbasis Full-Stack Next.js.*
+*Dokumen ini merupakan satu-satunya acuan resmi (Single Source of Truth) untuk sistem E-Transport PLN UP2D Riau.*
