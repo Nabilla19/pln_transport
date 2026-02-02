@@ -1,5 +1,4 @@
-"use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import Shell from '@/components/Shell';
@@ -10,7 +9,7 @@ import "react-datepicker/dist/react-datepicker.css";
 
 registerLocale('id', id);
 
-export default function RequestPage() {
+function RequestFormContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const editId = searchParams.get('edit');
@@ -341,5 +340,13 @@ export default function RequestPage() {
                 />
             )}
         </Shell>
+    );
+}
+
+export default function RequestPage() {
+    return (
+        <Suspense fallback={<div className="p-12 text-center">Loading...</div>}>
+            <RequestFormContent />
+        </Suspense>
     );
 }

@@ -1,11 +1,10 @@
-"use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import Shell from '@/components/Shell';
 
-export default function MyRequestsPage() {
+function MyRequestsContent() {
     const [requests, setRequests] = useState([]);
     const [user, setUser] = useState(null);
     const searchParams = useSearchParams();
@@ -39,7 +38,8 @@ export default function MyRequestsPage() {
         }
     };
 
-    const canSeeAll = user && ['Asmen', 'KKU', 'Admin', 'Security', 'Admin Fleet'].some(r => user.role.includes(r));
+    const user_role = user?.role || '';
+    const canSeeAll = user && ['Asmen', 'KKU', 'Admin', 'Security', 'Admin Fleet'].some(r => user_role.includes(r));
 
     return (
         <Shell>
@@ -116,5 +116,13 @@ export default function MyRequestsPage() {
                 </div>
             </div>
         </Shell>
+    );
+}
+
+export default function MyRequestsPage() {
+    return (
+        <Suspense fallback={<div className="p-12 text-center">Loading...</div>}>
+            <MyRequestsContent />
+        </Suspense>
     );
 }
