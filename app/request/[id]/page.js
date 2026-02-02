@@ -1,0 +1,452 @@
+"use client";
+import React, { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { api } from '@/lib/api';
+import Link from 'next/link';
+import CameraCapture from '@/components/CameraCapture';
+import Shell from '@/components/Shell';
+import Toast from '@/components/Toast';
+
+export default function RequestDetailPage() {
+    const router = useRouter();
+    const { id } = useParams();
+    const [request, setRequest] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null);
+    const [catatan, setCatatan] = useState('');
+    const [vehicles, setVehicles] = useState([]);
+    const [fleetData, setFleetData] = useState({
+        mobil: '',
+        platNomor: '',
+        pengemudi: ''
+    });
+    const [securityData, setSecurityData] = useState({
+        km: '',
+        jam: new Date().toISOString().slice(0, 16),
+        fotoDriver: null,
+        fotoKm: null
+    });
+    const [isEditingApprover, setIsEditingApprover] = useState(false);
+    const [editForm, setEditForm] = useState(null);
+    const [toast, setToast] = useState(null);
+
+    const showToast = (message, type = 'success') => {
+        setToast({ message, type });
+    };
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) setUser(JSON.parse(storedUser));
+
+        const fetchRequest = async () => {
+            if (!id) return;
+            try {
+                const data = await api.get(`/api/requests/${id}`);
+                setRequest(data);
+            } catch (err) {
+                console.error("Detail Fetch Error:", err);
+                showToast(`⚠️ Gagal mengambil data permohonan: ${err.message}`, 'error');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        const fetchVehicles = async () => {
+            const isWaitingFleet = ['Menunggu Surat Jalan', 'Pending Fleet'].includes(request?.status);
+            if (isWaitingFleet && request?.macam_kendaraan) {
+                try {
+                    const data = await api.get(`/api/fleet?brand=${request.macam_kendaraan}`);
+                    setVehicles(data);
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        };
+
+        fetchRequest();
+        fetchVehicles();
+    }, [id, request?.status]);
+
+    const handleApproval = async () => {
+        try {
+            const payload = {
+                requestId: id,
+                action: 'approve',
+                catatan,
+                // Include edited fields if they were changed
+                ...(editForm || {})
+            };
+            await api.post('/api/approval', payload);
+            showToast('✅ Berhasil: Permohonan telah diperiksa dan disetujui', 'success');
+            setTimeout(() => window.location.reload(), 2000);
+        } catch (err) {
+            showToast(`❌ ${err.message}`, 'error');
+        }
+    };
+
+    const handleFleetAssignment = async (e) => {
+        e.preventDefault();
+        try {
+            await api.post('/api/fleet', {
+                requestId: id,
+                ...fleetData
+            });
+            showToast('✅ Berhasil: Armada telah ditugaskan', 'success');
+            setTimeout(() => window.location.reload(), 2000);
+        } catch (err) {
+            showToast(`❌ ${err.message}`, 'error');
+        }
+    };
+
+    const handleSecurityLog = async (type) => {
+        try {
+            await api.post('/api/security', {
+                requestId: id,
+                type,
+                ...securityData
+            });
+            showToast(`✅ Berhasil: Data ${type === 'checkin' ? 'Keberangkatan' : 'Kepulangan'} tercatat`, 'success');
+            setTimeout(() => window.location.reload(), 2000);
+        } catch (err) {
+            showToast(`❌ ${err.message}`, 'error');
+        }
+    };
+
+    if (loading) return <div className="min-h-screen flex items-center justify-center text-white">Memuat...</div>;
+    if (!request) return <div className="min-h-screen flex items-center justify-center text-white">Data tidak ditemukan</div>;
+
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'Pending Asmen/KKU':
+            case 'Perlu Revisi': return 'text-amber-700 bg-amber-50 border border-amber-200';
+            case 'Menunggu Surat Jalan': return 'text-sky-700 bg-sky-50 border border-sky-200';
+            case 'Ready': return 'text-indigo-700 bg-indigo-50 border border-indigo-200';
+            case 'In Progress': return 'text-purple-700 bg-purple-50 border border-purple-200';
+            case 'Selesai': return 'text-emerald-700 bg-emerald-50 border border-emerald-200';
+            default: return 'text-slate-600 bg-slate-50 border border-slate-200';
+        }
+    };
+
+    const isAuthorizedApprover = () => {
+        if (!user || !request) return false;
+
+        const mapping = {
+            'Asmen Perencanaan': 'Perencanaan',
+            'Asmen Pemeliharaan': 'Pemeliharaan',
+            'Asmen Operasi': 'Operasi',
+            'Asmen Fasilitas Operasi': 'Fasilitas Operasi'
+        };
+
+        const asmenFields = Object.values(mapping);
+
+        if (mapping[user.role] === request.bagian) return true;
+
+        // KKU approves if it's NOT one of the 4 asmen fields
+        if (user.role === 'KKU' && !asmenFields.includes(request.bagian)) return true;
+
+        return false;
+    };
+
+    const handleEditChange = (name, value) => {
+        if (!editForm) {
+            setEditForm({ ...request, [name]: value });
+        } else {
+            setEditForm({ ...editForm, [name]: value });
+        }
+    };
+
+    return (
+        <Shell>
+            <div className="min-h-screen p-4 md:p-8 lg:p-12 bg-white font-primary">
+                <div className="max-w-4xl mx-auto">
+                    <div className="flex items-center justify-between mb-8 overflow-x-auto">
+                        <div>
+                            <Link href="/my-requests" className="text-slate-500 hover:text-slate-900 mb-2 inline-block font-bold">← Kembali</Link>
+                            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Detail Permohonan #{id}</h1>
+                            <div className="flex items-center gap-3 mt-1">
+                                <p className="text-slate-500 font-medium">Status: <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getStatusColor(request.status)}`}>{request.status}</span></p>
+                                {request.status === 'Pending Asmen/KKU' && (
+                                    <span className="text-slate-400 text-xs font-medium italic">Menunggu pemeriksaan Bidang {request.bagian}</span>
+                                )}
+                            </div>
+                        </div>
+                        {['Ready', 'In Progress', 'Selesai'].includes(request.status) && (
+                            <Link
+                                href={`/request/${id}/print`}
+                                target="_blank"
+                                className="btn-primary bg-slate-700 hover:bg-slate-600 animate-in fade-in slide-in-from-right-2 duration-300"
+                            >
+                                🖨️ Cetak Surat Jalan
+                            </Link>
+                        )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        {/* Applicant Info */}
+                        <div className="glass-card p-6 bg-white shadow-sm border border-slate-100">
+                            <h2 className="text-lg font-bold text-sky-700 mb-4 tracking-tight">Informasi Pemohon</h2>
+                            <div className="space-y-4 text-sm font-medium">
+                                <div className="flex justify-between"><span className="text-slate-400">Nama</span> <span className="text-slate-900 font-bold">{request.nama}</span></div>
+                                <div className="flex justify-between"><span className="text-slate-400">Jabatan</span> <span className="text-slate-800">{request.jabatan}</span></div>
+                                <div className="flex justify-between"><span className="text-slate-400">Bagian</span> <span className="text-slate-800">{request.bagian}</span></div>
+                            </div>
+                        </div>
+
+                        {/* Travel Details */}
+                        <div className="glass-card p-6 bg-white shadow-sm border border-slate-100">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-lg font-bold text-sky-700 tracking-tight">Detail Perjalanan</h2>
+                                {['Pending Asmen/KKU', 'Perlu Revisi'].includes(request.status) && isAuthorizedApprover() && (
+                                    <button
+                                        onClick={() => setIsEditingApprover(!isEditingApprover)}
+                                        className="text-sky-600 hover:text-sky-800 text-xs font-bold"
+                                    >
+                                        {isEditingApprover ? 'Batal Edit' : '📝 Edit Data'}
+                                    </button>
+                                )}
+                            </div>
+                            <div className="space-y-4 text-sm font-medium">
+                                <div className="flex flex-col">
+                                    <span className="text-slate-400 mb-1">Tujuan</span>
+                                    {isEditingApprover ? (
+                                        <input
+                                            value={editForm?.tujuan ?? request.tujuan}
+                                            onChange={(e) => handleEditChange('tujuan', e.target.value)}
+                                            className="p-2 border rounded bg-slate-50 text-slate-900 font-bold"
+                                        />
+                                    ) : (
+                                        <span className="text-slate-900 font-bold">{request.tujuan}</span>
+                                    )}
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-slate-400 mb-1">Keperluan</span>
+                                    {isEditingApprover ? (
+                                        <textarea
+                                            value={editForm?.keperluan ?? request.keperluan}
+                                            onChange={(e) => handleEditChange('keperluan', e.target.value)}
+                                            className="p-2 border rounded bg-slate-50 text-slate-800"
+                                            rows="2"
+                                        />
+                                    ) : (
+                                        <span className="text-slate-800">{request.keperluan}</span>
+                                    )}
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-slate-400">Waktu</span>
+                                    <span className="text-slate-900 font-mono font-bold">{new Date(request.tanggal_jam_berangkat).toLocaleString()}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Logistics */}
+                    <div className="glass-card p-6 mb-6 bg-white shadow-sm border border-slate-100">
+                        <h2 className="text-lg font-bold text-sky-700 mb-4 tracking-tight">Logistik & Armada</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm font-medium">
+                            <div className="p-3 bg-slate-50 rounded-xl">
+                                <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-widest mb-1">Jenis Kendaraan</span>
+                                {isEditingApprover ? (
+                                    <select
+                                        value={editForm?.macam_kendaraan ?? request.macam_kendaraan}
+                                        onChange={(e) => handleEditChange('macam_kendaraan', e.target.value)}
+                                        className="w-full bg-transparent font-bold text-slate-900 border-b border-sky-300 focus:outline-none"
+                                    >
+                                        <option value="Toyota">Toyota</option>
+                                        <option value="Daihatsu">Daihatsu</option>
+                                    </select>
+                                ) : (
+                                    <span className="text-slate-900 font-bold">{request.macam_kendaraan || '-'}</span>
+                                )}
+                            </div>
+                            <div className="p-3 bg-slate-50 rounded-xl">
+                                <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-widest mb-1">Penumpang</span>
+                                {isEditingApprover ? (
+                                    <input
+                                        type="number"
+                                        value={editForm?.jumlah_penumpang ?? request.jumlah_penumpang}
+                                        onChange={(e) => handleEditChange('jumlah_penumpang', e.target.value)}
+                                        className="w-full bg-transparent font-bold text-slate-900 border-b border-sky-300 focus:outline-none"
+                                    />
+                                ) : (
+                                    <span className="text-slate-900 font-bold">{request.jumlah_penumpang} Orang</span>
+                                )}
+                            </div>
+                            <div className="p-3 bg-slate-50 rounded-xl">
+                                <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-widest mb-1">Estimasi Pakai</span>
+                                <span className="text-slate-900 font-bold">{request.lama_pakai || '-'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Workflow Status */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {/* Approval */}
+                        <div className={`glass-card p-4 border-l-4 bg-white shadow-sm border-slate-100 ${request.approvals?.[0]?.is_approved ? 'border-l-emerald-500' : 'border-l-amber-500'}`}>
+                            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Persetujuan Asmen</h3>
+                            <p className="text-slate-900 text-sm font-bold">{request.approvals?.[0]?.is_approved ? 'Disetujui' : 'Menunggu'}</p>
+                            {request.approvals?.[0]?.catatan && <p className="text-xs text-slate-500 mt-1 italic font-medium">"{request.approvals[0].catatan}"</p>}
+                        </div>
+
+                        {/* Fleet */}
+                        <div className={`glass-card p-4 border-l-4 bg-white shadow-sm border-slate-100 ${request.fleet?.[0] ? 'border-l-sky-500' : 'border-l-slate-200'}`}>
+                            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Penugasan Kendaraan</h3>
+                            {request.fleet?.[0] ? (
+                                <div className="text-xs space-y-1 font-medium">
+                                    <p className="text-slate-900 font-bold">{request.fleet[0].mobil} ({request.fleet[0].plat_nomor})</p>
+                                    <p className="text-slate-500">Driver: {request.fleet[0].pengemudi}</p>
+                                </div>
+                            ) : (
+                                <p className="text-slate-400 text-sm italic font-medium">Belum ditentukan</p>
+                            )}
+                        </div>
+
+                        {/* Security */}
+                        <div className={`glass-card p-4 border-l-4 bg-white shadow-sm border-slate-100 ${request.securityLogs?.[0]?.jam_berangkat ? 'border-l-purple-500' : 'border-l-slate-200'}`}>
+                            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Keamanan (Log KM)</h3>
+                            {request.securityLogs?.[0] ? (
+                                <div className="text-xs space-y-1 font-medium">
+                                    <p className="text-slate-900 font-bold">KM Awal: {request.securityLogs[0].km_awal || '-'}</p>
+                                    <p className="text-slate-900 font-bold">KM Akhir: {request.securityLogs[0].km_akhir || '-'}</p>
+                                </div>
+                            ) : (
+                                <p className="text-slate-400 text-sm italic font-medium">Belum tercatat</p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Approval Action for Authorized Roles only */}
+                    {['Pending Asmen/KKU', 'Perlu Revisi'].includes(request.status) && isAuthorizedApprover() && (
+                        <div className="glass-card p-6 mt-8 border-t-4 border-emerald-500 bg-white shadow-xl">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-lg font-bold text-slate-900 tracking-tight">Pemeriksaan & Persetujuan</h2>
+                                {isEditingApprover && <span className="text-rose-500 text-xs font-bold animate-pulse">● Sedang Mengubah Data Perjalanan</span>}
+                            </div>
+                            <p className="text-slate-500 text-sm mb-4">Sebagai <strong>{user?.role}</strong>, Anda bertanggung jawab atas kebenaran data di atas sebelum menyetujui.</p>
+                            <textarea
+                                value={catatan}
+                                onChange={(e) => setCatatan(e.target.value)}
+                                className="glass-input w-full p-4 rounded-xl mb-4 bg-slate-50 border-slate-200"
+                                placeholder="Tambahkan catatan untuk pemohon..."
+                                rows="3"
+                            ></textarea>
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={handleApproval}
+                                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-95"
+                                >
+                                    ✅ Simpan & Setujui Permohonan
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Fleet Assignment for Authorized Roles */}
+                    {['Menunggu Surat Jalan', 'Pending Fleet'].includes(request.status) && user && (['Admin Fleet', 'KKU', 'Admin'].includes(user.role)) && (
+                        <div className="glass-card p-6 mt-8 border-t-4 border-sky-500 bg-white shadow-xl">
+                            <h2 className="text-lg font-bold text-slate-900 mb-4 tracking-tight">Penerbitan Surat Jalan</h2>
+                            <form onSubmit={handleFleetAssignment} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-2">Pilih Kendaraan ({request.macam_kendaraan})</label>
+                                    <select
+                                        className="glass-input w-full p-4 rounded-xl bg-slate-50 border-slate-200 text-slate-900 font-bold"
+                                        required
+                                        onChange={(e) => {
+                                            const v = vehicles.find(v => v.plat_nomor === e.target.value);
+                                            setFleetData(prev => ({ ...prev, mobil: v ? `${v.brand} ${v.model}` : '', platNomor: e.target.value }));
+                                        }}
+                                    >
+                                        <option value="">-- Pilih Unit Tersedia --</option>
+                                        {vehicles.map(v => (
+                                            <option key={v.id} value={v.plat_nomor}>{v.brand} {v.model} - {v.plat_nomor}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-2">Nama Pengemudi</label>
+                                    <input
+                                        type="text"
+                                        className="glass-input w-full p-4 rounded-xl bg-slate-50 border-slate-200 text-slate-900 font-bold"
+                                        placeholder="Masukkan nama driver..."
+                                        required
+                                        value={fleetData.pengemudi}
+                                        onChange={(e) => setFleetData(prev => ({ ...prev, pengemudi: e.target.value }))}
+                                    />
+                                </div>
+                                <button type="submit" className="btn-primary w-full py-4 rounded-xl shadow-lg font-bold text-lg active:scale-[0.98] transition-all">
+                                    🚀 Konfirmasi & Terbitkan Surat Jalan
+                                </button>
+                            </form>
+                        </div>
+                    )}
+
+                    {/* Security Logging for Authorized Roles */}
+                    {(['Ready', 'In Progress'].includes(request.status)) && user && (user.role === 'Security') && (
+                        <div className="glass-card p-6 mt-8 border-t-4 border-slate-900 bg-white shadow-xl">
+                            <h2 className="text-lg font-bold text-slate-900 mb-2 tracking-tight">
+                                {request.status === 'Ready' ? 'Pos Security: Keberangkatan' : 'Pos Security: Kepulangan'}
+                            </h2>
+                            <p className="text-slate-500 text-sm mb-6 font-medium">Dokumentasikan KM dan Pengemudi sebelum kendaraan bergerak.</p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <CameraCapture
+                                    label="Foto Pengemudi"
+                                    onCapture={(img) => setSecurityData(prev => ({ ...prev, fotoDriver: img }))}
+                                />
+                                <CameraCapture
+                                    label="Foto Odometer (KM)"
+                                    onCapture={(img) => setSecurityData(prev => ({ ...prev, fotoKm: img }))}
+                                />
+                            </div>
+
+                            {securityData.fotoDriver && securityData.fotoKm ? (
+                                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-bold text-slate-700 mb-2">Kilometer (Lari KM)</label>
+                                            <input
+                                                type="number"
+                                                className="glass-input w-full p-4 rounded-xl bg-slate-50 border-slate-200 text-slate-900 font-bold"
+                                                placeholder="Masukkan angka KM..."
+                                                value={securityData.km}
+                                                onChange={(e) => setSecurityData(prev => ({ ...prev, km: e.target.value }))}
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-slate-700 mb-2">Waktu Lokal</label>
+                                            <input
+                                                type="datetime-local"
+                                                className="glass-input w-full p-4 rounded-xl bg-slate-50 border-slate-200 text-slate-900 font-bold"
+                                                value={securityData.jam}
+                                                onChange={(e) => setSecurityData(prev => ({ ...prev, jam: e.target.value }))}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => handleSecurityLog(request.status === 'Ready' ? 'checkin' : 'checkout')}
+                                        className="btn-primary w-full py-5 text-xl rounded-xl shadow-xl font-bold active:scale-[0.98] transition-all"
+                                    >
+                                        {request.status === 'Ready' ? '✅ Konfirmasi Keberangkatan' : '🏁 Konfirmasi Kedatangan'}
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="text-center p-8 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 text-slate-400 text-sm font-bold">
+                                    📸 Harap ambil DATA FOTO untuk memunculkan formulir input.
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
+        </Shell>
+    );
+}

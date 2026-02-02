@@ -1,19 +1,33 @@
-# CodeIgniter 3 Gitignore
-/vendor/
-/user_guide/
-application/cache/*
-application/logs/*
-!application/cache/index.html
-!application/logs/index.html
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
 
-# Database and sensitive config
-application/config/database.php
-application/config/google_service_account.json
+# testing
+/coverage
 
-# Evidence Photos
-uploads/transport/*
-!uploads/transport/index.html
+# next.js
+/.next/
+/out/
 
-# OS Files
+# production
+/build
+
+# misc
 .DS_Store
-Thumbs.db
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
