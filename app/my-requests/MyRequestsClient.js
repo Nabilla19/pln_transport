@@ -23,7 +23,7 @@ export default function MyRequestsClient() {
 
                 // Mark notifications as read if viewing approval or security
                 if (filter === 'approval' || filter === 'security') {
-                    await fetch('/api/notifications', { method: 'PUT' });
+                    await api.put('/api/notifications');
                 }
             } catch (err) {
                 console.error(err);

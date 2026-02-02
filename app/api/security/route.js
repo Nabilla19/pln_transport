@@ -24,15 +24,24 @@ export async function POST(req) {
         if (!request) return NextResponse.json({ message: 'Request Not Found' }, { status: 404 });
 
         const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'transport');
-        if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+        try {
+            if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+        } catch (e) {
+            console.warn("Upload directory creation failed (Expected on Vercel)");
+        }
 
         const saveImage = (base64, prefix) => {
-            if (!base64 || !base64.includes('base64,')) return null;
-            const data = base64.split(';base64,').pop();
-            const fileName = `${prefix}_${requestId}_${Date.now()}.jpg`;
-            const filePath = path.join(uploadDir, fileName);
-            fs.writeFileSync(filePath, data, { encoding: 'base64' });
-            return `/uploads/transport/${fileName}`;
+            try {
+                if (!base64 || !base64.includes('base64,')) return null;
+                const data = base64.split(';base64,').pop();
+                const fileName = `${prefix}_${requestId}_${Date.now()}.jpg`;
+                const filePath = path.join(uploadDir, fileName);
+                fs.writeFileSync(filePath, data, { encoding: 'base64' });
+                return `/uploads/transport/${fileName}`;
+            } catch (err) {
+                console.error("FS Error (Likely Vercel Read-Only):", err.message);
+                return null; // Fallback to null path instead of crashing
+            }
         };
 
         if (type === 'checkin') {

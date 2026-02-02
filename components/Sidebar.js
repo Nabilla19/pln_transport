@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { api } from '@/lib/api';
 
 export default function Sidebar() {
     const pathname = usePathname();
@@ -22,11 +23,8 @@ export default function Sidebar() {
 
         const fetchNotifications = async () => {
             try {
-                const response = await fetch('/api/notifications');
-                if (response.ok) {
-                    const data = await response.json();
-                    setUnreadCount(data.length);
-                }
+                const data = await api.get('/api/notifications');
+                setUnreadCount(data.length);
             } catch (err) {
                 console.error('Failed to fetch notifications:', err);
             }
