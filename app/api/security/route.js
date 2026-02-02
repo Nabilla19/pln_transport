@@ -14,7 +14,14 @@ export async function POST(req) {
     }
 
     try {
-        const { requestId, type, km, jam, fotoDriver, fotoKm } = await req.json();
+        const body = await req.json();
+        const { requestId, type, km, jam, fotoDriver, fotoKm } = body;
+
+        console.log("Security Post Body:", { requestId, type, km });
+
+        if (!requestId || isNaN(parseInt(requestId))) {
+            return NextResponse.json({ message: 'Invalid Request ID' }, { status: 400 });
+        }
 
         const request = await prisma.transportRequest.findUnique({
             where: { id: parseInt(requestId) },
@@ -48,12 +55,14 @@ export async function POST(req) {
             const pathDriver = saveImage(fotoDriver, 'driver_in');
             const pathKm = saveImage(fotoKm, 'km_in');
 
+            const kmVal = parseInt(km) || 0;
+
             await prisma.$transaction([
                 prisma.transportSecurityLog.create({
                     data: {
                         request_id: parseInt(requestId),
-                        km_awal: parseInt(km),
-                        jam_berangkat: new Date(jam),
+                        km_awal: kmVal,
+                        jam_berangkat: jam ? new Date(jam) : new Date(),
                         foto_driver_berangkat: pathDriver,
                         foto_km_berangkat: pathKm,
                         logged_by: user.id
@@ -78,8 +87,8 @@ export async function POST(req) {
             const pathDriver = saveImage(fotoDriver, 'driver_out');
             const pathKm = saveImage(fotoKm, 'km_out');
 
-            const kmAkhir = parseInt(km);
-            const jarak = kmAkhir - existingLog.km_awal;
+            const kmAkhir = parseInt(km) || 0;
+            const jarak = Math.max(0, kmAkhir - (existingLog.km_awal || 0));
 
             const jamMasuk = new Date(jam);
             const diff = Math.abs(jamMasuk - existingLog.jam_berangkat);
@@ -117,7 +126,7 @@ export async function POST(req) {
             return NextResponse.json({ message: 'Check-Out Berhasil. Status: Selesai.' });
         }
     } catch (err) {
-        console.error(err);
-        return NextResponse.json({ message: 'Server Error' }, { status: 500 });
+        console.error("API Error [POST /api/security]:", err);
+        return NextResponse.json({ message: 'Server Error', error: err.message }, { status: 500 });
     }
 }
