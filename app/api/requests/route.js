@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyAuth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { notifyRoles } from '@/lib/notifications';
 
 export async function GET(req) {
     const user = await verifyAuth(req);
@@ -62,6 +63,21 @@ export async function POST(req) {
                 status: 'Pending Asmen/KKU',
                 barcode_pemohon: barcode
             }
+        });
+
+        // Notify relevant roles
+        const targetRoles = ['KKU', 'Security'];
+        // Also notify the specific Asmen for the department
+        if (body.bagian) {
+            targetRoles.push(`Asmen ${body.bagian}`);
+        }
+
+        await notifyRoles(targetRoles, {
+            type: 'Permohonan Baru',
+            module: 'Transport',
+            recordId: newRequest.id,
+            recordName: newRequest.nama,
+            deskripsi: `Permohonan baru dari ${newRequest.nama} tujuan ${newRequest.tujuan}`
         });
 
         return NextResponse.json(newRequest);

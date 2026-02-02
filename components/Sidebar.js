@@ -8,6 +8,7 @@ export default function Sidebar() {
     const router = useRouter();
     const [user, setUser] = useState(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
     const searchParams = useSearchParams();
     const currentFilter = searchParams.get('filter');
 
@@ -15,6 +16,26 @@ export default function Sidebar() {
         const storedUser = localStorage.getItem('user');
         if (storedUser) setUser(JSON.parse(storedUser));
     }, []);
+
+    useEffect(() => {
+        if (!user) return;
+
+        const fetchNotifications = async () => {
+            try {
+                const response = await fetch('/api/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    setUnreadCount(data.length);
+                }
+            } catch (err) {
+                console.error('Failed to fetch notifications:', err);
+            }
+        };
+
+        fetchNotifications();
+        const interval = setInterval(fetchNotifications, 60000); // Polling every 1 minute
+        return () => clearInterval(interval);
+    }, [user]);
 
     const logout = () => {
         localStorage.removeItem('token');
@@ -69,13 +90,20 @@ export default function Sidebar() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isItemActive(item)
+                        className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all ${isItemActive(item)
                             ? 'bg-sky-500/10 text-sky-600 shadow-sm border border-sky-400/20'
                             : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                             }`}
                     >
-                        <span className="text-lg">{item.icon}</span>
-                        <span className="font-semibold">{item.label}</span>
+                        <div className="flex items-center gap-3">
+                            <span className="text-lg">{item.icon}</span>
+                            <span className="font-semibold">{item.label}</span>
+                        </div>
+                        {unreadCount > 0 && (item.filter === 'approval' || item.filter === 'security') && (
+                            <span className="flex items-center justify-center w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full shadow-sm animate-pulse">
+                                {unreadCount}
+                            </span>
+                        )}
                     </Link>
                 ))}
             </nav>

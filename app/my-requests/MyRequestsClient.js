@@ -20,6 +20,11 @@ export default function MyRequestsClient() {
                 const url = filter ? `/api/requests?filter=${filter}` : '/api/requests';
                 const data = await api.get(url);
                 setRequests(data);
+
+                // Mark notifications as read if viewing approval or security
+                if (filter === 'approval' || filter === 'security') {
+                    await fetch('/api/notifications', { method: 'PUT' });
+                }
             } catch (err) {
                 console.error(err);
             }
