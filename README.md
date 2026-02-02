@@ -1,26 +1,46 @@
 # E-Transport PLN UP2D RIAU
 
-Sistem Pengelolaan Kendaraan Operasional untuk PLN UP2D Riau.
+Sistem Manajemen Kendaraan Dinas Digital yang dirancang untuk efisiensi operasional di lingkungan PLN UP2D Riau.
 
-## Fitur Utama
-- **Pengajuan Kendaraan**: Alur pengajuan digital oleh pemohon.
-- **Persetujuan (Approval)**: Flow persetujuan berjenjang (Asmen/KKU).
-- **Manajemen Armada (Fleet)**: Penugasan unit dan pengemudi secara real-time.
-- **Keamanan (Security)**: Log check-in/out dengan Live Camera Capture dan KM tracking.
-- **Tanda Tangan Digital**: Validasi dokumen menggunakan QR Code yang unik dan informatif.
-- **Dashboard & Monitoring**: Visualisasi penggunaan armada dan status kendaraan.
+## 🚀 Fitur Utama
+- **Digital Branding**: Login page modern dengan identitas PLN yang kuat.
+- **Role-Based Access Control**: Manajemen hak akses untuk Admin, Asmen, KKU, Admin Fleet, dan Security.
+- **Smart Approval**: Alur persetujuan berjenjang sesuai dengan Bidang/Bagian user.
+- **Fleet Control & Monitoring**: Penugasan unit (Innova Zenix, Terios, dll) dan pengemudi secara real-time.
+- **Security Check Point**: Integrasi Live Camera Capture (WebRTC) untuk dokumentasi foto driver dan odometer (KM) saat kendaraan berangkat (Check-in) dan kembali (Check-out).
+- **Digital Signature**: QR Code pada surat jalan yang memvalidasi waktu pengajuan, persetujuan, dan penetapan unit.
 
-## Teknologi
-- **Backend**: PHP (CodeIgniter 3)
+## 🛠️ Teknologi
+### Modern Stack (Frontend & API)
+- **Framework**: Next.js 16.1 (App Router)
+- **Database ORM**: Prisma
+- **Styling**: Tailwind CSS 4 & Custom UI Components
+- **Auth**: JWT (JSON Web Token)
+- **Camera**: WebRTC API
+
+### Legacy Stack (Internal Modules)
+- **Framework**: PHP (CodeIgniter 3)
 - **Database**: MySQL
-- **Frontend**: HTML, CSS, JavaScript (Bootstrap 4 baseline)
-- **Library**: QRCode.js, WebRTC (Camera)
 
-## Cara Instalasi
-1. Clone repository: `git clone https://github.com/Nabilla19/e-transportpln.git`
-2. Import database `database.sql` ke MySQL.
-3. Sesuaikan konfigurasi database di `application/config/database.php`.
-4. Jalankan pada environment PHP 7.4+.
+## ⚙️ Instalasi
+### 1. Database
+- Import `database.sql` ke MySQL.
+- Pastikan tabel `transport_requests`, `transport_approvals`, `transport_fleet`, dan `transport_security_logs` sudah tersedia.
+
+### 2. Frontend & Next.js API
+```bash
+cd frontend
+npm install
+npx prisma generate
+npm run dev
+```
+
+### 3. Konfigurasi Environment
+Buat file `frontend/.env.local`:
+```env
+DATABASE_URL="mysql://username:password@localhost:3306/db_name"
+JWT_SECRET="your_secret_key"
+```
 
 ---
-*Created for PLN UP2D RIAU Final Project.*
+*Developed for PLN UP2D RIAU - Final Project Presentation.*
