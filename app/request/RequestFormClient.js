@@ -292,9 +292,7 @@ export default function RequestFormClient() {
                                             placeholder="Jumlah penumpang"
                                             required
                                         />
-                                        <p className="text-xs text-slate-500 mt-2 font-medium">
-                                            👥 Maksimal 20 orang
-                                        </p>
+
                                     </div>
                                 </div>
                                 <div>
