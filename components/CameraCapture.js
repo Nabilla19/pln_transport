@@ -31,8 +31,8 @@ export default function CameraCapture({ onCapture, label }) {
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: {
                     facingMode: mode,
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
+                    width: { ideal: 800 },
+                    height: { ideal: 600 }
                 }
             });
 
@@ -94,7 +94,7 @@ export default function CameraCapture({ onCapture, label }) {
             // Draw
             context.drawImage(videoRef.current, 0, 0, width, height);
 
-            const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.7); // Slightly lower quality for faster upload
+            const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.6); // Reduced from 0.7
 
             // Safety check: is the captured image just black?
             const pixelData = context.getImageData(width / 2, height / 2, 1, 1).data;
