@@ -35,7 +35,8 @@ export async function GET(req) {
         });
         return NextResponse.json(requests);
     } catch (err) {
-        return NextResponse.json({ message: 'Server Error' }, { status: 500 });
+        console.error("API Error [GET /api/requests]:", err);
+        return NextResponse.json({ message: 'Server Error', error: err.message }, { status: 500 });
     }
 }
 
