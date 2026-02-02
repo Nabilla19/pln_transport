@@ -8,51 +8,62 @@ export default function CameraCapture({ onCapture, label }) {
     const [isStreaming, setIsStreaming] = useState(false);
     const [error, setError] = useState('');
     const [preview, setPreview] = useState(null);
+    const [facingMode, setFacingMode] = useState('environment'); // Default to back camera
     const streamRef = useRef(null);
 
-    const startCamera = async () => {
+    const startCamera = async (mode = facingMode) => {
         try {
             setError('');
             setPreview(null);
 
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                throw new Error("Browser Anda tidak mendukung akses kamera atau tidak menggunakan HTTPS/Localhost.");
+                throw new Error("Browser Anda tidak mendukung akses kamera secara langsung. Silakan gunakan tombol 'Ambil/Upload File'.");
             }
 
-            // Set streaming true first so the video element is rendered and Ref is available
+            // Stop any existing stream
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach(track => track.stop());
+            }
+
             setIsStreaming(true);
 
-            // Use very relaxed constraints for maximum compatibility
+            // Fetch stream with specific facingMode
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: true
-            }).catch(async (err) => {
-                console.warn("Retrying with environment mode...");
-                return await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment' }
-                });
+                video: {
+                    facingMode: mode,
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
             });
 
             streamRef.current = stream;
 
-            // Use a small timeout to ensure video element is rendered and Ref is attached
+            // Ensure video element is ready
             setTimeout(() => {
                 if (videoRef.current) {
                     videoRef.current.srcObject = stream;
-                    videoRef.current.play().catch(e => console.error("Play error:", e));
-                } else {
-                    setError("Gagal menginisialisasi element video. Silakan coba lagi.");
-                    stopCamera();
+                    videoRef.current.onloadedmetadata = () => {
+                        videoRef.current.play().catch(e => console.error("Play error:", e));
+                    };
                 }
-            }, 100);
+            }, 200);
 
         } catch (err) {
             console.error("Error accessing camera:", err);
             setIsStreaming(false);
-            let errorMessage = "Kamera bermasalah: ";
-            if (err.name === 'NotAllowedError') errorMessage += "Izin ditolak.";
+            let errorMessage = "Masalah Kamera: ";
+            if (err.name === 'NotAllowedError') errorMessage += "Izin kamera ditolak.";
             else if (err.name === 'NotFoundError') errorMessage += "Kamera tidak ditemukan.";
-            else errorMessage += err.message;
+            else errorMessage += "Gunakan tombol 'Ambil/Upload File' saja.";
             setError(errorMessage);
+        }
+    };
+
+    const toggleCamera = () => {
+        const newMode = facingMode === 'user' ? 'environment' : 'user';
+        setFacingMode(newMode);
+        if (isStreaming) {
+            startCamera(newMode);
         }
     };
 
@@ -67,16 +78,32 @@ export default function CameraCapture({ onCapture, label }) {
 
     const capturePhoto = () => {
         if (canvasRef.current && videoRef.current) {
+            // CRITICAL: Check if video is actually ready to avoid black screen
+            if (videoRef.current.readyState < 2) {
+                setError("Kamera belum siap, mohon tunggu sebentar...");
+                return;
+            }
+
             const context = canvasRef.current.getContext('2d');
-            // Use actual video dimensions
-            const width = videoRef.current.videoWidth || 640;
-            const height = videoRef.current.videoHeight || 480;
+            const width = videoRef.current.videoWidth;
+            const height = videoRef.current.videoHeight;
 
             canvasRef.current.width = width;
             canvasRef.current.height = height;
+
+            // Draw
             context.drawImage(videoRef.current, 0, 0, width, height);
 
-            const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.8);
+            const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.7); // Slightly lower quality for faster upload
+
+            // Safety check: is the captured image just black?
+            const pixelData = context.getImageData(width / 2, height / 2, 1, 1).data;
+            if (pixelData[0] === 0 && pixelData[1] === 0 && pixelData[2] === 0 && pixelData[3] === 255) {
+                // If the middle pixel is pure black, it might be a failed capture.
+                // But could also just be a dark photo. We'll show a warning.
+                console.warn("Captured frame might be black.");
+            }
+
             setPreview(dataUrl);
             onCapture(dataUrl);
             stopCamera();
@@ -91,6 +118,7 @@ export default function CameraCapture({ onCapture, label }) {
                 setPreview(reader.result);
                 onCapture(reader.result);
                 setError('');
+                setIsStreaming(false);
             };
             reader.readAsDataURL(file);
         }
@@ -100,16 +128,13 @@ export default function CameraCapture({ onCapture, label }) {
         <div className="space-y-3 font-primary">
             <label className="block text-sm font-bold text-slate-700">{label}</label>
 
-            {/* Error Message */}
             {error && (
-                <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-xl text-xs font-bold">
+                <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-xl text-[10px] font-bold">
                     ⚠️ {error}
                 </div>
             )}
 
-            {/* Viewport */}
-            <div className="relative glass-card overflow-hidden bg-slate-900 aspect-video flex items-center justify-center rounded-xl shadow-inner border-2 border-slate-200">
-                {/* Always render video for Ref, but hide if not streaming */}
+            <div className="relative glass-card overflow-hidden bg-slate-900 aspect-video flex items-center justify-center rounded-xl shadow-inner border-2 border-slate-200 group">
                 <video
                     ref={videoRef}
                     autoPlay
@@ -123,30 +148,43 @@ export default function CameraCapture({ onCapture, label }) {
                 )}
 
                 {!isStreaming && !preview && (
-                    <div className="text-slate-500 text-xs font-bold uppercase tracking-widest text-center px-4">
-                        📷 Siap Mengambil Gambar
+                    <div className="text-slate-500 text-[10px] font-bold uppercase tracking-widest text-center px-4">
+                        📷 Siap Dokumentasi
                     </div>
                 )}
+
+                {isStreaming && (
+                    <div className="absolute top-2 right-2 flex gap-2">
+                        <button
+                            type="button"
+                            onClick={toggleCamera}
+                            className="bg-white/20 backdrop-blur-md hover:bg-white/40 text-white p-2 rounded-full transition-all"
+                            title="Ganti Kamera"
+                        >
+                            🔄
+                        </button>
+                    </div>
+                )}
+
                 <canvas ref={canvasRef} className="hidden" />
             </div>
 
-            {/* Controls */}
             <div className="flex gap-2">
                 {!isStreaming ? (
                     <>
                         <button
                             type="button"
-                            onClick={startCamera}
-                            className="flex-1 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold py-3.5 rounded-xl shadow-lg transition-all active:scale-95"
+                            onClick={() => startCamera()}
+                            className="flex-1 bg-sky-600 hover:bg-sky-700 text-white text-[10px] font-bold py-3 rounded-xl shadow-lg transition-all active:scale-95"
                         >
-                            📸 Kamera Live
+                            🎥 Buka Kamera
                         </button>
                         <button
                             type="button"
                             onClick={() => fileInputRef.current.click()}
-                            className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-3.5 rounded-xl shadow transition-all active:scale-95"
+                            className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold py-3 rounded-xl shadow transition-all active:scale-95"
                         >
-                            📁 Upload File
+                            🖼️ Ambil/Upload Foto
                         </button>
                         <input
                             type="file"
@@ -162,23 +200,20 @@ export default function CameraCapture({ onCapture, label }) {
                         <button
                             type="button"
                             onClick={capturePhoto}
-                            className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-3.5 rounded-xl shadow-lg transition-all active:scale-95"
+                            className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-bold py-3 rounded-xl shadow-lg transition-all active:scale-95 animate-pulse"
                         >
-                            ✓ Simpan Foto
+                            📸 Ambil Gambar
                         </button>
                         <button
                             type="button"
                             onClick={stopCamera}
-                            className="bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg transition-all active:scale-95"
+                            className="bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all"
                         >
                             ✕
                         </button>
                     </>
                 )}
             </div>
-            {preview && !isStreaming && (
-                <p className="text-[10px] text-emerald-600 font-bold italic text-center">✨ Gambar berhasil dipilih</p>
-            )}
         </div>
     );
 }
