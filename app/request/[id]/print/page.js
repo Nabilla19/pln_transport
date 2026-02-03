@@ -266,13 +266,7 @@ export default function PrintRequestPage() {
                 </div>
             </div>
 
-            <div className="flex justify-center gap-4 print:hidden mt-8 mb-12">
-                <button
-                    onClick={() => window.location.href = `/request/${id}`}
-                    className="px-10 py-3 bg-white border-2 border-slate-900 text-slate-900 rounded-xl font-bold hover:bg-slate-50 transition-all flex items-center gap-2 shadow-lg"
-                >
-                    <span>←</span> KEMBALI
-                </button>
+            <div className="flex justify-center print:hidden mt-8 mb-12">
                 <button
                     onClick={() => window.print()}
                     className="px-10 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center gap-2 shadow-xl"
