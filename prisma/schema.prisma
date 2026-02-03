@@ -99,10 +99,10 @@ model TransportSecurityLog {
   jam_kembali           DateTime?         @db.DateTime(0)
   lama_waktu            String?           @db.VarChar(50)
   jarak_tempuh          Int?
-  foto_driver_berangkat String?           @db.VarChar(255)
-  foto_km_berangkat     String?           @db.VarChar(255)
-  foto_driver_kembali   String?           @db.VarChar(255)
-  foto_km_kembali       String?           @db.VarChar(255)
+  foto_driver_berangkat String?           @db.LongText
+  foto_km_berangkat     String?           @db.LongText
+  foto_driver_kembali   String?           @db.LongText
+  foto_km_kembali       String?           @db.LongText
   logged_by             Int?
   created_at            DateTime          @default(now()) @db.Timestamp(0)
   updated_at            DateTime          @default(now()) @db.Timestamp(0)

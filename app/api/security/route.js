@@ -37,18 +37,9 @@ export async function POST(req) {
             console.warn("Upload directory creation failed (Expected on Vercel)");
         }
 
-        const saveImage = (base64, prefix) => {
-            try {
-                if (!base64 || !base64.includes('base64,')) return null;
-                const data = base64.split(';base64,').pop();
-                const fileName = `${prefix}_${requestId}_${Date.now()}.jpg`;
-                const filePath = path.join(uploadDir, fileName);
-                fs.writeFileSync(filePath, data, { encoding: 'base64' });
-                return `/uploads/transport/${fileName}`;
-            } catch (err) {
-                console.error("FS Error (Likely Vercel Read-Only):", err.message);
-                return null; // Fallback to null path instead of crashing
-            }
+        const saveImage = (base64) => {
+            if (!base64 || !base64.includes('base64,')) return null;
+            return base64; // Penyelamatan data dalam bentuk Base64 (Aman untuk Vercel)
         };
 
         if (type === 'checkin') {

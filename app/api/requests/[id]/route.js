@@ -22,7 +22,10 @@ export async function GET(req, { params }) {
                 user: { select: { name: true, role: true } },
                 approvals: { include: { asmen: { select: { name: true, role: true } } } },
                 fleet: { include: { admin: { select: { name: true, role: true } } } },
-                securityLogs: { include: { security: { select: { name: true, role: true } } } }
+                securityLogs: {
+                    orderBy: { created_at: 'desc' },
+                    include: { security: { select: { name: true, role: true } } }
+                }
             }
         });
 
