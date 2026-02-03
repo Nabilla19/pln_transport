@@ -60,6 +60,18 @@ export async function POST(req) {
     } catch (err) {
         // Menangani jika terjadi error sistem
         console.error('💥 Error saat login:', err);
-        return NextResponse.json({ message: 'Kesalahan Server' }, { status: 500 });
+
+        // Cek jika error dari Prisma (database)
+        if (err.code && err.code.startsWith('P')) {
+            return NextResponse.json({
+                message: 'Kesalahan Database (Cek DATABASE_URL di Vercel)',
+                details: err.message
+            }, { status: 500 });
+        }
+
+        return NextResponse.json({
+            message: 'Kesalahan Server',
+            details: err.message
+        }, { status: 500 });
     }
 }
