@@ -228,7 +228,7 @@ export default function PrintRequestPage() {
                             <p className="text-[9px] underline uppercase">{approval?.asmen?.name || '-'}</p>
                         </div>
                         <div className="flex flex-col items-center">
-                            <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">Admin Transport</p>
+                            <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">KKU</p>
                             <div className="w-16 h-16 border border-black p-0.5 mb-1">
                                 {fleet?.barcode_fleet ? (
                                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateQRData('fleet'))}`} alt="QR" className="w-full h-full" />

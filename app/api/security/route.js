@@ -8,16 +8,17 @@ export async function POST(req) {
     const user = await verifyAuth(req);
     if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
-    // Only Security role can log check-in/out
-    if (user.role !== 'Security') {
-        return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
+    // Allow Security, Admin, or Admin Fleet to log check-in/out
+    const allowedRoles = ['Security', 'Admin', 'Admin Fleet'];
+    if (!allowedRoles.includes(user.role)) {
+        return NextResponse.json({ message: `Forbidden: Role ${user.role} cannot perform this action` }, { status: 403 });
     }
 
     try {
         const body = await req.json();
         const { requestId, type, km, jam, fotoDriver, fotoKm } = body;
 
-        console.log("Security Post Body:", { requestId, type, km });
+        console.log(`[Security API] Processing ${type} for Request #${requestId}`, { km, jam });
 
         if (!requestId || isNaN(parseInt(requestId))) {
             return NextResponse.json({ message: 'Invalid Request ID' }, { status: 400 });
@@ -73,7 +74,7 @@ export async function POST(req) {
                 orderBy: { created_at: 'desc' }
             });
 
-            if (!existingLog) return NextResponse.json({ message: 'Log Inset Not Found' }, { status: 400 });
+            if (!existingLog) return NextResponse.json({ message: 'Log Keberangkatan tidak ditemukan. Silakan Check-In terlebih dahulu.' }, { status: 400 });
 
             const pathDriver = saveImage(fotoDriver);
             const pathKm = saveImage(fotoKm);
