@@ -3,40 +3,51 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
 
+/**
+ * Endpoint API untuk Login Pengguna
+ * 
+ * Deskripsi: Melakukan verifikasi kredensial pengguna (email & password)
+ * dan mengembalikan token JWT jika berhasil.
+ */
 export async function POST(req) {
     try {
+        // Mengambil data email dan password dari body request
         const { email, password } = await req.json();
-        console.log('🔐 Login attempt for:', email);
+        console.log('🔐 Percobaan login untuk:', email);
 
+        // Mencari pengguna di database berdasarkan email
         const user = await prisma.user.findUnique({
             where: { email },
         });
 
+        // Jika pengguna tidak ditemukan
         if (!user) {
-            console.log('❌ User not found:', email);
-            return NextResponse.json({ message: 'Invalid credentials' }, { status: 400 });
+            console.log('❌ Pengguna tidak ditemukan:', email);
+            return NextResponse.json({ message: 'Kredensial tidak valid' }, { status: 400 });
         }
 
-        console.log('✅ User found:', user.name, user.email);
-        console.log('🔑 Password hash from DB:', user.password.substring(0, 20) + '...');
-        console.log('🔑 Password provided:', password);
+        console.log('✅ Pengguna ditemukan:', user.name, user.email);
 
+        // Membandingkan password yang diinput dengan password terenkripsi di database
         const isMatch = await bcrypt.compare(password, user.password);
-        console.log('🔍 Password match:', isMatch);
+        console.log('🔍 Hasil pengecekan password:', isMatch);
 
+        // Jika password tidak cocok
         if (!isMatch) {
-            console.log('❌ Password mismatch');
-            return NextResponse.json({ message: 'Invalid credentials' }, { status: 400 });
+            console.log('❌ Password salah');
+            return NextResponse.json({ message: 'Kredensial tidak valid' }, { status: 400 });
         }
 
+        // Membuat token JWT yang berlaku selama 1 hari
         const token = jwt.sign(
             { id: user.id, role: user.role, email: user.email },
             process.env.JWT_SECRET,
             { expiresIn: '1d' }
         );
 
-        console.log('✅ Login successful for:', user.email);
+        console.log('✅ Login berhasil untuk:', user.email);
 
+        // Mengirimkan respon sukses beserta token dan data pengguna
         return NextResponse.json({
             token,
             user: {
@@ -47,7 +58,8 @@ export async function POST(req) {
             },
         });
     } catch (err) {
-        console.error('💥 Login error:', err);
-        return NextResponse.json({ message: 'Server Error' }, { status: 500 });
+        // Menangani jika terjadi error sistem
+        console.error('💥 Error saat login:', err);
+        return NextResponse.json({ message: 'Kesalahan Server' }, { status: 500 });
     }
 }

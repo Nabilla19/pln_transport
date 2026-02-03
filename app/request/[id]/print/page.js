@@ -3,6 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { api, formatDisplayId } from '@/lib/api';
 
+/**
+ * Halaman Cetak Surat Jalan (Print Optimized)
+ * 
+ * Deskripsi: Halaman yang diformat khusus untuk pencetakan dokumen fisik.
+ * Menyusun data teknis (KM, Foto, E-Signature) ke dalam format surat formal PLN.
+ */
 export default function PrintRequestPage() {
     const { id } = useParams();
     const router = useRouter();
@@ -13,7 +19,7 @@ export default function PrintRequestPage() {
             try {
                 const data = await api.get(`/api/requests/${id}`);
                 setRequest(data);
-                // Trigger print
+                // Memicu dialog cetak otomatis setelah data dimuat (delay 2.5 detik untuk render QR/Image)
                 setTimeout(() => window.print(), 2500);
             } catch (err) {
                 console.error(err);
@@ -30,14 +36,18 @@ export default function PrintRequestPage() {
 
     const displayId = formatDisplayId(id);
 
-    // Helper to ensure base64 has correct prefix for <img> tag
+    /**
+     * Helper: Memastikan format Base64 memiliki prefix yang benar untuk tag <img>
+     */
     const formatBase64 = (str) => {
         if (!str) return null;
         if (str.startsWith('data:image')) return str;
-        // Fallback assuming it's a raw base64 jpeg if no prefix
         return `data:image/jpeg;base64,${str}`;
     };
 
+    /**
+     * Helper: Menghasilkan teks deskriptif untuk dimasukkan ke dalam QR Code Verifikasi
+     */
     const generateQRData = (type) => {
         const docId = formatDisplayId(id);
 
@@ -71,7 +81,7 @@ export default function PrintRequestPage() {
     };
 
     return (
-        <div className="print-view-wrapper bg-white min-h-screen p-4 font-serif relative">
+        <div className="print-view-wrapper bg-white min-h-screen p-4 relative" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
             <style jsx global>{`
                 @media print {
                     .no-print { display: none !important; }
@@ -91,17 +101,10 @@ export default function PrintRequestPage() {
                     color: black !important;
                     border-color: black !important;
                 }
-                
-                .no-print button {
-                    color: white !important;
-                }
-                .no-print .bg-white {
-                    color: black !important;
-                }
             `}</style>
 
             <div className="mx-auto max-w-[21cm] document-body border border-gray-100 p-4 print:border-0 print:p-0">
-                {/* 1. KOP SURAT */}
+                {/* 1. KOP SURAT (Header PLN) */}
                 <div className="flex items-center gap-4 border-b-4 border-black pb-2 mb-4">
                     <img src="/images/logo-pln.png" alt="Logo PLN" className="w-14 h-auto" />
                     <div className="flex-1">
@@ -112,92 +115,95 @@ export default function PrintRequestPage() {
                     </div>
                 </div>
 
-                {/* JUDUL */}
+                {/* JUDUL DOKUMEN */}
                 <div className="text-center mb-6">
                     <h2 className="text-lg font-bold uppercase underline decoration-2">SURAT JALAN KENDARAAN DINAS</h2>
-                    <p className="text-[10px] font-bold uppercase tracking-widest mt-1">NOMOR SURAT: #{displayId}/TRS/UP2D-RIAU/{new Date().getFullYear()}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mt-1">
+                        NOMOR SURAT: #{displayId}/{new Date(request.created_at || request.tanggal_jam_berangkat).toLocaleString('id-ID', { month: 'short' }).toUpperCase().slice(0, 3)}/UP2D-RIAU/{new Date(request.created_at || request.tanggal_jam_berangkat).getFullYear()}
+                    </p>
                 </div>
 
                 {/* 2. DATA PEMOHON */}
                 <div className="border border-black mb-2">
-                    <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9px] uppercase italic">I. Data Pemohon</div>
-                    <div className="p-1.5">
-                        <table className="w-full text-[9pt]">
+                    <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[10pt] uppercase">I. DATA PEMOHON</div>
+                    <div className="p-3">
+                        <table className="w-full text-[11pt]">
                             <tbody>
-                                <tr className="border-b border-gray-100">
-                                    <td className="w-32 py-0.5 font-bold text-gray-700">Nama</td><td className="w-3">:</td><td className="font-normal">{request.nama || request.user?.name}</td>
-                                    <td className="w-32 py-0.5 font-bold pl-4 text-gray-700">Jabatan</td><td className="w-3">:</td><td className="font-normal">{request.jabatan || request.user?.role}</td>
+                                <tr>
+                                    <td className="w-32 py-1 font-bold">Nama</td><td className="w-3">:</td><td className="py-1">{request.nama || request.user?.name}</td>
+                                    <td className="w-32 py-1 font-bold pl-4">Jabatan</td><td className="w-3">:</td><td className="py-1">{request.jabatan || request.user?.role}</td>
                                 </tr>
-                                <tr className="border-b border-gray-100">
-                                    <td className="py-0.5 font-bold text-gray-700">Bidang</td><td>:</td><td className="font-normal">{request.bagian}</td>
-                                    <td className="py-0.5 font-bold pl-4 text-gray-700">Unit Kendaraan</td><td>:</td><td className="font-normal">{request.macam_kendaraan || '-'}</td>
+                                <tr>
+                                    <td className="py-1 font-bold">Bidang</td><td>:</td><td className="py-1">{request.bagian}</td>
+                                    <td className="py-1 font-bold pl-4">Unit Kendaraan</td><td>:</td><td className="py-1">{request.macam_kendaraan || '-'}</td>
                                 </tr>
-                                <tr className="border-b border-gray-100">
-                                    <td className="py-0.5 font-bold text-gray-700">Tujuan</td><td>:</td><td className="uppercase font-normal">{request.tujuan}</td>
-                                    <td className="py-0.5 font-bold pl-4 text-gray-700">Penumpang</td><td>:</td><td className="font-normal">{request.jumlah_penumpang || '-'} orang</td>
+                                <tr>
+                                    <td className="py-1 font-bold">Tujuan</td><td>:</td><td className="py-1 uppercase">{request.tujuan}</td>
+                                    <td className="py-1 font-bold pl-4">Penumpang</td><td>:</td><td className="py-1">{request.jumlah_penumpang || '-'} orang</td>
                                 </tr>
-                                <tr className="border-b border-gray-100">
-                                    <td className="py-0.5 font-bold text-gray-700">Berangkat</td><td>:</td><td className="font-normal">
+                                <tr>
+                                    <td className="py-1 font-bold">Berangkat</td><td>:</td><td className="py-1">
                                         {new Date(request.tanggal_jam_berangkat).toLocaleString('id-ID', {
                                             day: '2-digit', month: '2-digit', year: 'numeric',
                                             hour: '2-digit', minute: '2-digit'
                                         })}
                                     </td>
-                                    <td className="py-0.5 font-bold pl-4 text-gray-700">Etimasi Pakai</td><td>:</td><td className="font-normal">{request.lama_pakai || '-'}</td>
+                                    <td className="py-1 font-bold pl-4">Etimasi Pakai</td><td>:</td><td className="py-1">{request.lama_pakai || '-'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-0.5 font-bold text-gray-700">Keperluan</td><td>:</td><td colSpan="4" className="font-normal italic text-[8pt]">{request.keperluan}</td>
+                                    <td className="py-1 font-bold align-top">Keperluan</td><td className="align-top">:</td><td colSpan="4" className="py-1">{request.keperluan}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                {/* 3. SURAT PERINTAH JALAN */}
+                {/* 3. SURAT PERINTAH JALAN (Data Armada) */}
                 <div className="border border-black mb-2">
-                    <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9px] uppercase italic">II. Surat Perintah Jalan</div>
-                    <div className="p-1.5 text-[9pt]">
-                        <table className="w-full">
+                    <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[10pt] uppercase">II. SURAT PERINTAH JALAN</div>
+                    <div className="p-3">
+                        <table className="w-full text-[11pt]">
                             <tbody>
-                                <tr className="border-b border-gray-100">
-                                    <td className="w-32 py-0.5 font-bold text-gray-700">Kendaraan</td><td className="w-3">:</td><td className="font-normal uppercase">{fleet?.mobil || '.....................'}</td>
-                                    <td className="w-32 py-0.5 font-bold pl-4 text-gray-700">No. Polisi</td><td className="w-3">:</td><td className="font-normal tracking-wider">{fleet?.plat_nomor || '............'}</td>
+                                <tr>
+                                    <td className="w-32 py-1 font-bold">Kendaraan</td><td className="w-3">:</td><td className="py-1 uppercase">{fleet?.mobil || '.....................'}</td>
+                                    <td className="w-32 py-1 font-bold pl-4">No. Polisi</td><td className="w-3">:</td><td className="py-1 tracking-wider">{fleet?.plat_nomor || '............'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-0.5 font-bold text-gray-700">Pengemudi</td><td>:</td><td className="font-normal uppercase italic">{fleet?.pengemudi || '.....................'}</td>
-                                    <td className="py-0.5 font-bold pl-4 text-gray-700">Dispatcher</td><td>:</td><td className="font-normal">{fleet?.admin?.name || '-'}</td>
+                                    <td className="py-1 font-bold">Pengemudi</td><td>:</td><td className="py-1 uppercase">{fleet?.pengemudi || '.....................'}</td>
+                                    <td className="py-1 font-bold pl-4">Dispatcher</td><td>:</td><td className="py-1">{fleet?.admin?.name || '-'}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                {/* 4. DATA SECURITY CHECK */}
+                {/* 4. DATA SECURITY CHECK (Monitoring KM) */}
                 <div className="border border-black mb-2">
-                    <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9px] uppercase italic">III. Monitoring Pos Security</div>
-                    <div className="p-1.5 text-[9pt]">
-                        <table className="w-full">
+                    <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[10pt] uppercase">III. MONITORING POS SECURITY</div>
+                    <div className="p-3">
+                        <table className="w-full text-[11pt]">
                             <tbody>
-                                <tr className="border-b border-gray-100">
-                                    <td className="w-32 py-0.5 font-bold text-gray-700">KM Awal</td><td className="w-3">:</td><td className="font-normal">{security?.km_awal} KM</td>
-                                    <td className="w-32 py-0.5 font-bold pl-4 text-gray-700">KM Akhir</td><td className="w-3">:</td><td className="font-normal">{security?.km_akhir ? `${security.km_akhir} KM` : '..........'}</td>
-                                </tr>
-                                <tr className="border-b border-gray-100">
-                                    <td className="py-0.5 font-bold text-gray-700">Jarak</td><td>:</td><td className="font-normal">{(security?.jarak_tempuh !== null && security?.jarak_tempuh !== undefined) ? `${security.jarak_tempuh} KM` : '..........'}</td>
-                                    <td className="py-0.5 font-bold pl-4 text-gray-700">Waktu Pakai</td><td>:</td><td className="font-normal">{security?.lama_waktu || '............'}</td>
+                                <tr>
+                                    <td className="w-32 py-1 font-bold">KM Awal</td><td className="w-3">:</td><td className="py-1">{security?.km_awal} KM</td>
+                                    <td className="w-32 py-1 font-bold pl-4">KM Akhir</td><td className="w-3">:</td><td className="py-1">{security?.km_akhir ? `${security.km_akhir} KM` : '..........'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-0.5 font-bold text-gray-700">Jam Keluar</td><td>:</td><td className="font-normal">{security?.jam_berangkat ? new Date(security.jam_berangkat).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
-                                    <td className="py-0.5 font-bold pl-4 text-gray-700">Jam Masuk</td><td>:</td><td className="font-normal">{security?.jam_kembali ? new Date(security.jam_kembali).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                                    <td className="py-1 font-bold">Jarak</td><td>:</td><td className="py-1">{(security?.jarak_tempuh !== null && security?.jarak_tempuh !== undefined) ? `${security.jarak_tempuh} KM` : '..........'}</td>
+                                    <td className="py-1 font-bold pl-4">Waktu Pakai</td><td>:</td><td className="py-1">{security?.lama_waktu || '............'}</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-1 font-bold">Jam Keluar</td><td>:</td><td className="py-1">{security?.jam_berangkat ? new Date(security.jam_berangkat).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                                    <td className="py-1 font-bold pl-4">Jam Masuk</td><td>:</td><td className="py-1">{security?.jam_kembali ? new Date(security.jam_kembali).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                {/* 5. E-SIGNATURE */}
+                {/* 5. TANDA TANGAN DIGITAL (E-SIGNATURE) */}
                 <div className="border border-black mb-2 p-3">
                     <div className="grid grid-cols-3 gap-12 text-center">
+                        {/* TTD Pemohon */}
                         <div className="flex flex-col items-center">
                             <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">Pemohon</p>
                             <div className="w-20 h-20 border border-black p-0.5 mb-1">
@@ -205,6 +211,7 @@ export default function PrintRequestPage() {
                             </div>
                             <p className="text-[9px] underline uppercase">{request.nama || request.user?.name}</p>
                         </div>
+                        {/* TTD Approver (Asmen/KKU) */}
                         <div className="flex flex-col items-center">
                             <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">Menyetujui,</p>
                             <div className="w-20 h-20 border border-black p-0.5 mb-1">
@@ -216,6 +223,7 @@ export default function PrintRequestPage() {
                             </div>
                             <p className="text-[9px] underline uppercase">{approval?.asmen?.name || '-'}</p>
                         </div>
+                        {/* TTD Bagian Fleet/KKU */}
                         <div className="flex flex-col items-center">
                             <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">KKU</p>
                             <div className="w-20 h-20 border border-black p-0.5 mb-1">
@@ -230,11 +238,12 @@ export default function PrintRequestPage() {
                     </div>
                 </div>
 
-                {/* 6. DOKUMENTASI FOTO */}
+                {/* 6. DOKUMENTASI FOTO (Lampiran Keberangkatan & Kepulangan) */}
                 <div className="border border-black overflow-hidden mb-1">
                     <div className="bg-gray-100 border-b border-black px-2 py-0.5 text-center font-bold text-[8px] uppercase tracking-[3px] italic">Lampiran Dokumentasi Foto</div>
                     <div className="p-1.5">
                         <div className="grid grid-cols-2 gap-4">
+                            {/* Dokumentasi Berangkat */}
                             <div className="space-y-1">
                                 <p className="text-center font-bold text-[7px] uppercase text-gray-500">Foto Saat Berangkat</p>
                                 <div className="grid grid-cols-2 gap-1 px-4">
@@ -246,6 +255,7 @@ export default function PrintRequestPage() {
                                     </div>
                                 </div>
                             </div>
+                            {/* Dokumentasi Kembali */}
                             <div className="space-y-1">
                                 <p className="text-center font-bold text-[7px] uppercase text-gray-500">Foto Saat Kembali</p>
                                 <div className="grid grid-cols-2 gap-1 px-4">
@@ -266,6 +276,7 @@ export default function PrintRequestPage() {
                 </div>
             </div>
 
+            {/* Tombol Print (Hanya tampak di layar, tidak saat dicetak) */}
             <div className="flex justify-center print:hidden mt-8 mb-12">
                 <button
                     onClick={() => window.print()}

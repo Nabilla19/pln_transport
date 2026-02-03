@@ -1,8 +1,19 @@
+/**
+ * API Route: Manajemen Notifikasi (/api/notifications)
+ * 
+ * Deskripsi: Endpoint untuk mengambil daftar notifikasi yang belum dibaca (GET) 
+ * dan memperbarui status notifikasi menjadi "sudah dibaca" (PUT).
+ */
+
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { verifyAuth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 
+/**
+ * Mengambil Daftar Notifikasi
+ * Mengambil pesan berdasarkan ID user secara spesifik atau berdasarkan Role user.
+ */
 export async function GET(req) {
     const user = await verifyAuth(req);
     if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -11,7 +22,7 @@ export async function GET(req) {
         const { searchParams } = new URL(req.url);
         const limit = parseInt(searchParams.get('limit')) || 20;
 
-        // Fetch based on user_id OR role (since some notifications are role-wide)
+        // Cari notifikasi yang ditujukan untuk user tersebut ATAU untuk role-nya yang belum dibaca
         const notifications = await prisma.notifikasiAktivitas.findMany({
             where: {
                 OR: [
@@ -31,6 +42,10 @@ export async function GET(req) {
     }
 }
 
+/**
+ * Menandai Notifikasi sebagai Terbaca
+ * Mengubah status_baca menjadi true untuk seluruh notifikasi yang relevan.
+ */
 export async function PUT(req) {
     const user = await verifyAuth(req);
     if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });

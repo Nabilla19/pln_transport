@@ -5,7 +5,13 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { notifyRoles } from '@/lib/notifications';
 
+/**
+ * Endpoint GET: Mengambil daftar permohonan transportasi
+ * 
+ * Deskripsi: Mengambil data permohonan berdasarkan role pengguna dan filter yang diberikan.
+ */
 export async function GET(req) {
+    // Verifikasi autentikasi user
     const user = await verifyAuth(req);
     if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
@@ -14,14 +20,18 @@ export async function GET(req) {
         const filter = searchParams.get('filter');
 
         const userRole = user?.role || '';
+        // Cek apakah user memiliki role yang diizinkan melihat semua data
         const canSeeAll = ['Asmen', 'KKU', 'Admin', 'Security', 'Admin Fleet'].some(r => userRole.includes(r));
 
-        let whereClause = { user_id: user.id }; // Default: only own requests
+        // Default: Pemohon hanya bisa melihat permohonan miliknya sendiri
+        let whereClause = { user_id: user.id };
 
         if (canSeeAll) {
             if (filter === 'all') {
+                // Admin/Role tertentu melihat semua data
                 whereClause = {};
             } else if (filter === 'approval') {
+                // Filter untuk halaman persetujuan
                 const asmenMap = {
                     'Asmen Perencanaan': 'Perencanaan',
                     'Asmen Pemeliharaan': 'Pemeliharaan',
@@ -30,29 +40,32 @@ export async function GET(req) {
                 };
 
                 if (asmenMap[user.role]) {
-                    // Specific Asmen sees only their department
+                    // Asmen hanya melihat permohonan dari bagian mereka yang butuh approval
                     whereClause = {
                         status: { in: ['Pending Asmen/KKU', 'Perlu Revisi'] },
                         bagian: asmenMap[user.role]
                     };
                 } else if (user.role === 'KKU') {
-                    // KKU sees departments NOT covered by the 4 Asmens
+                    // KKU melihat departemen yang tidak dicover oleh 4 Asmen di atas
                     const asmenDepts = Object.values(asmenMap);
                     whereClause = {
                         status: { in: ['Pending Asmen/KKU', 'Perlu Revisi'] },
                         bagian: { notIn: asmenDepts }
                     };
                 } else {
-                    // Admin or others see all pending
+                    // Admin melihat semua yang butuh approval
                     whereClause = { status: { in: ['Pending Asmen/KKU', 'Perlu Revisi'] } };
                 }
             } else if (filter === 'fleet') {
+                // Filter untuk penugasan armada (Fleet)
                 whereClause = { status: { in: ['Menunggu Surat Jalan', 'Pending Fleet'] } };
             } else if (filter === 'security') {
+                // Filter untuk monitoring Security (kendaraan aktif)
                 whereClause = { status: { in: ['Ready', 'In Progress'] } };
             }
         }
 
+        // Query ke database menggunakan Prisma
         const requests = await prisma.transportRequest.findMany({
             where: whereClause,
             include: {
@@ -67,40 +80,49 @@ export async function GET(req) {
     }
 }
 
+/**
+ * Endpoint POST: Membuat permohonan transportasi baru
+ * 
+ * Deskripsi: Menerima data form, menyimpan ke DB, dan mengirim notifikasi ke role terkait.
+ */
 export async function POST(req) {
+    // Verifikasi autentikasi user
     const user = await verifyAuth(req);
     if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
     try {
         const body = await req.json();
+        // Generate barcode unik untuk pemohon menggunakan MD5 hash
         const barcode = crypto.createHash('md5')
             .update(`PEMOHON-${user.id}-${Date.now()}`)
             .digest('hex');
 
+        // Simpan permohonan baru ke database
         const newRequest = await prisma.transportRequest.create({
             data: {
                 ...body,
                 user_id: user.id,
                 jumlah_penumpang: parseInt(body.jumlah_penumpang),
-                // Parse as local date to prevent timezone shift if the server is in UTC
+                // Konversi tanggal jam ke objek Date
                 tanggal_jam_berangkat: new Date(body.tanggal_jam_berangkat),
                 status: 'Pending Asmen/KKU',
                 barcode_pemohon: barcode
             }
         });
 
-        // Notify relevant roles
+        // Logika pengiriman notifikasi ke pihak terkait
         const asmenDepts = ['Perencanaan', 'Pemeliharaan', 'Operasi', 'Fasilitas Operasi'];
-        const targetRoles = ['Security']; // Security always notified for monitoring
+        const targetRoles = []; // Security TIDAK dapat notif di awal
 
         if (asmenDepts.includes(body.bagian)) {
-            // If it's a specific Asmen department, ONLY notify that Asmen
+            // Jika departemen punya Asmen spesifik, kirim ke Asmen tersebut
             targetRoles.push(`Asmen ${body.bagian}`);
         } else {
-            // Otherwise, KKU handles it
+            // Jika departemen lain (e.g. K3L), kirim ke KKU
             targetRoles.push('KKU');
         }
 
+        // Kirim notifikasi melalui sistem notifikasi
         await notifyRoles(targetRoles, {
             type: 'Permohonan Baru',
             module: 'Transport',

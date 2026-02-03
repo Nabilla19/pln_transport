@@ -5,6 +5,12 @@ import { api } from '@/lib/api';
 import Shell from '@/components/Shell';
 import Toast from '@/components/Toast';
 
+/**
+ * Halaman Manajemen Akun (Admin Only)
+ * 
+ * Deskripsi: Fitur khusus Admin untuk menambah, melihat, dan menghapus akun pengguna.
+ * Dilengkapi dengan validasi input dan tampilan responsif (Tabel Desktop & Kartu Mobile).
+ */
 export default function UsersPage() {
     const router = useRouter();
     const [users, setUsers] = useState([]);
@@ -14,11 +20,11 @@ export default function UsersPage() {
         name: '',
         email: '',
         password: '',
-        role: 'Perencanaan'
+        role: 'Perencanaan' // Role default saat tambah pengguna
     });
 
     useEffect(() => {
-        // Check if user is Admin
+        // Proteksi Halaman: Hanya Role 'Admin' yang boleh mengakses
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         if (user.role !== 'Admin') {
             router.push('/dashboard');
@@ -27,6 +33,9 @@ export default function UsersPage() {
         fetchUsers();
     }, [router]);
 
+    /**
+     * Mengambil daftar seluruh pengguna dari API
+     */
     const fetchUsers = async () => {
         try {
             const data = await api.get('/api/users');
@@ -36,19 +45,26 @@ export default function UsersPage() {
         }
     };
 
+    /**
+     * Menampilkan notifikasi popup (Toast)
+     */
     const showToast = (message, type = 'success') => {
         setToast({ message, type });
     };
 
+    /**
+     * Menangani proses submit form tambah pengguna
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validation
+        // Validasi: Field tidak boleh kosong
         if (!formData.name || !formData.email || !formData.password) {
             showToast('Semua field harus diisi!', 'warning');
             return;
         }
 
+        // Validasi: Panjang password minimal 6 karakter
         if (formData.password.length < 6) {
             showToast('Password minimal 6 karakter!', 'warning');
             return;
@@ -57,14 +73,17 @@ export default function UsersPage() {
         try {
             await api.post('/api/users', formData);
             showToast('✓ Pengguna berhasil ditambahkan!', 'success');
-            setShowForm(false);
-            setFormData({ name: '', email: '', password: '', role: 'Perencanaan' });
-            fetchUsers();
+            setShowForm(false); // Sembunyikan form setelah sukses
+            setFormData({ name: '', email: '', password: '', role: 'Perencanaan' }); // Reset form
+            fetchUsers(); // Refresh daftar pengguna
         } catch (err) {
             showToast(err.message || 'Gagal menambahkan pengguna', 'error');
         }
     };
 
+    /**
+     * Menangani penghapusan akun pengguna
+     */
     const handleDelete = async (id, name) => {
         if (!confirm(`Hapus pengguna "${name}"?`)) return;
 
@@ -77,6 +96,7 @@ export default function UsersPage() {
         }
     };
 
+    // Daftar role yang tersedia di sistem
     const roles = [
         'Perencanaan',
         'Pemeliharaan',
@@ -95,6 +115,7 @@ export default function UsersPage() {
         'Admin'
     ];
 
+    // Konfigurasi warna label role
     const roleColors = {
         'Admin': 'bg-purple-100 text-purple-700 border-purple-300',
         'KKU': 'bg-blue-100 text-blue-700 border-blue-300',
@@ -116,13 +137,13 @@ export default function UsersPage() {
     return (
         <Shell>
             <div className="p-4 md:p-8 max-w-7xl mx-auto">
-                {/* Header */}
+                {/* Judul Halaman */}
                 <div className="mb-6 md:mb-8">
                     <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">👥 Manajemen Akun</h1>
                     <p className="text-sm md:text-base text-slate-600">Kelola pengguna sistem E-Transport</p>
                 </div>
 
-                {/* Add User Button */}
+                {/* Tombol Tampil/Sembunyikan Form Tambah */}
                 <div className="mb-6">
                     <button
                         onClick={() => setShowForm(!showForm)}
@@ -133,7 +154,7 @@ export default function UsersPage() {
                     </button>
                 </div>
 
-                {/* Add User Form */}
+                {/* Form Tambah Pengguna (Input Data) */}
                 {showForm && (
                     <div className="glass-card p-4 md:p-6 mb-6 animate-slideDown">
                         <h2 className="text-lg md:text-xl font-bold text-slate-900 mb-4">Tambah Pengguna Baru</h2>
@@ -206,13 +227,13 @@ export default function UsersPage() {
                     </div>
                 )}
 
-                {/* Users List */}
+                {/* Daftar Pengguna yang Sudah Ada */}
                 <div className="glass-card overflow-hidden">
                     <div className="bg-gradient-to-r from-slate-50 to-slate-100 px-4 md:px-6 py-4 border-b border-slate-200">
                         <h2 className="text-base md:text-lg font-bold text-slate-900">Daftar Pengguna ({users.length})</h2>
                     </div>
 
-                    {/* Desktop Table */}
+                    {/* Tampilan Tabel (Untuk Desktop/Tablet) */}
                     <div className="hidden md:block overflow-x-auto">
                         <table className="w-full">
                             <thead className="bg-slate-50 border-b border-slate-200">
@@ -247,7 +268,7 @@ export default function UsersPage() {
                         </table>
                     </div>
 
-                    {/* Mobile Cards */}
+                    {/* Tampilan Kartu (Untuk Mobile) */}
                     <div className="md:hidden divide-y divide-slate-100">
                         {users.map((user) => (
                             <div key={user.id} className="p-4 hover:bg-slate-50 transition-colors">
@@ -270,6 +291,7 @@ export default function UsersPage() {
                         ))}
                     </div>
 
+                    {/* State jika data kosong */}
                     {users.length === 0 && (
                         <div className="p-8 text-center text-slate-500">
                             <p className="text-4xl mb-2">👥</p>
@@ -279,7 +301,7 @@ export default function UsersPage() {
                 </div>
             </div>
 
-            {/* Toast Notification */}
+            {/* Notifikasi Toast */}
             {toast && (
                 <Toast
                     message={toast.message}
@@ -288,6 +310,7 @@ export default function UsersPage() {
                 />
             )}
 
+            {/* Animasi Lokal */}
             <style jsx>{`
                 @keyframes slideDown {
                     from {

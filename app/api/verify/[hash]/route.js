@@ -1,11 +1,20 @@
+/**
+ * API Route: Verifikasi Barcode/QR (/api/verify/[hash])
+ * 
+ * Deskripsi: Endpoint publik (tanpa token) untuk memverifikasi keaslian hash QR Code.
+ * Mengecek apakah hash tersebut milik Pemohon, Asmen (Persetujuan), atau Fleet (Surat Jalan).
+ */
+
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
 export async function GET(req, { params }) {
-    const { hash } = params;
+    // Penanganan parameter dinamis untuk kompatibilitas Next.js 14/15/16
+    const resolvedParams = params instanceof Promise ? await params : params;
+    const hash = resolvedParams?.hash;
 
     try {
-        // 1. Check if it's an Applicant (Pemohon)
+        // 1. Cek apakah hash milik Pemohon (Pendaftaran Awal)
         const request = await prisma.transportRequest.findFirst({
             where: { barcode_pemohon: hash },
             include: { user: true }
@@ -17,7 +26,7 @@ export async function GET(req, { params }) {
             });
         }
 
-        // 2. Check if it's an Approver (Asmen/KKU Approval)
+        // 2. Cek apakah hash milik Approver (Persetujuan Asmen/KKU)
         const approval = await prisma.transportApproval.findFirst({
             where: { barcode_asmen: hash },
             include: { asmen: true }
@@ -29,7 +38,7 @@ export async function GET(req, { params }) {
             });
         }
 
-        // 3. Check if it's a Surat Jalan Issuer (KKU Fleet)
+        // 3. Cek apakah hash milik Penerbit Surat Jalan (Bagian Fleet/KKU)
         const fleet = await prisma.transportFleet.findFirst({
             where: { barcode_fleet: hash },
             include: { admin: true }
@@ -41,9 +50,10 @@ export async function GET(req, { params }) {
             });
         }
 
-        return NextResponse.json({ message: 'Not Found' }, { status: 404 });
+        // Jika hash tidak ditemukan di ketiga tabel tersebut
+        return NextResponse.json({ message: 'Tanda tangan digital tidak valid atau tidak ditemukan' }, { status: 404 });
     } catch (err) {
-        console.error(err);
-        return NextResponse.json({ message: 'Server Error' }, { status: 500 });
+        console.error("Verifikasi Error:", err);
+        return NextResponse.json({ message: 'Kesalahan Server', error: err.message }, { status: 500 });
     }
 }

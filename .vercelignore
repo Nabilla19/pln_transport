@@ -1,0 +1,11 @@
+# Exclude development files from Vercel deployment
+scripts/
+*.log
+.env
+.DS_Store
+
+# Exclude development documentation
+DEPLOYMENT_GUIDE.md
+
+# Exclude SQL files
+*.sql

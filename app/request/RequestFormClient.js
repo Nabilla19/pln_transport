@@ -8,14 +8,23 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import { id } from 'date-fns/locale';
 import "react-datepicker/dist/react-datepicker.css";
 
+// Daftarkan locale Indonesia untuk DatePicker
 registerLocale('id', id);
 
+/**
+ * Komponen RequestFormClient
+ * 
+ * Deskripsi: Formulir untuk membuat atau mengedit pengajuan transportasi.
+ * Menangani input data pemohon, detail perjalanan, dan validasi waktu lokal.
+ */
 export default function RequestFormClient() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const editId = searchParams.get('edit');
+    const editId = searchParams.get('edit'); // Ambil ID permohonan jika sedang dalam mode EDIT
     const [selectedDate, setSelectedDate] = useState(null);
     const [toast, setToast] = useState(null);
+
+    // State untuk menampung data formulir
     const [formData, setFormData] = useState({
         nama: '',
         jabatan: '',
@@ -28,22 +37,19 @@ export default function RequestFormClient() {
         lama_pakai: ''
     });
 
+    // Effect untuk mengambil data lama jika sedang mode EDIT
     useEffect(() => {
         if (editId) {
             const fetchRequest = async () => {
                 try {
                     const data = await api.get(`/api/requests/${editId}`);
 
-                    // Parse date for DatePicker
+                    // Konversi string tanggal dari DB ke objek Date untuk DatePicker
                     if (data.tanggal_jam_berangkat) {
                         setSelectedDate(new Date(data.tanggal_jam_berangkat));
                     }
 
-                    // Format the date for datetime-local input
-                    if (data.tanggal_jam_berangkat) {
-                        data.tanggal_jam_berangkat = new Date(data.tanggal_jam_berangkat)
-                            .toISOString().slice(0, 16);
-                    }
+                    // Sinkronisasi data ke state formData
                     setFormData({
                         nama: data.nama || '',
                         jabatan: data.jabatan || '',
@@ -64,44 +70,63 @@ export default function RequestFormClient() {
         }
     }, [editId]);
 
+    /**
+     * Menangani perubahan input teks, angka, dan select
+     */
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: name === 'jumlah_penumpang' ? parseInt(value) || 1 : value }));
     };
 
+    /**
+     * Menangani perubahan tanggal dari DatePicker
+     * Memastikan waktu yang dipilih tersimpan dengan offset zona waktu lokal (WIB)
+     */
     const handleDateChange = (date) => {
         setSelectedDate(date);
         if (date) {
-            // Force literal "local-as-UTC" storage to prevent timezone shift
-            // This ensures 11:00 AM picked by the user IS 11:00 AM in the database
+            // Format manual ke ISO string dengan menyertakan offset zona waktu
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');
             const seconds = "00";
-            // No offset, just Z to treat it as a literal timestamp
-            const literalUTC = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000Z`;
-            setFormData(prev => ({ ...prev, tanggal_jam_berangkat: literalUTC }));
+
+            // Hitung offset zona waktu (WIB biasanya +07:00)
+            const timezoneOffset = -date.getTimezoneOffset();
+            const offsetHours = String(Math.floor(Math.abs(timezoneOffset) / 60)).padStart(2, '0');
+            const offsetMinutes = String(Math.abs(timezoneOffset) % 60).padStart(2, '0');
+            const offsetSign = timezoneOffset >= 0 ? '+' : '-';
+            const timezoneString = `${offsetSign}${offsetHours}:${offsetMinutes}`;
+
+            const localDateTime = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${timezoneString}`;
+            setFormData(prev => ({ ...prev, tanggal_jam_berangkat: localDateTime }));
         } else {
             setFormData(prev => ({ ...prev, tanggal_jam_berangkat: '' }));
         }
     };
 
+    /**
+     * Menampilkan pesan notifikasi toast
+     */
     const showToast = (message, type = 'success') => {
         setToast({ message, type });
     };
 
+    /**
+     * Mengirim data formulir ke API (Create / Update)
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validate date is selected
+        // Validasi: pastikan tanggal sudah dipilih
         if (!selectedDate) {
             showToast('⚠️ Silakan pilih tanggal dan waktu keberangkatan', 'warning');
             return;
         }
 
-        // Check if user is authenticated
+        // Cek login user
         const token = localStorage.getItem('token');
         if (!token) {
             showToast('⚠️ Sesi Anda telah berakhir. Silakan login kembali.', 'error');
@@ -111,16 +136,17 @@ export default function RequestFormClient() {
 
         try {
             if (editId) {
-                // When editing, also reset status to pending for re-approval
+                // Proses Edit: data dikirim ke endpoint PUT
                 await api.put(`/api/requests/${editId}`, { ...formData, status: 'Pending Asmen/KKU' });
                 showToast('✅ Permohonan telah diperbarui dan akan direview kembali.', 'success');
             } else {
+                // Proses Buat Baru: data dikirim ke endpoint POST
                 await api.post('/api/requests', formData);
                 showToast('✅ Permohonan kendaraan Anda telah dikirim! Permohonan akan segera diproses oleh Asmen/KKU.', 'success');
             }
+            // Arahkan kembali ke riwayat permohonan setelah sukses
             setTimeout(() => router.push('/my-requests'), 1500);
         } catch (err) {
-            // Handle specific error cases
             if (err.message === 'Unauthorized') {
                 showToast('⚠️ Sesi Anda telah berakhir. Silakan login kembali.', 'error');
                 localStorage.removeItem('token');
@@ -148,6 +174,7 @@ export default function RequestFormClient() {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* SEKSI 1: IDENTITAS PEMOHON */}
                         <div className="glass-card p-6 md:p-8 bg-white border border-slate-100 shadow-sm">
                             <h2 className="text-lg font-bold text-sky-700 mb-6 flex items-center tracking-tight">
                                 <span className="w-8 h-8 rounded-full bg-sky-500 flex items-center justify-center mr-3 text-sm text-white shadow-sm font-bold">1</span>
@@ -216,6 +243,7 @@ export default function RequestFormClient() {
                             </div>
                         </div>
 
+                        {/* SEKSI 2: DETAIL PERJALANAN */}
                         <div className="glass-card p-6 md:p-8 bg-white border border-slate-100 shadow-sm">
                             <h2 className="text-lg font-bold text-sky-700 mb-6 flex items-center tracking-tight">
                                 <span className="w-8 h-8 rounded-full bg-sky-500 flex items-center justify-center mr-3 text-sm text-white shadow-sm font-bold">2</span>
@@ -266,7 +294,6 @@ export default function RequestFormClient() {
                                             wrapperClassName="w-full"
                                             required
                                         />
-
                                     </div>
                                     <div>
                                         <label className="block text-sm font-bold text-slate-700 mb-2">
@@ -283,7 +310,6 @@ export default function RequestFormClient() {
                                             placeholder="Jumlah penumpang"
                                             required
                                         />
-
                                     </div>
                                 </div>
                                 <div>
@@ -305,6 +331,7 @@ export default function RequestFormClient() {
                             </div>
                         </div>
 
+                        {/* TOMBOL AKSI */}
                         <div className="flex items-center justify-end gap-4 mt-8">
                             <button
                                 type="button"
@@ -321,7 +348,7 @@ export default function RequestFormClient() {
                 </div>
             </div>
 
-            {/* Toast Notification */}
+            {/* Notifikasi Toast */}
             {toast && (
                 <Toast
                     message={toast.message}

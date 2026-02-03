@@ -1,29 +1,84 @@
 # DOKUMENTASI STRATEGIS & TEKNIS: E-TRANSPORT PLN UP2D RIAU
 
-Dokumen ini adalah panduan tunggal komprehensif yang menggabungkan aspek operasional dan arsitektur teknis sistem E-Transport. Dirancang sebagai materi utama untuk monitoring sistem dan bahan presentasi Sidang Tugas Akhir.
+Dokumen ini adalah panduan tunggal komprehensif yang menggabungkan aspek operasional dan arsitektur teknis sistem E-Transport. Dirancang sebagai materi utama untuk monitoring sistem dan bahan presentasi Tugas Akhir.
 
 ---
 
-## 1. ARSITEKTUR FOLDER (FULL-STACK NEXT.JS)
-Sistem telah dimigrasikan sepenuhnya ke JavaScript (Next.js 16). Berikut adalah pembagian folder berdasarkan fungsinya:
-
-### A. Backend (Logika & API)
-Seluruh logika server-side berada di direktori root dan sub-folder `api`:
-- **`/app/api/`**: Berisi seluruh endpoint API (Routes). Setiap folder di dalamnya merepresentasikan fungsi (Contoh: `api/requests`, `api/approval`).
-- **`/lib/prisma.js`**: Konfigurasi koneksi database menggunakan Prisma ORM.
-- **`/lib/auth.js`**: Logika autentikasi dan verifikasi JWT.
-- **`/prisma/schema.prisma`**: Definisi skema database dan relasi antar tabel.
-
-### B. Frontend (Antarmuka & UI)
-Bagian yang berinteraksi langsung dengan pengguna:
-- **`/app/`**: Folder utama untuk halaman (Pages). Contoh: `app/dashboard/`, `app/request/form/`.
-- **`/components/`**: Komponen UI yang dapat digunakan kembali (Sidebar, Navbar, Toast, Live Camera).
-- **`/public/`**: Asset statis seperti logo PLN, gambar latar belakang, dan folder `uploads` untuk foto operasional.
+## 1. PENDAHULUAN
+**E-Transport** adalah sistem manajemen armada kendaraan dinas digital yang mengotomatisasi seluruh siklus peminjaman kendaraan di lingkungan PLN UP2D RIAU. Sistem ini menggantikan proses manual dengan alur kerja digital yang terintegrasi, mulai dari pengajuan, persetujuan, penugasan armada, hingga pemantauan pintu keluar/masuk oleh petugas keamanan.
 
 ---
 
-## 2. USE CASE DIAGRAM
-Menggambarkan interaksi antara aktor (personil) dengan fungsionalitas sistem.
+## 2. REKAP TEKNOLOGI (TECH STACK)
+Sistem ini dibangun dengan pondasi teknologi modern untuk menjamin performa dan skalabilitas:
+
+| Komponen | Teknologi | Keterangan |
+| :--- | :--- | :--- |
+| **Framework** | Next.js 15.1 | Platform React modern dengan App Router. |
+| **Bahasa** | JavaScript / Node.js | Standar industri untuk aplikasi web cepat. |
+| **Database** | MySQL | Penyimpanan data relasional yang handal. |
+| **ORM** | Prisma | Akses database yang aman (Type-safe). |
+| **Keamanan** | JWT & Bcrypt | Autentikasi token & enkripsi password. |
+| **UI/UX** | Vanilla CSS + Tailwind | Desain premium, modern, dan responsif. |
+| **Fitur Kamera** | WebRTC API | Pengambilan foto live tanpa plugin tambahan. |
+| **Deployment** | Vercel | Infrastruktur cloud untuk ketersediaan tinggi. |
+
+---
+
+## 3. STRUKTUR PROYEK & FUNGSIONALITAS FILE
+Berikut adalah rincian file utama yang mendefinisikan logika sistem:
+
+### A. Folder Core & Utilities (`/lib`)
+| File | Fungsi Utama |
+| :--- | :--- |
+| [prisma.js](file:///Users/nia/Documents/transport_pln%20copy/lib/prisma.js) | Singleton instance untuk koneksi Database. |
+| [auth.js](file:///Users/nia/Documents/transport_pln%20copy/lib/auth.js) | Middlewire verifikasi token JWT pada sisi server. |
+| [notifications.js](file:///Users/nia/Documents/transport_pln%20copy/lib/notifications.js) | Engine pengiriman notifikasi antar role. |
+| [api.js](file:///Users/nia/Documents/transport_pln%20copy/lib/api.js) | Wrapper API Frontend untuk komunikasi data yang aman. |
+
+### B. Komponen Bersama (`/components`)
+| Nama Komponen | Kegunaan |
+| :--- | :--- |
+| [Sidebar.js](file:///Users/nia/Documents/transport_pln%20copy/components/Sidebar.js) | Navigasi cerdas yang berubah sesuai Role pengguna. |
+| [CameraCapture.js](file:///Users/nia/Documents/transport_pln%20copy/components/CameraCapture.js) | Modul kamera untuk petugas security (Check-in/out). |
+| [Toast.js](file:///Users/nia/Documents/transport_pln%20copy/components/Toast.js) | Sistem notifikasi visual (Success/Error/Warning). |
+| [Shell.js](file:///Users/nia/Documents/transport_pln%20copy/components/Shell.js) | Layout utama yang menjaga keamanan halaman (Auth Guard). |
+
+### C. Backend API Routes (`/app/api/...`)
+| Endpoint | Deskripsi Proses |
+| :--- | :--- |
+| `/api/auth/login` | Validasi kredensial dan pembuatan Token JWT. |
+| `/api/requests` | Manajemen siklus hidup permohonan kendaraan. |
+| `/api/approval` | Logika persetujuan oleh Asmen dan KKU. |
+| `/api/fleet` | Penugasan unit kendaraan dan driver oleh Fleet Admin. |
+| `/api/security` | Pencatatan log operasional (KM & Foto) di gerbang. |
+
+---
+
+## 4. ROLE & PERMISSIONS (HAK AKSES)
+Sistem ini mengimplementasikan Role-Based Access Control (RBAC) yang ketat:
+
+| Role | Hak Akses Utama |
+| :--- | :--- |
+| **Pemohon** | Input pengajuan, revisi data, monitoring riwayat pribadi. |
+| **Asmen** | Persetujuan awal (bidang terkait) & monitoring pengajuan. |
+| **KKU** | Persetujuan final & manajemen notifikasi penugasan. |
+### 3. Perbaikan Bug & Optimasi
+- **Fix**: Memperbaiki variabel undefined pada API hapus user.
+- **Optimasi**: Implementasi penanganan parameter dinamis (`params`) yang kompatibel dengan Next.js versi terbaru pada seluruh route dinamis.
+- **Security**: Implementasi fitur **Auto-Logout** otomatis jika pengguna tidak melakukan aktivitas (mouse/keyboard/scroll) selama **10 menit** untuk meningkatkan keamanan workstation.
+
+## Dokumentasi Teknis
+| **Admin Fleet** | Penugasan kendaraan (Unit & Driver) & cetak Surat Jalan. |
+| **Security** | Dokumentasi real-time (Check-in/Check-out pintu masuk). |
+| **Admin IT** | Manajemen akun pengguna & pemeliharaan teknis sistem. |
+
+---
+
+## 5. DIAGRAM SISTEM (MERMAID)
+
+### A. Use Case Diagram
+Mendefinisikan interaksi personil dengan sistem.
 
 ```mermaid
 usecaseDiagram
@@ -31,96 +86,78 @@ usecaseDiagram
     actor "Asmen/KKU" as A
     actor "Admin Fleet" as F
     actor "Security" as S
-    actor "Administrator" as AD
+    actor "IT Admin" as AD
 
     U --> (Input Pengajuan)
     U --> (Cek Status)
     A --> (Verifikasi & Approval)
-    F --> (Penugasan Mobil & Driver)
+    F --> (Assign Mobil & Driver)
+    F --> (Cetak Surat Jalan)
     S --> (Check-In: Foto KM & Driver)
     S --> (Check-Out: Foto KM & Driver)
-    AD --> (Manajemen Akun)
-    AD --> (Monitoring Dashboard)
+    AD --> (Manajemen User)
+    AD --> (Monitoring Log Sistem)
 ```
 
----
-
-## 3. FLOWCHART SISTEM (ACTIVITY DIAGRAM)
-Alur proses bisnis dari awal pengajuan hingga kendaraan kembali ke kantor.
+### B. Flowchart Operasional
+Alur kerja dari pengajuan hingga kendaraan kembali ke pangkalan.
 
 ```mermaid
 graph TD
     Start([Mulai]) --> Form[Pegawai: Isi Form Pengajuan]
-    Form --> Appr{Persetujuan Asmen?}
+    Form --> Valid{Validasi Data?}
+    Valid -- Tidak --> Revisi[Pemohon: Revisi Data]
+    Revisi --> Form
+    Valid -- Ya --> Appr{Approval Asmen?}
     Appr -- Ditolak --> End([Selesai: Ditolak])
     Appr -- Disetujui --> Fleet[Fleet: Pilih Unit & Driver]
-    Fleet --> SecIn[Security: Check-In & Foto Live]
+    Fleet --> SecIn[Security: Check-In & Foto KM Awal]
     SecIn --> Trip[Operasional Perjalanan]
-    Trip --> SecOut[Security: Check-Out & Foto Akhir]
-    SecOut --> Finish([Selesai: Mobil Available])
+    Trip --> SecOut[Security: Check-Out & Foto KM Akhir]
+    SecOut --> Finish([Selesai: Mobil Tersedia Kembali])
 ```
 
----
+### C. Sequence Diagram (Authentication)
+Proses teknis keamanan masuk ke sistem.
 
-## 4. API SEQUENCE DIAGRAMS
-Detail teknis urutan pesan antar objek/sistem untuk setiap proses utama.
-
-### A. Autentikasi (Login)
 ```mermaid
 sequenceDiagram
-    participant Client as Browser (UI)
+    participant Browser as UI (Next.js)
     participant API as API /auth/login
     participant DB as MySQL (Prisma)
 
-    Client->>API: Kirim Email & Password
-    API->>DB: Cari User berdasarkan Email
-    DB-->>API: Data User & Password Terenkripsi
-    API->>API: Validasi Password (Bcrypt)
-    API->>API: Generate Token JWT
-    API-->>Client: Token & Role (Success)
-```
-
-### B. Pengajuan Transport (Request)
-```mermaid
-sequenceDiagram
-    participant Client as Browser (UI)
-    participant API as API /requests
-    participant DB as MySQL (Prisma)
-
-    Client->>API: POST Data Perjalanan + Token
-    API->>API: Verifikasi JWT
-    API->>DB: Insert ke tabel transport_requests
-    DB-->>API: ID Request Baru
-    API-->>Client: Notification Success
-```
-
-### C. Operasional Security (Live Camera Capture)
-```mermaid
-sequenceDiagram
-    participant Client as Browser (Security UI)
-    participant Device as Camera (WebRTC)
-    participant API as API /security/log
-    participant DB as MySQL (Prisma)
-
-    Client->>Device: Ambil Foto Live (Blob/JPEG)
-    Client->>API: Kirim Foto + KM + ID Request
-    API->>API: Simpan File ke Storage /public
-    API->>DB: Update transport_security_logs
-    API->>DB: Update transport_vehicles (Status)
-    DB-->>API: Update Berhasil
-    API-->>Client: Berhasil Check-In/Out
+    Browser->>API: POST login {email, password}
+    API->>DB: Query User by Email
+    DB-->>API: User Record + Password Hash
+    API->>API: Bcrypt Compare (Password)
+    alt Valid
+        API->>API: Generate Token JWT
+        API-->>Browser: 200 OK (Token + User Data)
+        Browser->>Browser: Set LocalStorage (Token)
+    else Invalid
+        API-->>Browser: 401 Unauthorized
+    end
 ```
 
 ---
 
-## 5. REKAP TEKNOLOGI (TECH STACK)
-Sistem ini dibangun dengan pondasi teknologi terkini untuk menjamin skalabilitas:
-1.  **Framework**: Next.js 16.1 (Modern JavaScript Platform).
-2.  **Language**: JavaScript / Node.js.
-3.  **ORM**: Prisma (Type-safe Database Access).
-4.  **Database**: MySQL (Reliable Data Storage).
-5.  **Design**: Vanilla CSS & Tailwind CSS (Premium UI Look).
-6.  **Real-time Capture**: WebRTC API.
+## 6. PEMELIHARAAN SISTEM
+## Fitur Keamanan (Security Features)
+
+Sistem E-Transport dilengkapi dengan beberapa layer keamanan untuk melindungi integritas data dan akses pengguna.
+
+| Fitur | Deskripsi | Implementasi |
+| :--- | :--- | :--- |
+| **Autentikasi JWT** | Menggunakan JSON Web Token untuk verifikasi sesi API. | `lib/auth.js` |
+| **Password Hashing** | Password disimpan dalam format hash menggunakan Bcrypt. | `app/api/auth/login` |
+| **Auto-Logout (Idle)** | Sistem otomatis logout jika pengguna tidak aktif selama **10 menit**. | `components/Shell.js` |
+| **QR Signature** | Verifikasi keaslian dokumen melalui tanda tangan digital QR. | `app/api/verify` |
+| **RBAC** | Pembatasan akses fitur berdasarkan peran (Role) pengguna. | `components/Shell.js` |
 
 ---
-*Dokumen ini merupakan satu-satunya acuan resmi (Single Source of Truth) untuk sistem E-Transport PLN UP2D Riau.*
+1.  **Backup Database**: Gunakan dump MySQL secara berkala pada tabel `transport_requests` dan `users`.
+2.  **Pembersihan Log**: Foto security yang tersimpan di `/public/uploads` dapat diarsipkan setiap 6 bulan.
+3.  **Update Security**: Selalu perbarui `JWT_SECRET` pada file environment jika terindikasi kebocoran data.
+
+---
+*Dokumen ini merupakan satu-satunya acuan resmi (Single Source of Truth) untuk pemeliharaan dan pengembangan sistem E-Transport PLN UP2D Riau.*

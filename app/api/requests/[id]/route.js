@@ -1,14 +1,25 @@
+/**
+ * API Route: Detail Permohonan Kendaraan (/api/requests/[id])
+ * 
+ * Deskripsi: Menangani pengambilan detail satu permohonan (GET) 
+ * dan pemutakhiran data permohonan oleh pemohon atau admin (PUT).
+ */
+
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { verifyAuth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 
+/**
+ * Mendapatkan Detail Lengkap Permohonan
+ * Termasuk data: Pemohon, Approval, Fleet, dan Log Security.
+ */
 export async function GET(req, { params }) {
     const user = await verifyAuth(req);
     if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
     try {
-        // Handle both Sync and Async params (Compatibility for Next 14/15/16)
+        // Penanganan parameter dinamis untuk kompatibilitas Next.js 14/15/16
         const resolvedParams = params instanceof Promise ? await params : params;
         const id = resolvedParams?.id;
 
@@ -41,6 +52,10 @@ export async function GET(req, { params }) {
     }
 }
 
+/**
+ * Memperbarui Data Permohonan
+ * Hanya dapat dilakukan oleh pemilik pengajuan atau role Admin.
+ */
 export async function PUT(req, { params }) {
     const user = await verifyAuth(req);
     if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -50,17 +65,19 @@ export async function PUT(req, { params }) {
         const id = resolvedParams?.id;
         const body = await req.json();
 
+        // Cari data lama untuk validasi kepemilikan
         const existingRequest = await prisma.transportRequest.findUnique({
             where: { id: parseInt(id) }
         });
 
         if (!existingRequest) return NextResponse.json({ message: 'Not Found' }, { status: 404 });
 
-        // Only owner or Admin can update
+        // Validasi: Hanya pemilik atau Admin yang boleh mengubah data pengajuan
         if (existingRequest.user_id !== user.id && user.role !== 'Admin') {
             return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
         }
 
+        // Jalankan update data
         const updatedRequest = await prisma.transportRequest.update({
             where: { id: parseInt(id) },
             data: {

@@ -4,6 +4,12 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
 
+/**
+ * Komponen Sidebar
+ * 
+ * Deskripsi: Menu navigasi utama aplikasi. Menangani navigasi berbasis role,
+ * sistem notifikasi (polling), dan tampilan responsif (Desktop/Mobile).
+ */
 export default function Sidebar() {
     const pathname = usePathname();
     const router = useRouter();
@@ -13,11 +19,13 @@ export default function Sidebar() {
     const searchParams = useSearchParams();
     const currentFilter = searchParams.get('filter');
 
+    // Mengambil data user dari localStorage saat komponen dimuat
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) setUser(JSON.parse(storedUser));
     }, []);
 
+    // Polling notifikasi setiap 1 menit jika user sudah login
     useEffect(() => {
         if (!user) return;
 
@@ -26,15 +34,18 @@ export default function Sidebar() {
                 const data = await api.get('/api/notifications');
                 setUnreadCount(data.length);
             } catch (err) {
-                console.error('Failed to fetch notifications:', err);
+                console.error('Gagal mengambil notifikasi:', err);
             }
         };
 
         fetchNotifications();
-        const interval = setInterval(fetchNotifications, 60000); // Polling every 1 minute
+        const interval = setInterval(fetchNotifications, 60000);
         return () => clearInterval(interval);
     }, [user]);
 
+    /**
+     * Fungsi Logout
+     */
     const logout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -43,6 +54,7 @@ export default function Sidebar() {
 
     if (!user) return null;
 
+    // Helper untuk mengecek role user
     const isAsmen = user.role.includes('Asmen');
     const isKKU = user.role === 'KKU';
     const isSecurity = user.role === 'Security';
@@ -51,19 +63,26 @@ export default function Sidebar() {
 
     const canSeeAll = ['Asmen', 'KKU', 'Admin', 'Security', 'Admin Fleet'].some(r => user.role.includes(r));
 
+    /**
+     * Konfigurasi menu navigasi
+     */
     const navItems = [
         { label: 'Dashboard', href: '/dashboard', icon: '🏠', show: true },
         { label: 'Permohonan Saya', href: '/my-requests', icon: '📋', show: !isSecurity, filter: null },
-        { label: 'Buat Pengajuan', href: '/request', icon: '➕', show: !isSecurity }, // Hidden for Security
+        { label: 'Buat Pengajuan', href: '/request', icon: '➕', show: !isSecurity },
         { label: 'Monitoring Seluruh', href: '/my-requests?filter=all', icon: '🔍', show: canSeeAll, filter: 'all' },
         { label: 'Persetujuan', href: '/my-requests?filter=approval', icon: '✅', show: isAsmen || isKKU, filter: 'approval' },
         { label: 'Manajemen Fleet', href: '/my-requests?filter=fleet', icon: '🚗', show: isKKU || isAdminFleet, filter: 'fleet' },
         { label: 'Pos Security', href: '/my-requests?filter=security', icon: '👮', show: isSecurity, filter: 'security' },
-        { label: 'Manajemen Akun', href: '/users', icon: '👥', show: isAdmin }, // New for Admin
+        { label: 'Manajemen Akun', href: '/users', icon: '👥', show: isAdmin },
     ];
 
+    // Filter menu berdasarkan izin (show)
     const filteredNav = navItems.filter(item => item.show);
 
+    /**
+     * Mengecek apakah menu sedang aktif (berdasarkan path dan filter)
+     */
     const isItemActive = (item) => {
         if (item.href.includes('?')) {
             const [path, query] = item.href.split('?');
@@ -75,13 +94,18 @@ export default function Sidebar() {
         return pathname === item.href;
     };
 
+    /**
+     * Sub-Komponen Konten Sidebar (digunakan di Desktop & Mobile)
+     */
     const SidebarContent = () => (
         <>
+            {/* Logo & Info Unit */}
             <div className="mb-8 font-primary">
                 <h1 className="text-xl font-bold text-slate-900 tracking-tight">E-Transport</h1>
                 <p className="text-slate-500 text-xs font-medium">PLN UP2D RIAU</p>
             </div>
 
+            {/* Link Navigasi */}
             <nav className="flex-1 space-y-2">
                 {filteredNav.map((item) => (
                     <Link
@@ -97,6 +121,7 @@ export default function Sidebar() {
                             <span className="text-lg">{item.icon}</span>
                             <span className="font-semibold">{item.label}</span>
                         </div>
+                        {/* Badge Notifikasi Merah (untuk menu tertentu) */}
                         {unreadCount > 0 && (item.filter === 'approval' || item.filter === 'security' || item.filter === 'fleet') && (
                             <span className="flex items-center justify-center w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full shadow-sm animate-pulse">
                                 {unreadCount}
@@ -106,6 +131,7 @@ export default function Sidebar() {
                 ))}
             </nav>
 
+            {/* Info User & Tombol Logout */}
             <div className="mt-auto pt-6 border-t border-slate-100">
                 <div className="flex items-center gap-3 mb-4 px-2">
                     <div className="w-10 h-10 rounded-full bg-sky-500/10 flex items-center justify-center text-sky-600 text-sm font-bold border border-sky-400/20 shadow-sm">
@@ -128,12 +154,12 @@ export default function Sidebar() {
 
     return (
         <>
-            {/* Desktop Sidebar */}
+            {/* Tampilan Sidebar Desktop */}
             <aside className="w-64 glass-card h-screen sticky top-0 hidden md:flex flex-col p-6 m-4 ml-0">
                 <SidebarContent />
             </aside>
 
-            {/* Mobile Header with Hamburger */}
+            {/* Header Mobile dengan Tombol Hamburger */}
             <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-lg border-b border-slate-200 shadow-sm">
                 <div className="flex items-center justify-between p-4">
                     <div>
@@ -143,7 +169,7 @@ export default function Sidebar() {
                     <button
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         className="w-10 h-10 flex flex-col items-center justify-center gap-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 transition-all active:scale-95"
-                        aria-label="Toggle menu"
+                        aria-label="Menu"
                     >
                         <span className={`w-5 h-0.5 bg-slate-700 rounded-full transition-all ${mobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
                         <span className={`w-5 h-0.5 bg-slate-700 rounded-full transition-all ${mobileMenuOpen ? 'opacity-0' : ''}`}></span>
@@ -152,7 +178,7 @@ export default function Sidebar() {
                 </div>
             </div>
 
-            {/* Mobile Menu Overlay */}
+            {/* Overlay Menu Mobile */}
             {mobileMenuOpen && (
                 <div
                     className="md:hidden fixed inset-0 z-30 bg-black/50 backdrop-blur-sm"
@@ -160,13 +186,13 @@ export default function Sidebar() {
                 />
             )}
 
-            {/* Mobile Sidebar */}
+            {/* Sidebar Mobile (Slide-in) */}
             <aside className={`md:hidden fixed top-0 left-0 bottom-0 w-72 bg-white z-40 transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
                 } shadow-2xl flex flex-col p-6`}>
                 <SidebarContent />
             </aside>
 
-            {/* Spacer for mobile */}
+            {/* Spacer untuk header mobile agar konten tidak tertutup */}
             <div className="md:hidden h-16"></div>
         </>
     );

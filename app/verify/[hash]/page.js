@@ -3,6 +3,12 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { api } from '@/lib/api';
 
+/**
+ * Halaman Verifikasi Publik
+ * 
+ * Deskripsi: Digunakan untuk memverifikasi keaslian tanda tangan digital (QR Code) 
+ * pada surat jalan atau dokumen pengajuan. Halaman ini dapat diakses tanpa login.
+ */
 export default function VerifyPage() {
     const { hash } = useParams();
     const [result, setResult] = useState(null);
@@ -11,10 +17,11 @@ export default function VerifyPage() {
     useEffect(() => {
         const verify = async () => {
             try {
-                // We'll call an API to verify the hash
+                // Memanggil API verifikasi berdasarkan hash yang ada di URL
                 const data = await api.get(`/api/verify/${hash}`);
                 setResult(data);
             } catch (err) {
+                // Jika hash tidak ditemukan atau server error
                 setResult({ error: 'Barcode tidak valid atau tidak ditemukan.' });
             } finally {
                 setLoading(false);
@@ -23,6 +30,7 @@ export default function VerifyPage() {
         verify();
     }, [hash]);
 
+    // Tampilan saat proses loading verifikasi
     if (loading) return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-primary text-slate-400 italic">
             Memverifikasi Tanda Tangan Digital...
@@ -33,6 +41,7 @@ export default function VerifyPage() {
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-primary">
             <div className="max-w-md w-full glass-card p-8 bg-white shadow-2xl border-t-8 border-sky-600 rounded-3xl text-center">
                 <div className="mb-6">
+                    {/* Ikon Status: Hijau jika Valid, Merah jika Error */}
                     {result.error ? (
                         <div className="w-20 h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto text-4xl">❌</div>
                     ) : (
@@ -49,12 +58,14 @@ export default function VerifyPage() {
                         <p className="text-slate-600 leading-relaxed py-4 border-y border-slate-100">
                             Surat ini sudah ditandai oleh <strong className="text-sky-700">{result.role}</strong> pada <strong className="text-slate-900">{new Date(result.timestamp).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</strong>.
                         </p>
+                        {/* Menampilkan hash asli sebagai referensi teknis */}
                         <div className="text-xs text-slate-400 font-mono break-all bg-slate-50 p-3 rounded-xl border border-slate-100">
                             Hash: {hash}
                         </div>
                     </div>
                 )}
 
+                {/* Tombol kembali ke sistem utama */}
                 <button
                     onClick={() => window.location.href = '/'}
                     className="mt-8 text-sky-600 font-bold hover:text-sky-800 transition-colors uppercase tracking-widest text-xs"

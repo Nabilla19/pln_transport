@@ -1,6 +1,15 @@
 "use client";
 import React, { useRef, useState } from 'react';
 
+/**
+ * Komponen CameraCapture
+ * 
+ * Deskripsi: Komponen untuk mengambil foto secara langsung menggunakan WebRTC API (Kamera Laptop/HP)
+ * atau mengunggah file gambar dari penyimpanan perangkat.
+ * 
+ * @param {Function} onCapture - Callback yang dipanggil saat gambar berhasil diambil
+ * @param {string} label - Label teks untuk input
+ */
 export default function CameraCapture({ onCapture, label }) {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
@@ -8,26 +17,30 @@ export default function CameraCapture({ onCapture, label }) {
     const [isStreaming, setIsStreaming] = useState(false);
     const [error, setError] = useState('');
     const [preview, setPreview] = useState(null);
-    const [facingMode, setFacingMode] = useState('environment'); // Default to back camera
+    const [facingMode, setFacingMode] = useState('environment'); // Default: kamera belakang (untuk HP)
     const streamRef = useRef(null);
 
+    /**
+     * Memulai aliran video dari kamera
+     */
     const startCamera = async (mode = facingMode) => {
         try {
             setError('');
             setPreview(null);
 
+            // Cek dukungan browser
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 throw new Error("Browser Anda tidak mendukung akses kamera secara langsung. Silakan gunakan tombol 'Ambil/Upload File'.");
             }
 
-            // Stop any existing stream
+            // Hentikan stream yang sedang berjalan jika ada
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach(track => track.stop());
             }
 
             setIsStreaming(true);
 
-            // Fetch stream with specific facingMode
+            // Konfigurasi stream video
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: {
                     facingMode: mode,
@@ -38,7 +51,7 @@ export default function CameraCapture({ onCapture, label }) {
 
             streamRef.current = stream;
 
-            // Ensure video element is ready
+            // Sambungkan stream ke elemen <video>
             setTimeout(() => {
                 if (videoRef.current) {
                     videoRef.current.srcObject = stream;
@@ -49,7 +62,7 @@ export default function CameraCapture({ onCapture, label }) {
             }, 200);
 
         } catch (err) {
-            console.error("Error accessing camera:", err);
+            console.error("Error saat mengakses kamera:", err);
             setIsStreaming(false);
             let errorMessage = "Masalah Kamera: ";
             if (err.name === 'NotAllowedError') errorMessage += "Izin kamera ditolak.";
@@ -59,6 +72,9 @@ export default function CameraCapture({ onCapture, label }) {
         }
     };
 
+    /**
+     * Mengganti antara kamera depan dan kamera belakang
+     */
     const toggleCamera = () => {
         const newMode = facingMode === 'user' ? 'environment' : 'user';
         setFacingMode(newMode);
@@ -67,6 +83,9 @@ export default function CameraCapture({ onCapture, label }) {
         }
     };
 
+    /**
+     * Menghentikan kamera dan membersihkan stream
+     */
     const stopCamera = () => {
         if (streamRef.current) {
             streamRef.current.getTracks().forEach(track => track.stop());
@@ -76,9 +95,12 @@ export default function CameraCapture({ onCapture, label }) {
         setIsStreaming(false);
     };
 
+    /**
+     * Mengambil gambar (snapshot) dari video stream
+     */
     const capturePhoto = () => {
         if (canvasRef.current && videoRef.current) {
-            // CRITICAL: Check if video is actually ready to avoid black screen
+            // Pastikan video sudah siap
             if (videoRef.current.readyState < 2) {
                 setError("Kamera belum siap, mohon tunggu sebentar...");
                 return;
@@ -91,25 +113,21 @@ export default function CameraCapture({ onCapture, label }) {
             canvasRef.current.width = width;
             canvasRef.current.height = height;
 
-            // Draw
+            // Gambar frame video ke canvas
             context.drawImage(videoRef.current, 0, 0, width, height);
 
-            const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.6); // Reduced from 0.7
-
-            // Safety check: is the captured image just black?
-            const pixelData = context.getImageData(width / 2, height / 2, 1, 1).data;
-            if (pixelData[0] === 0 && pixelData[1] === 0 && pixelData[2] === 0 && pixelData[3] === 255) {
-                // If the middle pixel is pure black, it might be a failed capture.
-                // But could also just be a dark photo. We'll show a warning.
-                console.warn("Captured frame might be black.");
-            }
+            // Konversi canvas ke format gambar JPEG (Base64)
+            const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.6);
 
             setPreview(dataUrl);
-            onCapture(dataUrl);
+            onCapture(dataUrl); // Kirim hasil ke parent component
             stopCamera();
         }
     };
 
+    /**
+     * Menangani input file gambar dari galeri/folder
+     */
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -128,12 +146,14 @@ export default function CameraCapture({ onCapture, label }) {
         <div className="space-y-3 font-primary">
             <label className="block text-sm font-bold text-slate-700">{label}</label>
 
+            {/* Menampilkan pesan error jika ada */}
             {error && (
                 <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-xl text-[10px] font-bold">
                     ⚠️ {error}
                 </div>
             )}
 
+            {/* Area Tampilan Kamera / Preview Gambar */}
             <div className="relative glass-card overflow-hidden bg-slate-900 aspect-video flex items-center justify-center rounded-xl shadow-inner border-2 border-slate-200 group">
                 <video
                     ref={videoRef}
@@ -153,6 +173,7 @@ export default function CameraCapture({ onCapture, label }) {
                     </div>
                 )}
 
+                {/* Tombol tukar kamera (hanya muncul saat streaming) */}
                 {isStreaming && (
                     <div className="absolute top-2 right-2 flex gap-2">
                         <button
@@ -169,6 +190,7 @@ export default function CameraCapture({ onCapture, label }) {
                 <canvas ref={canvasRef} className="hidden" />
             </div>
 
+            {/* Tombol Kontrol Kamera */}
             <div className="flex gap-2">
                 {!isStreaming ? (
                     <>

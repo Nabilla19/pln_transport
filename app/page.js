@@ -1,10 +1,16 @@
 "use client";
-// Build trigger: 2026-02-02 14:41
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import Toast from '@/components/Toast';
 
+/**
+ * Halaman Login Utama
+ * 
+ * Deskripsi: Gerbang masuk aplikasi E-Transport.
+ * Menangani otentikasi pengguna, penyimpanan token JWT, 
+ * dan memiliki desain modern dengan split-screen (branding & form).
+ */
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -13,17 +19,28 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState(null);
 
+  /**
+   * Menampilkan notifikasi popup (Toast)
+   */
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
   };
 
+  /**
+   * Menangani proses login saat form dikirim
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     try {
+      // Kirim kredensial ke API Login
       const data = await api.post('/api/auth/login', { email, password });
+
+      // Simpan Token dan Data User ke LocalStorage jika berhasil
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Arahkan ke Dashboard
       router.push('/dashboard');
     } catch (err) {
       showToast(`❌ ${err.message}`, 'error');
@@ -33,26 +50,25 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen">
-      {/* Left Side - Branding & Illustration */}
+      {/* Sisi Kiri - Branding, Logo PLN, & Ilustrasi Fitur (Hanya di Desktop) */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-        {/* Background Image */}
+        {/* Gambar Latar Belakang */}
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: 'url(/images/bg-pln.jpg)' }}
         ></div>
 
-        {/* Dark Overlay for better text readability */}
+        {/* Overlay Gradien Biru agar teks mudah dibaca */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-blue-800/85 to-sky-900/90"></div>
 
-        {/* Animated Background Pattern */}
+        {/* Pola Latar Belakang Animasi (Efek Blur Gelombang) */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-yellow-300 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
-        {/* Content */}
+        {/* Konten Branding */}
         <div className="relative z-10 flex flex-col justify-center items-center w-full p-12 text-white">
-          {/* Logo PLN */}
           <div className="mb-8 animate-fade-in drop-shadow-2xl">
             <img
               src="/images/logo-pln.png"
@@ -61,7 +77,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Title */}
           <h1 className="text-5xl font-bold mb-4 text-center animate-slide-up">
             E-Transport
           </h1>
@@ -69,7 +84,7 @@ export default function LoginPage() {
             Sistem Manajemen Kendaraan Dinas
           </p>
 
-          {/* Features */}
+          {/* Kartu Informasi Fitur Utama */}
           <div className="space-y-4 w-full max-w-md animate-slide-up delay-200">
             <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
               <div className="w-10 h-10 bg-yellow-400/30 rounded-lg flex items-center justify-center">
@@ -108,7 +123,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Footer */}
           <div className="mt-12 text-center text-blue-100 text-sm">
             <p className="font-semibold">PLN UP2D RIAU</p>
             <p className="mt-1">Unit Pelaksana Pelayanan Distribusi</p>
@@ -116,10 +130,10 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right Side - Login Form */}
+      {/* Sisi Kanan - Formulir Login */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="w-full max-w-md">
-          {/* Mobile Logo */}
+          {/* Logo untuk tampilan Mobile (Layar kecil) */}
           <div className="lg:hidden mb-8 text-center">
             <div className="inline-flex mb-4 drop-shadow-md">
               <img
@@ -132,7 +146,7 @@ export default function LoginPage() {
             <p className="text-slate-500">PLN UP2D RIAU</p>
           </div>
 
-          {/* Login Card */}
+          {/* Kartu Login */}
           <div className="bg-white rounded-2xl shadow-2xl p-8 border border-slate-200">
             <div className="mb-8">
               <h2 className="text-3xl font-bold text-slate-900 mb-2">Selamat Datang</h2>
@@ -140,7 +154,7 @@ export default function LoginPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email Input */}
+              {/* Input Email */}
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-2">
                   Email
@@ -163,7 +177,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Password Input */}
+              {/* Input Password */}
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-2">
                   Password
@@ -183,6 +197,7 @@ export default function LoginPage() {
                     required
                     disabled={isLoading}
                   />
+                  {/* Tombol Tampil/Sembunyi Password */}
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -191,7 +206,7 @@ export default function LoginPage() {
                   >
                     {showPassword ? (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268-2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                       </svg>
                     ) : (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -203,7 +218,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Submit Button */}
+              {/* Tombol Login (Masuk) */}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -228,7 +243,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* Footer */}
+            {/* Footer Form */}
             <div className="mt-8 pt-6 border-t border-slate-200 text-center">
               <p className="text-sm text-slate-500">
                 © 2026 PT PLN (Persero) - Unit Pelaksana Pelayanan Distribusi Riau
@@ -236,7 +251,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Help Text */}
+          {/* Teks Bantuan */}
           <div className="mt-6 text-center">
             <p className="text-sm text-slate-500">
               Butuh bantuan? Hubungi <span className="text-sky-600 font-semibold">Admin IT</span>
@@ -245,6 +260,7 @@ export default function LoginPage() {
         </div>
       </div>
 
+      {/* Komponen Notifikasi */}
       {toast && (
         <Toast
           message={toast.message}

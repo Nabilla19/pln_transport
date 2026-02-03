@@ -5,33 +5,46 @@ import { useSearchParams } from 'next/navigation';
 import { api, formatDisplayId } from '@/lib/api';
 import Shell from '@/components/Shell';
 
+/**
+ * Komponen MyRequestsClient
+ * 
+ * Deskripsi: Menampilkan daftar permohonan kendaraan dalam bentuk tabel.
+ * Mendukung filter berdasarkan status (Persetujuan, Menunggu Fleet, Pos Security)
+ * dan mencakup logika untuk menandai notifikasi sebagai "sudah dibaca".
+ */
 export default function MyRequestsClient() {
     const [requests, setRequests] = useState([]);
     const [user, setUser] = useState(null);
     const searchParams = useSearchParams();
-    const filter = searchParams.get('filter');
+    const filter = searchParams.get('filter'); // Ambil filter dari URL (misal: ?filter=approval)
 
     useEffect(() => {
+        // Ambil data user dari penyimpanan lokal
         const storedUser = localStorage.getItem('user');
         if (storedUser) setUser(JSON.parse(storedUser));
 
         const fetchRequests = async () => {
             try {
+                // Fetch data permohonan berdasarkan filter yang aktif
                 const url = filter ? `/api/requests?filter=${filter}` : '/api/requests';
                 const data = await api.get(url);
                 setRequests(data);
 
-                // Mark notifications as read if viewing approval or security
+                // Jika user sedang membuka halaman "Persetujuan" atau "Security",
+                // tandai semua notifikasi terkait sebagai "sudah dibaca".
                 if (filter === 'approval' || filter === 'security') {
                     await api.put('/api/notifications');
                 }
             } catch (err) {
-                console.error(err);
+                console.error("Gagal memuat daftar permohonan:", err);
             }
         };
         fetchRequests();
     }, [filter]);
 
+    /**
+     * Helper untuk menentukan warna label status (Badge)
+     */
     const getStatusColor = (status) => {
         switch (status) {
             case 'Pending Asmen/KKU':
@@ -51,6 +64,7 @@ export default function MyRequestsClient() {
         <Shell>
             <div className="min-h-screen p-4 md:p-8 lg:p-12 bg-white">
                 <div className="max-w-6xl mx-auto">
+                    {/* Header Halaman (Judul berubah sesuai filter) */}
                     <div className="mb-8">
                         <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
                             {
@@ -72,6 +86,7 @@ export default function MyRequestsClient() {
                         </p>
                     </div>
 
+                    {/* Tabel Data */}
                     <div className="glass-card overflow-hidden bg-white shadow-sm border border-slate-100">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
@@ -95,6 +110,7 @@ export default function MyRequestsClient() {
                                     ) : (
                                         requests.map((req) => (
                                             <tr key={req.id} className="hover:bg-slate-50 transition-colors group">
+                                                {/* ID Format (Misal: #001) */}
                                                 <td className="p-4 text-slate-500 font-mono text-xs font-bold">#{formatDisplayId(req.id)}</td>
                                                 <td className="p-4">
                                                     <div className="text-slate-900 font-bold text-sm">{req.nama || req.user?.name}</div>

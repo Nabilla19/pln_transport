@@ -4,25 +4,34 @@ import { api } from '@/lib/api';
 import Shell from '@/components/Shell';
 import Link from 'next/link';
 
+/**
+ * Halaman Dashboard Utama
+ * 
+ * Deskripsi: Halaman pertama setelah login. Menampilkan ringkasan statistik permohonan,
+ * menu aksi cepat, dan informasi role pengguna yang sedang aktif.
+ */
 export default function DashboardPage() {
     const [stats, setStats] = useState({ total: 0, pending: 0, active: 0, completed: 0 });
     const [user, setUser] = useState(null);
 
     useEffect(() => {
+        // Ambil data user dari penyimpanan lokal
         const storedUser = localStorage.getItem('user');
         if (storedUser) setUser(JSON.parse(storedUser));
 
+        // Ambil statistik permohonan dari API
         const fetchStats = async () => {
             try {
                 const data = await api.get('/api/stats');
                 setStats(data);
             } catch (err) {
-                console.error(err);
+                console.error("Gagal memuat statistik:", err);
             }
         };
         fetchStats();
     }, []);
 
+    // Definisi kartu statistik
     const cards = [
         { label: 'Total Permohonan', value: stats.total, color: 'sky', icon: '📊' },
         { label: 'Menunggu Persetujuan', value: stats.pending, color: 'yellow', icon: '⏳' },
@@ -34,11 +43,13 @@ export default function DashboardPage() {
         <Shell>
             <div className="p-8 lg:p-12">
                 <div className="max-w-6xl mx-auto">
+                    {/* Header Selamat Datang */}
                     <header className="mb-12">
                         <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">Selamat Datang, {user?.name || 'User'}!</h1>
                         <p className="text-slate-500 font-medium">Monitoring sistem transportasi PLN UP2D RIAU secara real-time.</p>
                     </header>
 
+                    {/* Grid Kartu Statistik */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                         {cards.map((card, i) => (
                             <div key={i} className="glass-card p-6 border-b-4 bg-white" style={{ borderColor: `var(--color-${card.color}-500)` }}>
@@ -49,7 +60,9 @@ export default function DashboardPage() {
                         ))}
                     </div>
 
+                    {/* Grid Aksi & Informasi */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Tombol Aksi Cepat (Disembunyikan untuk Security) */}
                         {user?.role !== 'Security' && (
                             <div className="glass-card p-8 bg-white">
                                 <h2 className="text-xl font-bold text-slate-900 mb-6">Aksi Cepat</h2>
@@ -64,6 +77,7 @@ export default function DashboardPage() {
                             </div>
                         )}
 
+                        {/* Kotak Informasi Sesuai Role */}
                         <div className={`glass-card p-8 bg-sky-50 border border-sky-100 ${user?.role === 'Security' ? 'lg:col-span-2' : ''}`}>
                             <h2 className="text-xl font-bold text-sky-700 mb-4">Informasi Sistem</h2>
                             <p className="text-slate-600 text-sm leading-relaxed mb-6 font-medium">
@@ -74,13 +88,14 @@ export default function DashboardPage() {
                                     : ' Pastikan selalu mencatat KM pada pos security saat keberangkatan dan kepulangan.'}
                             </p>
                             <div className="text-xs text-sky-400 font-mono">
-                                Last sync: {new Date().toLocaleString()}
+                                Sinkronisasi terakhir: {new Date().toLocaleString()}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            {/* Variabel Warna CSS Kustom */}
             <style jsx>{`
                 :root {
                     --color-sky-500: #0ea5e9;
