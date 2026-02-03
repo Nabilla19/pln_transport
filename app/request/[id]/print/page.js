@@ -27,7 +27,7 @@ export default function PrintRequestPage() {
     const security = request.securityLogs?.[0];
     const approval = request.approvals?.[0];
 
-    // Generate QR Code data sesuai permintaan: menampilkan text approval detail
+    // Generate QR Code data sesuai permintaan
     const generateQRData = (type) => {
         const docId = String(id).padStart(4, '0');
 
@@ -71,7 +71,7 @@ export default function PrintRequestPage() {
                     }
                     .print-container { 
                         padding: 0.5cm !important;
-                        font-size: 10pt;
+                        font-size: 9.5pt;
                         width: 100%;
                     }
                     @page {
@@ -81,7 +81,7 @@ export default function PrintRequestPage() {
                 }
             `}</style>
 
-            <div className="mx-auto max-w-[21cm] border border-gray-100 p-2 print:border-0 print:p-0">
+            <div className="mx-auto max-w-[21cm] p-2 print:p-0">
                 {/* 1. KOP SURAT DENGAN LOGO */}
                 <div className="flex items-center gap-4 border-b-4 border-black pb-2 mb-4">
                     <img src="/images/logo-pln.png" alt="Logo PLN" className="w-16 h-auto" />
@@ -92,31 +92,39 @@ export default function PrintRequestPage() {
                     </div>
                 </div>
 
-                {/* JUDUL */}
+                {/* JUDUL SESUAI PERMINTAAN */}
                 <div className="text-center mb-4">
-                    <h2 className="text-lg font-bold uppercase underline decoration-2">PERMOHONAN ANGKUTAN DINAS</h2>
-                    <p className="text-xs font-semibold">ID Permohonan: #{String(id).padStart(4, '0')}</p>
+                    <h2 className="text-base font-bold uppercase underline decoration-2">PERMOHONAN ANGKUTAN</h2>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mt-0.5">UNTUK KEPERLUAN DINAS / SOSIAL</p>
+                    <p className="text-[9px] font-semibold text-gray-500">Nomor: {String(id).padStart(4, '0')}/TRS/UP2D-RIAU/{new Date().getFullYear()}</p>
                 </div>
 
-                {/* 2. DATA PEMOHON */}
-                <div className="border-2 border-black mb-4 overflow-hidden shadow-sm">
+                {/* 2. DATA PEMOHON LENGKAP */}
+                <div className="border-2 border-black mb-3 overflow-hidden shadow-sm">
                     <div className="bg-gray-100 border-b-2 border-black px-2 py-1 flex items-center gap-2">
-                        <span className="font-bold text-xs">A. DATA PEMOHON</span>
+                        <span className="font-bold text-xs uppercase">I. Data Pemohon</span>
                     </div>
-                    <div className="p-3">
-                        <table className="w-full text-xs">
+                    <div className="p-2">
+                        <table className="w-full text-[10pt]">
                             <tbody>
                                 <tr className="border-b border-gray-100">
-                                    <td className="w-40 py-1.5 font-bold">Nama Lengkap</td><td className="w-4">:</td><td>{request.nama || request.user?.name}</td>
+                                    <td className="w-40 py-1 font-bold">Nama Lengkap</td><td className="w-4">:</td><td className="font-bold">{request.nama || request.user?.name}</td>
+                                    <td className="w-40 py-1 font-bold pl-4">Jabatan</td><td className="w-4">:</td><td>{request.jabatan || request.user?.role}</td>
                                 </tr>
                                 <tr className="border-b border-gray-100">
-                                    <td className="py-1.5 font-bold">Jabatan / Bagian</td><td>:</td><td>{request.jabatan} / {request.bagian}</td>
+                                    <td className="py-1 font-bold">Bagian/Bidang</td><td>:</td><td>{request.bagian}</td>
+                                    <td className="py-1 font-bold pl-4">Macam Kendaraan</td><td>:</td><td>{request.macam_kendaraan || '-'}</td>
                                 </tr>
                                 <tr className="border-b border-gray-100">
-                                    <td className="py-1.5 font-bold">Tujuan Perjalanan</td><td>:</td><td className="uppercase">{request.tujuan}</td>
+                                    <td className="py-1 font-bold">Tujuan Perjalanan</td><td>:</td><td className="uppercase font-semibold">{request.tujuan}</td>
+                                    <td className="py-1 font-bold pl-4">Jumlah Penumpang</td><td>:</td><td>{request.jumlah_penumpang || '-'} orang</td>
+                                </tr>
+                                <tr className="border-b border-gray-100">
+                                    <td className="py-1 font-bold">Waktu Berangkat</td><td>:</td><td>{new Date(request.tanggal_jam_berangkat).toLocaleString('id-ID')} WIB</td>
+                                    <td className="py-1 font-bold pl-4">Lama Pakai</td><td>:</td><td>{request.lama_pakai || '-'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-1.5 font-bold">Keperluan</td><td>:</td><td className="italic text-gray-700">{request.keperluan}</td>
+                                    <td className="py-1 font-bold">Keperluan</td><td>:</td><td colSpan="4" className="italic text-gray-700">{request.keperluan}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -124,114 +132,115 @@ export default function PrintRequestPage() {
                 </div>
 
                 {/* 3. SURAT PERINTAH JALAN */}
-                <div className="border-2 border-black mb-4 overflow-hidden shadow-sm">
+                <div className="border-2 border-black mb-3 overflow-hidden shadow-sm">
                     <div className="bg-gray-100 border-b-2 border-black px-2 py-1">
-                        <span className="font-bold text-xs uppercase">B. Surat Perintah Jalan (Admin Fleet)</span>
+                        <span className="font-bold text-xs uppercase">II. Surat Perintah Jalan</span>
                     </div>
-                    <div className="p-3">
-                        <table className="w-full text-xs">
+                    <div className="p-2">
+                        <table className="w-full text-[10pt]">
                             <tbody>
                                 <tr className="border-b border-gray-100">
-                                    <td className="w-40 py-1.5 font-bold">Kendaraan / Unit</td><td className="w-4">:</td><td className="font-black uppercase">{fleet?.mobil || '-'}</td>
-                                </tr>
-                                <tr className="border-b border-gray-100">
-                                    <td className="py-1.5 font-bold">Nomor Polisi</td><td>:</td><td className="font-black text-blue-800 tracking-widest">{fleet?.plat_nomor || '-'}</td>
+                                    <td className="w-40 py-1 font-bold">Kendaraan / Unit</td><td className="w-4">:</td><td className="font-black uppercase">{fleet?.mobil || '.................................'}</td>
+                                    <td className="w-40 py-1 font-bold pl-4">Nomor Polisi</td><td className="w-4">:</td><td className="font-black text-blue-800 tracking-widest">{fleet?.plat_nomor || '.................................'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-1.5 font-bold">Nama Pengemudi</td><td>:</td><td className="font-bold text-gray-800 uppercase">{fleet?.pengemudi || '-'}</td>
+                                    <td className="py-1 font-bold">Nama Pengemudi</td><td>:</td><td className="font-bold text-gray-800 uppercase italic">{fleet?.pengemudi || '.................................'}</td>
+                                    <td className="py-1 font-bold pl-4">Admin Penetap</td><td>:</td><td>{fleet?.admin?.name || '-'}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                {/* 4. DATA SECURITY CHECK */}
-                <div className="border-2 border-black mb-4 overflow-hidden shadow-sm">
+                {/* 4. DATA SECURITY CHECK (LENGKAP: JARAK & LAMA) */}
+                <div className="border-2 border-black mb-3 overflow-hidden shadow-sm">
                     <div className="bg-gray-100 border-b-2 border-black px-2 py-1">
-                        <span className="font-bold text-xs uppercase">C. Data Operasional / Security Check</span>
+                        <span className="font-bold text-xs uppercase">III. Data Operasional / Security Check</span>
                     </div>
-                    <div className="p-3 grid grid-cols-2 gap-4">
-                        <table className="w-full text-xs border-r border-gray-200 pr-2">
+                    <div className="p-2">
+                        <table className="w-full text-[10pt]">
                             <tbody>
-                                <tr><td colSpan="3" className="pb-1 underline font-bold uppercase text-gray-500 text-[9px]">Berangkat</td></tr>
-                                <tr><td className="w-20 py-1">KM Awal</td><td className="w-3">:</td><td className="font-bold">{security?.km_awal || '-'} KM</td></tr>
-                                <tr><td className="py-1">Jam Keluar</td><td>:</td><td>{security?.jam_berangkat ? new Date(security.jam_berangkat).toLocaleTimeString('id-ID') : '-'} WIB</td></tr>
-                            </tbody>
-                        </table>
-                        <table className="w-full text-xs pl-2">
-                            <tbody>
-                                <tr><td colSpan="3" className="pb-1 underline font-bold uppercase text-gray-500 text-[9px]">Kembali</td></tr>
-                                <tr><td className="w-20 py-1">KM Akhir</td><td className="w-3">:</td><td className="font-bold">{security?.km_akhir || '-'} KM</td></tr>
-                                <tr><td className="py-1">Jam Masuk</td><td>:</td><td>{security?.jam_kembali ? new Date(security.jam_kembali).toLocaleTimeString('id-ID') : '-'} WIB</td></tr>
+                                <tr className="border-b border-gray-100">
+                                    <td className="w-40 py-1 font-bold">KM Awal</td><td className="w-4">:</td><td>{security?.km_awal ? `${security.km_awal} KM` : '.......... KM'}</td>
+                                    <td className="w-40 py-1 font-bold pl-4">KM Akhir</td><td className="w-4">:</td><td>{security?.km_akhir ? `${security.km_akhir} KM` : '.......... KM'}</td>
+                                </tr>
+                                <tr className="border-b border-gray-100">
+                                    <td className="py-1 font-bold text-blue-700">Jarak Tempuh</td><td>:</td><td className="font-black text-blue-700">{security?.jarak_tempuh ? `${security.jarak_tempuh} KM` : '.......... KM'}</td>
+                                    <td className="py-1 font-bold text-blue-700 pl-4">Lama Dipergunakan</td><td>:</td><td className="font-black text-blue-700">{security?.lama_waktu || '....................'}</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-1 font-bold">Waktu Berangkat</td><td>:</td><td>{security?.jam_berangkat ? new Date(security.jam_berangkat).toLocaleTimeString('id-ID') : '-'} WIB</td>
+                                    <td className="py-1 font-bold pl-4">Waktu Kembali</td><td>:</td><td>{security?.jam_kembali ? new Date(security.jam_kembali).toLocaleTimeString('id-ID') : '-'} WIB</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
                 {/* 5. BARCODE / E-SIGNATURE */}
-                <div className="border-2 border-black mb-4 p-4">
-                    <div className="grid grid-cols-3 gap-6 text-center">
+                <div className="border-2 border-black mb-3 p-2">
+                    <div className="grid grid-cols-3 gap-4 text-center">
                         <div className="flex flex-col items-center">
-                            <p className="text-[10px] font-bold mb-2">PEMOHON</p>
-                            <div className="w-24 h-24 border border-black p-1">
+                            <p className="text-[9px] font-bold mb-1 uppercase text-gray-500">Pemohon</p>
+                            <div className="w-20 h-20 border border-black p-0.5 shadow-sm">
                                 <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateQRData('pemohon'))}`} alt="QR" className="w-full h-full" />
                             </div>
-                            <p className="text-[10px] font-bold mt-2 underline uppercase">{request.nama || request.user?.name}</p>
-                            <p className="text-[8px] text-gray-500">{request.jabatan}</p>
+                            <p className="text-[10px] font-black mt-1 underline uppercase">{(request.nama || request.user?.name || '-').toUpperCase()}</p>
+                            <p className="text-[8px] text-gray-500 leading-none">{request.jabatan || request.user?.role}</p>
                         </div>
                         <div className="flex flex-col items-center">
-                            <p className="text-[10px] font-bold mb-2 uppercase tracking-tighter">Asmen (Approval)</p>
-                            <div className="w-24 h-24 border border-black p-1">
+                            <p className="text-[9px] font-bold mb-1 uppercase text-gray-500">Menyetujui,</p>
+                            <div className="w-20 h-20 border border-black p-0.5 shadow-sm">
                                 {approval?.barcode_asmen ? (
                                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateQRData('approver'))}`} alt="QR" className="w-full h-full" />
                                 ) : (
-                                    <div className="h-full flex items-center justify-center text-[8px] text-gray-300 italic">PENDING</div>
+                                    <div className="h-full flex items-center justify-center text-[7px] text-gray-300 italic">BELUM DISETUJUI</div>
                                 )}
                             </div>
-                            <p className="text-[10px] font-bold mt-2 underline uppercase">{approval?.asmen?.name || 'BELUM DISETUJUI'}</p>
-                            <p className="text-[8px] text-gray-500">ASMEN / KKU</p>
+                            <p className="text-[10px] font-black mt-1 underline uppercase">{approval?.asmen?.name || '-'}</p>
+                            <p className="text-[8px] text-gray-500 leading-none">ASMEN / KKU</p>
                         </div>
                         <div className="flex flex-col items-center">
-                            <p className="text-[10px] font-bold mb-2">ADMIN FLEET</p>
-                            <div className="w-24 h-24 border border-black p-1">
+                            <p className="text-[9px] font-bold mb-1 uppercase text-gray-500">Admin Fleet</p>
+                            <div className="w-20 h-20 border border-black p-0.5 shadow-sm">
                                 {fleet?.barcode_fleet ? (
                                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateQRData('fleet'))}`} alt="QR" className="w-full h-full" />
                                 ) : (
-                                    <div className="h-full flex items-center justify-center text-[8px] text-gray-300 italic text-center">MENUNGGU<br />ADMIN</div>
+                                    <div className="h-full flex items-center justify-center text-[7px] text-gray-300 italic text-center">NOT ISSUED</div>
                                 )}
                             </div>
-                            <p className="text-[10px] font-bold mt-2 underline uppercase">{fleet?.admin?.name || 'BELUM DITETAPKAN'}</p>
-                            <p className="text-[8px] text-gray-500">ADMIN SEKSI UMUM</p>
+                            <p className="text-[10px] font-black mt-1 underline uppercase">{fleet?.admin?.name || '-'}</p>
+                            <p className="text-[8px] text-gray-500 leading-none">ADMIN SEKSI UMUM</p>
                         </div>
                     </div>
                 </div>
 
-                {/* 6. FOTO LAMPIRAN (DOCUMENTASI) */}
-                <div className="border-2 border-black mb-4">
-                    <div className="bg-gray-100 border-b-2 border-black px-2 py-1 text-center font-bold text-xs">
-                        LAMPIRAN DOKUMENTASI FOTO OPERASIONAL
+                {/* 6. FOTO LAMPIRAN */}
+                <div className="border-2 border-black mb-2">
+                    <div className="bg-gray-100 border-b-2 border-black px-2 py-0.5 text-center font-bold text-[9px] uppercase tracking-widest">
+                        Lampiran Dokumentasi Foto Operasional (Security)
                     </div>
-                    <div className="p-3">
+                    <div className="p-2">
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-4">
-                                <p className="text-center font-bold text-[9px] border-b border-gray-300 pb-1">DOKUMENTASI BERANGKAT</p>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <div className="border border-black aspect-square overflow-hidden bg-gray-50 flex items-center justify-center">
-                                        {security?.foto_driver_berangkat ? <img src={security.foto_driver_berangkat} className="w-full h-full object-cover" /> : <span className="text-[8px] text-gray-300">Driver</span>}
+                            <div className="flex flex-col items-center gap-1">
+                                <p className="font-bold text-[8px] uppercase text-gray-400">Dokumentasi Berangkat</p>
+                                <div className="grid grid-cols-2 gap-1 w-full">
+                                    <div className="border border-black aspect-[4/3] overflow-hidden bg-gray-50 flex items-center justify-center">
+                                        {security?.foto_driver_berangkat ? <img src={security.foto_driver_berangkat} className="w-full h-full object-cover" /> : <span className="text-[7px] text-gray-300 italic">Driver</span>}
                                     </div>
-                                    <div className="border border-black aspect-square overflow-hidden bg-gray-50 flex items-center justify-center">
-                                        {security?.foto_km_berangkat ? <img src={security.foto_km_berangkat} className="w-full h-full object-cover" /> : <span className="text-[8px] text-gray-300">Speedometer</span>}
+                                    <div className="border border-black aspect-[4/3] overflow-hidden bg-gray-50 flex items-center justify-center">
+                                        {security?.foto_km_berangkat ? <img src={security.foto_km_berangkat} className="w-full h-full object-cover" /> : <span className="text-[7px] text-gray-300 italic">KM</span>}
                                     </div>
                                 </div>
                             </div>
-                            <div className="space-y-4">
-                                <p className="text-center font-bold text-[9px] border-b border-gray-300 pb-1">DOKUMENTASI KEMBALI</p>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <div className="border border-black aspect-square overflow-hidden bg-gray-50 flex items-center justify-center">
-                                        {security?.foto_driver_kembali ? <img src={security.foto_driver_kembali} className="w-full h-full object-cover" /> : <span className="text-[8px] text-gray-300">Driver</span>}
+                            <div className="flex flex-col items-center gap-1">
+                                <p className="font-bold text-[8px] uppercase text-gray-400">Dokumentasi Kembali</p>
+                                <div className="grid grid-cols-2 gap-1 w-full">
+                                    <div className="border border-black aspect-[4/3] overflow-hidden bg-gray-50 flex items-center justify-center">
+                                        {security?.foto_driver_kembali ? <img src={security.foto_driver_kembali} className="w-full h-full object-cover" /> : <span className="text-[7px] text-gray-300 italic">Driver</span>}
                                     </div>
-                                    <div className="border border-black aspect-square overflow-hidden bg-gray-50 flex items-center justify-center">
-                                        {security?.foto_km_kembali ? <img src={security.foto_km_kembali} className="w-full h-full object-cover" /> : <span className="text-[8px] text-gray-300">Speedometer</span>}
+                                    <div className="border border-black aspect-[4/3] overflow-hidden bg-gray-50 flex items-center justify-center">
+                                        {security?.foto_km_kembali ? <img src={security.foto_km_kembali} className="w-full h-full object-cover" /> : <span className="text-[7px] text-gray-300 italic">KM</span>}
                                     </div>
                                 </div>
                             </div>
@@ -239,15 +248,14 @@ export default function PrintRequestPage() {
                     </div>
                 </div>
 
-                {/* FOOTER */}
-                <div className="text-center pt-2">
-                    <p className="text-[8px] italic text-gray-500 font-bold uppercase tracking-widest">Sistem E-Transport PT PLN (Persero) UP2D Riau | Dicetak: {new Date().toLocaleString('id-ID')} WIB</p>
+                <div className="text-center">
+                    <p className="text-[7pt] text-gray-400 italic font-bold">Dokumen ini diterbitkan secara elektronik oleh Sistem E-Transport PLN UP2D Riau | {new Date().toLocaleString('id-ID')} WIB</p>
                 </div>
             </div>
 
-            <div className="mt-8 no-print flex justify-center gap-4">
-                <button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-12 rounded shadow-lg transition-all active:scale-95">CETAK SURAT</button>
-                <button onClick={() => window.history.back()} className="bg-white border-2 border-blue-600 text-blue-600 font-bold py-3 px-10 rounded hover:bg-blue-50 transition-all">KEMBALI</button>
+            <div className="mt-6 no-print flex justify-center gap-4">
+                <button onClick={() => window.print()} className="bg-black text-white font-bold py-3 px-12 rounded shadow-xl active:scale-95 transition-all">CETAK SURAT</button>
+                <button onClick={() => window.history.back()} className="bg-white border-2 border-black text-black font-bold py-3 px-12 rounded hover:bg-gray-50 active:scale-95 transition-all">KEMBALI</button>
             </div>
         </div>
     );
