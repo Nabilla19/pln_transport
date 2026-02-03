@@ -103,7 +103,10 @@ export default function RequestDetailPage() {
             await api.post('/api/security', {
                 requestId: id,
                 type,
-                ...securityData
+                km: securityData.km,
+                jam: securityData.jam ? new Date(securityData.jam).toISOString() : new Date().toISOString(),
+                fotoDriver: securityData.fotoDriver,
+                fotoKm: securityData.fotoKm
             });
             showToast(`✅ Berhasil: Data ${type === 'checkin' ? 'Keberangkatan' : 'Kepulangan'} tercatat`, 'success');
             setTimeout(() => window.location.reload(), 2000);
@@ -161,7 +164,7 @@ export default function RequestDetailPage() {
                 <div className="max-w-4xl mx-auto">
                     <div className="flex items-center justify-between mb-8 overflow-x-auto">
                         <div>
-                            <Link href="/my-requests" className="text-slate-500 hover:text-slate-900 mb-2 inline-block font-bold">← Kembali</Link>
+                            <button onClick={() => window.location.href = '/my-requests'} className="text-slate-500 hover:text-slate-900 mb-2 inline-block font-bold">← Kembali</button>
                             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Detail Permohonan #{formatDisplayId(id)}</h1>
                             <div className="flex items-center gap-3 mt-1">
                                 <p className="text-slate-500 font-medium">Status: <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getStatusColor(request.status)}`}>{request.status}</span></p>

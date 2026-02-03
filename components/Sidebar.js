@@ -97,7 +97,7 @@ export default function Sidebar() {
                             <span className="text-lg">{item.icon}</span>
                             <span className="font-semibold">{item.label}</span>
                         </div>
-                        {unreadCount > 0 && (item.filter === 'approval' || item.filter === 'security') && (
+                        {unreadCount > 0 && (item.filter === 'approval' || item.filter === 'security' || item.filter === 'fleet') && (
                             <span className="flex items-center justify-center w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full shadow-sm animate-pulse">
                                 {unreadCount}
                             </span>

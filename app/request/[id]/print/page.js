@@ -113,9 +113,9 @@ export default function PrintRequestPage() {
                 </div>
 
                 {/* JUDUL */}
-                <div className="flex-1 text-center">
-                    <h1 className="text-xl font-bold text-black uppercase tracking-tight">SURAT JALAN KENDARAAN DINAS</h1>
-                    <p className="text-sm font-bold text-gray-700">NOMOR SURAT: #{displayId}</p>
+                <div className="text-center mb-6">
+                    <h2 className="text-lg font-bold uppercase underline decoration-2">SURAT JALAN KENDARAAN DINAS</h2>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mt-1">NOMOR SURAT: #{displayId}/TRS/UP2D-RIAU/{new Date().getFullYear()}</p>
                 </div>
 
                 {/* 2. DATA PEMOHON */}
@@ -266,18 +266,18 @@ export default function PrintRequestPage() {
                 </div>
             </div>
 
-            <div className="flex justify-between print:hidden mb-12">
+            <div className="flex justify-center gap-4 print:hidden mt-8 mb-12">
                 <button
-                    onClick={() => router.push(`/request/${id}`)}
-                    className="px-6 py-2 bg-gray-500 text-white rounded font-bold hover:bg-gray-600 transition-all flex items-center gap-2"
+                    onClick={() => window.location.href = `/request/${id}`}
+                    className="px-10 py-3 bg-white border-2 border-slate-900 text-slate-900 rounded-xl font-bold hover:bg-slate-50 transition-all flex items-center gap-2 shadow-lg"
                 >
                     <span>←</span> KEMBALI
                 </button>
                 <button
                     onClick={() => window.print()}
-                    className="px-6 py-2 bg-black text-white rounded font-bold hover:bg-gray-800 transition-all"
+                    className="px-10 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center gap-2 shadow-xl"
                 >
-                    PRINT SEKARANG
+                    🖨️ PRINT SEKARANG
                 </button>
             </div>
         </div>
