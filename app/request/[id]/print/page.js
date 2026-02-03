@@ -60,7 +60,7 @@ export default function PrintRequestPage() {
                 day: '2-digit', month: 'long', year: 'numeric'
             });
             const jam = new Date(fleet.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-            return `Surat ini sudah di-approve oleh ADMIN FLEET ${fleet.admin?.name || '-'} pada tanggal ${tgl} dan waktu ${jam} WIB.`;
+            return `Surat ini sudah di-approve oleh KKU ${fleet.admin?.name || '-'} pada tanggal ${tgl} dan waktu ${jam} WIB.`;
         }
 
         return `DOKUMEN E-TRANSPORT ID: #${docId}`;
@@ -192,14 +192,14 @@ export default function PrintRequestPage() {
                     <div className="grid grid-cols-3 gap-12 text-center">
                         <div className="flex flex-col items-center">
                             <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">Pemohon</p>
-                            <div className="w-16 h-16 border border-black p-0.5 mb-1">
+                            <div className="w-20 h-20 border border-black p-0.5 mb-1">
                                 <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateQRData('pemohon'))}`} alt="QR" className="w-full h-full" />
                             </div>
                             <p className="text-[9px] underline uppercase">{request.nama || request.user?.name}</p>
                         </div>
                         <div className="flex flex-col items-center">
-                            <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">Menyetujui,</p>
-                            <div className="w-16 h-16 border border-black p-0.5 mb-1">
+                            <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">Menganulir / Menyetujui,</p>
+                            <div className="w-20 h-20 border border-black p-0.5 mb-1">
                                 {approval?.barcode_asmen ? (
                                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateQRData('approver'))}`} alt="QR" className="w-full h-full" />
                                 ) : (
@@ -210,7 +210,7 @@ export default function PrintRequestPage() {
                         </div>
                         <div className="flex flex-col items-center">
                             <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">KKU</p>
-                            <div className="w-16 h-16 border border-black p-0.5 mb-1">
+                            <div className="w-20 h-20 border border-black p-0.5 mb-1">
                                 {fleet?.barcode_fleet ? (
                                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateQRData('fleet'))}`} alt="QR" className="w-full h-full" />
                                 ) : (
