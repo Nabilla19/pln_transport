@@ -39,7 +39,7 @@ export default function PrintRequestPage() {
     };
 
     const generateQRData = (type) => {
-        const docId = String(id).padStart(4, '0');
+        const docId = formatDisplayId(id);
 
         if (type === 'pemohon') {
             const tgl = new Date(request.created_at || request.tanggal_jam_berangkat).toLocaleString('id-ID', {

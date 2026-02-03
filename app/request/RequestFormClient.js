@@ -72,17 +72,17 @@ export default function RequestFormClient() {
     const handleDateChange = (date) => {
         setSelectedDate(date);
         if (date) {
-            // Force Indonesian time (GMT+7) offset for consistency
-            // This ensures 11:00 AM picked by the user IS 11:00 AM Jakarta
+            // Force literal "local-as-UTC" storage to prevent timezone shift
+            // This ensures 11:00 AM picked by the user IS 11:00 AM in the database
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');
             const seconds = "00";
-            const offset = "+07:00";
-            const localString = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offset}`;
-            setFormData(prev => ({ ...prev, tanggal_jam_berangkat: localString }));
+            // No offset, just Z to treat it as a literal timestamp
+            const literalUTC = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000Z`;
+            setFormData(prev => ({ ...prev, tanggal_jam_berangkat: literalUTC }));
         } else {
             setFormData(prev => ({ ...prev, tanggal_jam_berangkat: '' }));
         }
@@ -98,13 +98,6 @@ export default function RequestFormClient() {
         // Validate date is selected
         if (!selectedDate) {
             showToast('⚠️ Silakan pilih tanggal dan waktu keberangkatan', 'warning');
-            return;
-        }
-
-        // Validate date is not in the past
-        const now = new Date();
-        if (selectedDate < now) {
-            showToast('⚠️ Tanggal dan waktu keberangkatan tidak boleh di masa lalu!', 'error');
             return;
         }
 
@@ -257,7 +250,7 @@ export default function RequestFormClient() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label className="block text-sm font-bold text-slate-700 mb-2">
-                                            📅 Tanggal & Waktu Berangkat
+                                            Tanggal & Waktu Berangkat
                                         </label>
                                         <DatePicker
                                             selected={selectedDate}
@@ -267,16 +260,13 @@ export default function RequestFormClient() {
                                             timeIntervals={15}
                                             timeCaption="Waktu"
                                             dateFormat="dd MMMM yyyy, HH:mm"
-                                            minDate={new Date()}
                                             locale="id"
                                             placeholderText="Pilih tanggal dan waktu"
                                             className="glass-input w-full p-4 rounded-xl bg-slate-50 border-2 border-slate-200 text-slate-900 font-bold focus:border-sky-500 focus:ring-2 focus:ring-sky-200 transition-all"
                                             wrapperClassName="w-full"
                                             required
                                         />
-                                        <p className="text-xs text-slate-500 mt-2 font-medium">
-                                            ⏰ Minimal H-1 dari hari ini
-                                        </p>
+
                                     </div>
                                     <div>
                                         <label className="block text-sm font-bold text-slate-700 mb-2">
@@ -309,7 +299,7 @@ export default function RequestFormClient() {
                                         placeholder="Contoh: 3 Jam / 1 Hari / 2 Hari"
                                     />
                                     <p className="text-xs text-slate-500 mt-2 font-medium">
-                                        ⏱️ Berapa lama kendaraan akan digunakan?
+                                        Berapa lama kendaraan akan digunakan?
                                     </p>
                                 </div>
                             </div>
