@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyAuth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { notifyRoles } from '@/lib/notifications';
 
 export async function GET(req) {
     const user = await verifyAuth(req);
@@ -90,6 +91,15 @@ export async function POST(req) {
                 data: { status: 'Ready' }
             })
         ]);
+
+        // Notify Security that fleet is assigned and ready to depart
+        await notifyRoles(['Security'], {
+            type: 'Fleet Assigned',
+            module: 'Transport',
+            recordId: parseInt(requestId),
+            recordName: platNomor,
+            deskripsi: `Armada ${mobil} (${platNomor}) telah ditugaskan. Kendaraan siap berangkat.`
+        });
 
         return NextResponse.json({ message: 'Fleet berhasil ditugaskan' });
     } catch (err) {

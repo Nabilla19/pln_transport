@@ -233,7 +233,12 @@ export default function RequestDetailPage() {
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-slate-400">Waktu</span>
-                                    <span className="text-slate-900 font-mono font-bold">{new Date(request.tanggal_jam_berangkat).toLocaleString()}</span>
+                                    <span className="text-slate-900 font-mono font-bold capitalize">
+                                        {new Date(request.tanggal_jam_berangkat).toLocaleString('id-ID', {
+                                            day: '2-digit', month: '2-digit', year: 'numeric',
+                                            hour: '2-digit', minute: '2-digit'
+                                        })}
+                                    </span>
                                 </div>
                             </div>
                         </div>

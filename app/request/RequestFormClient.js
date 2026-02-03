@@ -72,16 +72,7 @@ export default function RequestFormClient() {
     const handleDateChange = (date) => {
         setSelectedDate(date);
         if (date) {
-            // Format date to MySQL datetime format (YYYY-MM-DD HH:MM:SS)
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            const seconds = '00';
-
-            const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-            setFormData(prev => ({ ...prev, tanggal_jam_berangkat: formattedDate }));
+            setFormData(prev => ({ ...prev, tanggal_jam_berangkat: date.toISOString() }));
         } else {
             setFormData(prev => ({ ...prev, tanggal_jam_berangkat: '' }));
         }

@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyAuth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { notifyRoles } from '@/lib/notifications';
 
 export async function POST(req) {
     const user = await verifyAuth(req);
@@ -67,6 +68,15 @@ export async function POST(req) {
                 }
             })
         ]);
+
+        // Notify KKU/Fleet to assign vehicle
+        await notifyRoles(['KKU', 'Admin Fleet'], {
+            type: 'Assign Fleet Needed',
+            module: 'Transport',
+            recordId: parseInt(requestId),
+            recordName: request.nama,
+            deskripsi: `Permohonan dari ${request.nama} telah disetujui. Silakan tugaskan armada.`
+        });
 
         return NextResponse.json({ message: `Permohonan Bidang ${request.bagian} telah disetujui` });
     } catch (err) {

@@ -113,10 +113,9 @@ export default function PrintRequestPage() {
                 </div>
 
                 {/* JUDUL */}
-                <div className="text-center mb-3">
-                    <h2 className="text-sm font-bold uppercase underline decoration-1">PERMOHONAN ANGKUTAN</h2>
-                    <p className="text-[9px] font-bold uppercase tracking-widest mt-0.5">UNTUK KEPERLUAN DINAS / SOSIAL</p>
-                    <p className="text-[8px] font-semibold">No: {displayId}/TRS/UP2D-RIAU/{new Date().getFullYear()}</p>
+                <div className="flex-1 text-center">
+                    <h1 className="text-xl font-bold text-black uppercase tracking-tight">SURAT JALAN KENDARAAN DINAS</h1>
+                    <p className="text-sm font-bold text-gray-700">NOMOR SURAT: #{displayId}</p>
                 </div>
 
                 {/* 2. DATA PEMOHON */}
@@ -138,7 +137,12 @@ export default function PrintRequestPage() {
                                     <td className="py-0.5 font-bold pl-4 text-gray-700">Penumpang</td><td>:</td><td className="font-normal">{request.jumlah_penumpang || '-'} orang</td>
                                 </tr>
                                 <tr className="border-b border-gray-100">
-                                    <td className="py-0.5 font-bold text-gray-700">Berangkat</td><td>:</td><td className="font-normal">{new Date(request.tanggal_jam_berangkat).toLocaleString('id-ID')}</td>
+                                    <td className="py-0.5 font-bold text-gray-700">Berangkat</td><td>:</td><td className="font-normal">
+                                        {new Date(request.tanggal_jam_berangkat).toLocaleString('id-ID', {
+                                            day: '2-digit', month: '2-digit', year: 'numeric',
+                                            hour: '2-digit', minute: '2-digit'
+                                        })}
+                                    </td>
                                     <td className="py-0.5 font-bold pl-4 text-gray-700">Etimasi Pakai</td><td>:</td><td className="font-normal">{request.lama_pakai || '-'}</td>
                                 </tr>
                                 <tr>
@@ -183,8 +187,8 @@ export default function PrintRequestPage() {
                                     <td className="py-0.5 font-bold pl-4 text-gray-700">Waktu Pakai</td><td>:</td><td className="font-normal">{security?.lama_waktu || '............'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-0.5 font-bold text-gray-700">Jam Keluar</td><td>:</td><td className="font-normal">{security?.jam_berangkat ? new Date(security.jam_berangkat).toLocaleTimeString('id-ID') : '-'}</td>
-                                    <td className="py-0.5 font-bold pl-4 text-gray-700">Jam Masuk</td><td>:</td><td className="font-normal">{security?.jam_kembali ? new Date(security.jam_kembali).toLocaleTimeString('id-ID') : '-'}</td>
+                                    <td className="py-0.5 font-bold text-gray-700">Jam Keluar</td><td>:</td><td className="font-normal">{security?.jam_berangkat ? new Date(security.jam_berangkat).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                                    <td className="py-0.5 font-bold pl-4 text-gray-700">Jam Masuk</td><td>:</td><td className="font-normal">{security?.jam_kembali ? new Date(security.jam_kembali).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -262,18 +266,18 @@ export default function PrintRequestPage() {
                 </div>
             </div>
 
-            <div className="mt-8 no-print flex justify-center gap-4">
-                <button
-                    onClick={() => window.print()}
-                    className="bg-black text-white px-10 py-3 rounded-lg font-bold shadow-xl active:scale-95 transition-all"
-                >
-                    PRINT SEKARANG
-                </button>
+            <div className="flex justify-between print:hidden mb-12">
                 <button
                     onClick={() => router.push(`/request/${id}`)}
-                    className="bg-white border border-black text-black px-10 py-3 rounded-lg font-bold shadow hover:bg-gray-50 active:scale-95 transition-all"
+                    className="px-6 py-2 bg-gray-500 text-white rounded font-bold hover:bg-gray-600 transition-all flex items-center gap-2"
                 >
-                    KEMBALI
+                    <span>←</span> KEMBALI
+                </button>
+                <button
+                    onClick={() => window.print()}
+                    className="px-6 py-2 bg-black text-white rounded font-bold hover:bg-gray-800 transition-all"
+                >
+                    PRINT SEKARANG
                 </button>
             </div>
         </div>
