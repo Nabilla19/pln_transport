@@ -23,6 +23,16 @@ export default function UsersPage() {
         role: 'Perencanaan' // Role default saat tambah pengguna
     });
 
+    // State untuk mode Edit
+    const [editUser, setEditUser] = useState(null);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [editFormData, setEditFormData] = useState({
+        name: '',
+        email: '',
+        password: '',
+        role: ''
+    });
+
     useEffect(() => {
         // Proteksi Halaman: Hanya Role 'Admin' yang boleh mengakses
         const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -32,6 +42,38 @@ export default function UsersPage() {
         }
         fetchUsers();
     }, [router]);
+
+    /**
+     * Menyiapkan form edit saat tombol edit diklik
+     */
+    const handleEditClick = (user) => {
+        setEditUser(user);
+        setEditFormData({
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            password: '' // Kosongkan awal agar tidak ganti password jika tidak diisi
+        });
+    };
+
+    /**
+     * Menangani proses update pengguna (PATCH)
+     */
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        setIsUpdating(true);
+
+        try {
+            await api.patch(`/api/users/${editUser.id}`, editFormData);
+            showToast('✓ Data pengguna berhasil diperbarui!', 'success');
+            setEditUser(null);
+            fetchUsers();
+        } catch (err) {
+            showToast(err.message || 'Gagal memperbarui pengguna', 'error');
+        } finally {
+            setIsUpdating(false);
+        }
+    };
 
     /**
      * Mengambil daftar seluruh pengguna dari API
@@ -255,12 +297,20 @@ export default function UsersPage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <button
-                                                onClick={() => handleDelete(user.id, user.name)}
-                                                className="text-red-600 hover:text-red-700 font-bold text-sm hover:underline"
-                                            >
-                                                🗑️ Hapus
-                                            </button>
+                                            <div className="flex gap-4">
+                                                <button
+                                                    onClick={() => handleEditClick(user)}
+                                                    className="text-sky-600 hover:text-sky-700 font-bold text-sm hover:underline flex items-center gap-1"
+                                                >
+                                                    ✏️ Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(user.id, user.name)}
+                                                    className="text-red-600 hover:text-red-700 font-bold text-sm hover:underline flex items-center gap-1"
+                                                >
+                                                    🗑️ Hapus
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -281,12 +331,20 @@ export default function UsersPage() {
                                         {user.role}
                                     </span>
                                 </div>
-                                <button
-                                    onClick={() => handleDelete(user.id, user.name)}
-                                    className="text-red-600 hover:text-red-700 font-bold text-sm mt-2"
-                                >
-                                    🗑️ Hapus
-                                </button>
+                                <div className="flex gap-4 mt-2">
+                                    <button
+                                        onClick={() => handleEditClick(user)}
+                                        className="text-sky-600 hover:text-sky-700 font-bold text-sm"
+                                    >
+                                        ✏️ Edit
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(user.id, user.name)}
+                                        className="text-red-600 hover:text-red-700 font-bold text-sm"
+                                    >
+                                        🗑️ Hapus
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -299,6 +357,85 @@ export default function UsersPage() {
                         </div>
                     )}
                 </div>
+
+                {/* MODAL EDIT USER */}
+                {editUser && (
+                    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full transform animate-slideUp overflow-hidden">
+                            <div className="bg-gradient-to-r from-sky-600 to-blue-700 text-white px-6 py-4 flex justify-between items-center">
+                                <h3 className="text-xl font-bold">Edit Pengguna</h3>
+                                <button onClick={() => setEditUser(null)} className="text-white hover:text-sky-100 text-2xl">✕</button>
+                            </div>
+
+                            <form onSubmit={handleUpdate} className="p-6 space-y-4">
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 mb-2">Nama Lengkap</label>
+                                        <input
+                                            type="text"
+                                            value={editFormData.name}
+                                            onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                                            className="w-full p-3 rounded-xl border-2 border-slate-100 focus:border-sky-500 outline-none transition-all"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 mb-2">Email</label>
+                                        <input
+                                            type="email"
+                                            value={editFormData.email}
+                                            onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                                            className="w-full p-3 rounded-xl border-2 border-slate-100 focus:border-sky-500 outline-none transition-all"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 mb-2">Role</label>
+                                        <select
+                                            value={editFormData.role}
+                                            onChange={(e) => setEditFormData({ ...editFormData, role: e.target.value })}
+                                            className="w-full p-3 rounded-xl border-2 border-slate-100 focus:border-sky-500 outline-none transition-all"
+                                            required
+                                        >
+                                            {roles.map(role => (
+                                                <option key={role} value={role}>{role}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 mb-2">Password Baru (Opsional)</label>
+                                        <input
+                                            type="password"
+                                            value={editFormData.password}
+                                            onChange={(e) => setEditFormData({ ...editFormData, password: e.target.value })}
+                                            className="w-full p-3 rounded-xl border-2 border-slate-100 focus:border-sky-500 outline-none transition-all text-sm"
+                                            placeholder="Kosongkan jika tidak ingin ganti"
+                                            minLength="6"
+                                        />
+                                        <p className="text-[10px] text-slate-400 mt-1">* Kosongkan kolom password jika tidak ingin mengubah password.</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-3 pt-4">
+                                    <button
+                                        type="submit"
+                                        disabled={isUpdating}
+                                        className="flex-1 bg-gradient-to-r from-sky-600 to-blue-700 text-white font-bold py-3 rounded-xl hover:shadow-lg transition-all active:scale-95 disabled:opacity-50"
+                                    >
+                                        {isUpdating ? 'Menyimpan...' : 'Simpan Perubahan'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setEditUser(null)}
+                                        className="flex-1 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-all"
+                                    >
+                                        Batal
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Notifikasi Toast */}

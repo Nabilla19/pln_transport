@@ -47,3 +47,59 @@ export async function DELETE(request, { params }) {
         return NextResponse.json({ error: 'Kesalahan Server Internal' }, { status: 500 });
     }
 }
+
+/**
+ * Memperbarui Data User (PATCH)
+ * Digunakan untuk update nama, email, role, atau password.
+ */
+import bcrypt from 'bcryptjs';
+
+export async function PATCH(request, { params }) {
+    const resolvedParams = params instanceof Promise ? await params : params;
+    const id = resolvedParams?.id;
+
+    try {
+        const adminUser = await verifyAuth(request);
+
+        // Validasi Role Admin
+        if (!adminUser || adminUser.role !== 'Admin') {
+            return NextResponse.json({ error: 'Terlarang - Hanya Admin yang dapat mengubah data user' }, { status: 403 });
+        }
+
+        const userId = parseInt(id);
+        const { name, email, password, role } = await request.json();
+
+        // Siapkan data update
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (email) updateData.email = email;
+        if (role) updateData.role = role;
+
+        // Jika ada password baru, lakukan hashing
+        if (password && password.length >= 6) {
+            updateData.password = await bcrypt.hash(password, 10);
+        } else if (password && password.length < 6) {
+            return NextResponse.json({ error: 'Password minimal 6 karakter' }, { status: 400 });
+        }
+
+        // Update ke database
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: updateData,
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true
+            }
+        });
+
+        return NextResponse.json({ message: 'User berhasil diperbarui', user: updatedUser });
+    } catch (error) {
+        console.error('PATCH /api/users/[id] error:', error);
+        if (error.code === 'P2002') {
+            return NextResponse.json({ error: 'Email sudah digunakan oleh user lain' }, { status: 400 });
+        }
+        return NextResponse.json({ error: 'Gagal memperbarui data user' }, { status: 500 });
+    }
+}
