@@ -13,7 +13,7 @@ export default function PrintRequestPage() {
                 const data = await api.get(`/api/requests/${id}`);
                 setRequest(data);
                 // Trigger print after a short delay to allow rendering
-                setTimeout(() => window.print(), 2000);
+                setTimeout(() => window.print(), 1500);
             } catch (err) {
                 console.error(err);
             }
@@ -43,7 +43,7 @@ export default function PrintRequestPage() {
                 `NAMA: ${request.nama || request.user?.name}\n` +
                 `JABATAN: ${request.jabatan || request.user?.role}\n` +
                 `WAKTU: ${tgl} WIB\n\n` +
-                `Dokumen sah secara elektronik.\nVerify: ${baseUrl}/verify/${request.barcode_pemohon}`;
+                `Dokumen sah secara elektronik.`;
         }
 
         if (type === 'approver' && approval) {
@@ -58,7 +58,7 @@ export default function PrintRequestPage() {
                 `NAMA: ${approval.asmen?.name || 'ASMEN'}\n` +
                 `ROLE: ${approval.asmen?.role || 'Asmen'}\n` +
                 `WAKTU: ${tgl} WIB\n\n` +
-                `Dokumen sah secara elektronik.\nVerify: ${baseUrl}/verify/${approval.barcode_asmen}`;
+                `Dokumen sah secara elektronik.`;
         }
 
         if (type === 'fleet' && fleet) {
@@ -91,8 +91,8 @@ export default function PrintRequestPage() {
                         padding: 0;
                     }
                     .print-container { 
-                        padding: 1cm !important;
-                        font-size: 8.5pt;
+                        padding: 1.5cm !important;
+                        font-size: 10pt;
                     }
                     @page {
                         size: A4;
@@ -100,135 +100,128 @@ export default function PrintRequestPage() {
                     }
                 }
                 
-                .watermark-c {
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    font-size: 550px;
-                    font-weight: 900;
-                    color: rgba(6, 182, 212, 0.04);
-                    z-index: 0;
-                    pointer-events: none;
-                    font-family: 'Arial Black', sans-serif;
-                }
-                
                 .content-layer { position: relative; z-index: 1; }
-                .label-cell { width: 120px; font-weight: 600; padding: 2px 0; }
-                .separator-cell { width: 10px; text-align: center; }
-                .value-cell { border-bottom: 1px solid #eee; padding: 2px 4px; }
             `}</style>
-
-            <div className="watermark-c">C</div>
 
             <div className="content-layer">
                 {/* KOP SURAT */}
-                <div className="mb-2 pb-2 border-b-4 border-black flex justify-between items-end">
-                    <div>
-                        <h1 className="text-[10px] font-black uppercase tracking-tighter">PT PLN (PERSERO) DISTRIBUSI RIAU DAN KEPULAUAN RIAU</h1>
-                        <p className="text-[9px] font-bold">Unit Pelaksana Pengatur Distribusi Riau (UP2D)</p>
-                    </div>
-                    <div className="text-right text-[8px] font-mono text-slate-400">
-                        DOC-ID: #{String(id).padStart(4, '0')}
-                    </div>
+                <div className="mb-4 pb-2 border-b-4 border-black">
+                    <h1 className="text-xs font-bold uppercase tracking-tight">PT PLN (PERSERO) DISTRIBUSI RIAU DAN KEPULAUAN RIAU</h1>
+                    <div className="h-[2px] bg-black my-1"></div>
+                    <p className="text-[11px] font-semibold">Unit Pelaksana Pengatur Distribusi Riau (UP2D)</p>
                 </div>
 
                 {/* JUDUL */}
-                <div className="text-center mb-4 py-2 border-y-2 border-slate-300 bg-slate-50">
-                    <h2 className="text-lg font-black uppercase tracking-[0.3em] text-slate-800">PERMOHONAN ANGKUTAN</h2>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase">SURAT JALAN OPERASIONAL KENDARAAN DINAS</p>
+                <div className="text-center mb-4 py-1 border-y-2 border-black">
+                    <h2 className="text-lg font-bold uppercase tracking-widest">PERMOHONAN ANGKUTAN</h2>
+                    <p className="text-xs mt-0.5 font-semibold">UNTUK KEPERLUAN DINAS / SOSIAL</p>
                 </div>
 
-                {/* DATA GRID */}
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                    {/* Data Pemohon */}
-                    <div className="border-2 border-slate-800 rounded-lg overflow-hidden">
-                        <div className="bg-slate-800 text-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest">I. DATA PEMOHON</div>
-                        <div className="p-2 space-y-1">
-                            <table className="w-full text-[9px]">
-                                <tbody>
-                                    <tr><td className="label-cell">Nama</td><td className="separator-cell">:</td><td className="value-cell font-bold">{request.nama || request.user?.name}</td></tr>
-                                    <tr><td className="label-cell">Jabatan</td><td className="separator-cell">:</td><td className="value-cell">{request.jabatan}</td></tr>
-                                    <tr><td className="label-cell">Bagian</td><td className="separator-cell">:</td><td className="value-cell">{request.bagian}</td></tr>
-                                    <tr><td className="label-cell">Tujuan</td><td className="separator-cell">:</td><td className="value-cell uppercase">{request.tujuan}</td></tr>
-                                    <tr><td className="label-cell">Keperluan</td><td className="separator-cell">:</td><td className="value-cell italic text-slate-600">{request.keperluan}</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    {/* Perintah Jalan */}
-                    <div className="border-2 border-slate-800 rounded-lg overflow-hidden">
-                        <div className="bg-slate-800 text-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest">II. PERINTAH JALAN</div>
-                        <div className="p-2 space-y-1">
-                            <table className="w-full text-[9px]">
-                                <tbody>
-                                    <tr><td className="label-cell">Kendaraan</td><td className="separator-cell">:</td><td className="value-cell font-bold">{fleet?.mobil || '..................'}</td></tr>
-                                    <tr><td className="label-cell">Nomor Polisi</td><td className="separator-cell">:</td><td className="value-cell font-black text-blue-700">{fleet?.plat_nomor || '..................'}</td></tr>
-                                    <tr><td className="label-cell">Pengemudi</td><td className="separator-cell">:</td><td className="value-cell uppercase">{fleet?.pengemudi || '..................'}</td></tr>
-                                    <tr><td className="label-cell">KM Awal</td><td className="separator-cell">:</td><td className="value-cell">{security?.km_awal ? `${security.km_awal} KM` : '..................'}</td></tr>
-                                    <tr><td className="label-cell">KM Akhir</td><td className="separator-cell">:</td><td className="value-cell">{security?.km_akhir ? `${security.km_akhir} KM` : '..................'}</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
+                {/* DATA TABLE SECTION */}
+                <div className="border-2 border-black mb-4 overflow-hidden">
+                    <div className="bg-black px-2 py-1"><h3 className="font-bold text-xs uppercase text-white tracking-widest">Data Pemohon</h3></div>
+                    <div className="p-2">
+                        <table className="w-full text-[10pt]">
+                            <tbody>
+                                <tr className="border-b border-gray-200">
+                                    <td className="w-32 py-1 font-semibold">Nama Lengkap</td><td className="w-3">:</td><td>{request.nama || request.user?.name}</td>
+                                    <td className="w-32 py-1 font-semibold pl-4">Jabatan</td><td className="w-3">:</td><td>{request.jabatan || request.user?.role}</td>
+                                </tr>
+                                <tr className="border-b border-gray-200">
+                                    <td className="py-1 font-semibold">Bagian/Bidang</td><td>:</td><td>{request.bagian}</td>
+                                    <td className="py-1 font-semibold pl-4">Macam Kendaraan</td><td>:</td><td>{request.macam_kendaraan || '-'}</td>
+                                </tr>
+                                <tr className="border-b border-gray-200">
+                                    <td className="py-1 font-semibold">Lokasi Tujuan</td><td>:</td><td className="uppercase">{request.tujuan}</td>
+                                    <td className="py-1 font-semibold pl-4">Jumlah Penumpang</td><td>:</td><td>{request.jumlah_penumpang} orang</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-1 font-semibold">Keperluan</td><td>:</td><td colSpan="4" className="italic">{request.keperluan}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                {/* DOKUMENTASI FOTO - INI YANG TADI HILANG */}
-                <div className="border-2 border-slate-800 rounded-lg overflow-hidden mb-4">
-                    <div className="bg-slate-800 text-white px-2 py-1 text-[9px] font-bold uppercase tracking-widest">III. DOKUMENTASI FOTO (SECURITY CHECK)</div>
+                {/* PERINTAH JALAN */}
+                <div className="border-2 border-black mb-4">
+                    <div className="bg-black px-2 py-1"><h3 className="font-bold text-xs uppercase text-white tracking-widest">Perintah Jalan</h3></div>
+                    <div className="p-2">
+                        <table className="w-full text-[10pt]">
+                            <tbody>
+                                <tr className="border-b border-gray-200">
+                                    <td className="w-32 py-1 font-semibold">Kendaraan</td><td>:</td><td className="font-bold uppercase tracking-tight">{fleet?.mobil || '..................'}</td>
+                                    <td className="w-32 py-1 font-semibold pl-4">Nomor Polisi</td><td>:</td><td className="font-bold text-blue-800">{fleet?.plat_nomor || '..................'}</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-1 font-semibold">Pengemudi</td><td>:</td><td colSpan="4" className="font-bold uppercase italic">{fleet?.pengemudi || '..................'}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* DATA SECURITY */}
+                <div className="border-2 border-black mb-4">
+                    <div className="bg-black px-2 py-1"><h3 className="font-bold text-xs uppercase text-white tracking-widest">Data Operasional (Security)</h3></div>
+                    <div className="p-2">
+                        <table className="w-full text-[10pt]">
+                            <tbody>
+                                <tr className="border-b border-gray-200">
+                                    <td className="w-32 py-1 font-semibold">KM Berangkat</td><td>:</td><td>{security?.km_awal} KM</td>
+                                    <td className="w-32 py-1 font-semibold pl-4">KM Kembali</td><td>:</td><td>{security?.km_akhir} KM</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-1 font-semibold">Waktu Berangkat</td><td>:</td><td>{security?.jam_berangkat ? new Date(security.jam_berangkat).toLocaleTimeString() : '-'}</td>
+                                    <td className="py-1 font-semibold pl-4">Waktu Kembali</td><td>:</td><td>{security?.jam_kembali ? new Date(security.jam_kembali).toLocaleTimeString() : '-'}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* DOKUMENTASI FOTO */}
+                <div className="border-2 border-black mb-4">
+                    <div className="bg-black px-2 py-1"><h3 className="font-bold text-xs uppercase text-white tracking-widest">Dokumentasi Foto</h3></div>
                     <div className="p-2">
                         <div className="grid grid-cols-2 gap-4">
-                            {/* Berangkat */}
+                            {/* Foto Berangkat */}
                             <div>
-                                <p className="text-[8px] font-bold text-slate-500 mb-1 border-b border-slate-200 uppercase tracking-tighter">A. SAAT BERANGKAT (CHECK-IN)</p>
+                                <p className="text-[10px] font-bold mb-1 text-center bg-gray-100 py-1 border border-black">SAAT BERANGKAT</p>
                                 <div className="grid grid-cols-2 gap-2">
-                                    <div className="flex flex-col items-center">
-                                        <div className="w-full aspect-[4/3] border border-slate-300 rounded flex items-center justify-center bg-slate-50 overflow-hidden shadow-inner">
-                                            {security?.foto_driver_berangkat ? (
-                                                <img src={security.foto_driver_berangkat} alt="Dvr" className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="text-[7px] text-slate-300 italic text-center">No Photo<br />Driver</div>
-                                            )}
-                                        </div>
-                                        <span className="text-[7px] font-bold mt-1 text-slate-400">FOTO DRIVER</span>
+                                    <div className="border border-black aspect-square flex items-center justify-center bg-gray-50 overflow-hidden">
+                                        {security?.foto_driver_berangkat ? (
+                                            <img src={security.foto_driver_berangkat} alt="Dvr" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-[8px] text-gray-400">Foto Driver</span>
+                                        )}
                                     </div>
-                                    <div className="flex flex-col items-center">
-                                        <div className="w-full aspect-[4/3] border border-slate-300 rounded flex items-center justify-center bg-slate-50 overflow-hidden shadow-inner">
-                                            {security?.foto_km_berangkat ? (
-                                                <img src={security.foto_km_berangkat} alt="KM" className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="text-[7px] text-slate-300 italic text-center">No Photo<br />Speedometer</div>
-                                            )}
-                                        </div>
-                                        <span className="text-[7px] font-bold mt-1 text-slate-400">FOTO KM AWAL</span>
+                                    <div className="border border-black aspect-square flex items-center justify-center bg-gray-50 overflow-hidden">
+                                        {security?.foto_km_berangkat ? (
+                                            <img src={security.foto_km_berangkat} alt="KM" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-[8px] text-gray-400">Foto KM</span>
+                                        )}
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Kembali */}
+                            {/* Foto Kembali */}
                             <div>
-                                <p className="text-[8px] font-bold text-slate-500 mb-1 border-b border-slate-200 uppercase tracking-tighter">B. SAAT KEMBALI (CHECK-OUT)</p>
+                                <p className="text-[10px] font-bold mb-1 text-center bg-gray-100 py-1 border border-black">SAAT KEMBALI</p>
                                 <div className="grid grid-cols-2 gap-2">
-                                    <div className="flex flex-col items-center">
-                                        <div className="w-full aspect-[4/3] border border-slate-300 rounded flex items-center justify-center bg-slate-50 overflow-hidden shadow-inner">
-                                            {security?.foto_driver_kembali ? (
-                                                <img src={security.foto_driver_kembali} alt="Dvr" className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="text-[7px] text-slate-300 italic text-center">No Photo<br />Driver</div>
-                                            )}
-                                        </div>
-                                        <span className="text-[7px] font-bold mt-1 text-slate-400">FOTO DRIVER</span>
+                                    <div className="border border-black aspect-square flex items-center justify-center bg-gray-50 overflow-hidden">
+                                        {security?.foto_driver_kembali ? (
+                                            <img src={security.foto_driver_kembali} alt="Dvr" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-[8px] text-gray-400">Foto Driver</span>
+                                        )}
                                     </div>
-                                    <div className="flex flex-col items-center">
-                                        <div className="w-full aspect-[4/3] border border-slate-300 rounded flex items-center justify-center bg-slate-50 overflow-hidden shadow-inner">
-                                            {security?.foto_km_kembali ? (
-                                                <img src={security.foto_km_kembali} alt="KM" className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="text-[7px] text-slate-300 italic text-center">No Photo<br />Speedometer</div>
-                                            )}
-                                        </div>
-                                        <span className="text-[7px] font-bold mt-1 text-slate-400">FOTO KM AKHIR</span>
+                                    <div className="border border-black aspect-square flex items-center justify-center bg-gray-50 overflow-hidden">
+                                        {security?.foto_km_kembali ? (
+                                            <img src={security.foto_km_kembali} alt="KM" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-[8px] text-gray-400">Foto KM</span>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -237,60 +230,60 @@ export default function PrintRequestPage() {
                 </div>
 
                 {/* TANDA TANGAN DIGITAL SECTION */}
-                <div className="border-2 border-slate-800 rounded-lg overflow-hidden mb-2">
-                    <div className="bg-slate-100 border-b border-slate-800 px-2 py-1 text-center">
-                        <h3 className="font-bold text-[10px] uppercase tracking-[0.2em] text-slate-800 italic">E-Signature & Authentication Section</h3>
+                <div className="border-2 border-black mb-4">
+                    <div className="bg-slate-100 border-b-2 border-black px-2 py-1 text-center">
+                        <h3 className="font-bold text-xs uppercase tracking-[0.2em] text-slate-800 italic">E-Signature & Authentication Section</h3>
                     </div>
                     <div className="p-4 bg-white">
-                        <div className="grid grid-cols-3 gap-8 text-center items-start">
+                        <div className="grid grid-cols-3 gap-4 text-center items-start">
                             {/* Pemohon */}
                             <div className="flex flex-col items-center">
-                                <p className="text-[9px] font-bold mb-2 text-slate-600">DIAJUKAN OLEH,</p>
-                                <div className="w-24 h-24 border border-slate-300 p-1 bg-white shadow-sm rounded-lg">
+                                <p className="text-[11px] font-bold mb-2 text-slate-700">PEMOHON</p>
+                                <div className="w-24 h-24 border-2 border-black p-1 bg-white shadow-sm rounded-lg">
                                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateQRData('pemohon'))}`} alt="QR" className="w-full h-full" />
                                 </div>
-                                <p className="text-[10px] font-black mt-2 text-sky-800 underline decoration-sky-300">{(request.nama || request.user?.name || 'BELUM ADA NAMA').toUpperCase()}</p>
-                                <p className="text-[8px] font-bold text-slate-500 uppercase">{(request.jabatan || request.user?.role || 'PEGAWAI').toUpperCase()}</p>
+                                <p className="text-[11px] font-black mt-2 text-sky-800 underline decoration-sky-300">{(request.nama || request.user?.name || '-').toUpperCase()}</p>
+                                <p className="text-[8px] font-bold text-slate-500 uppercase">{(request.jabatan || request.user?.role || '-').toUpperCase()}</p>
                             </div>
 
                             {/* Menyetujui */}
                             <div className="flex flex-col items-center">
-                                <p className="text-[9px] font-bold mb-2 text-slate-600">DISETUJUI OLEH,</p>
-                                <div className="w-24 h-24 border border-slate-300 p-1 bg-white shadow-sm rounded-lg">
+                                <p className="text-[11px] font-bold mb-2 text-slate-700">MENYETUJUI</p>
+                                <div className="w-24 h-24 border-2 border-black p-1 bg-white shadow-sm rounded-lg">
                                     {approval?.barcode_asmen ? (
                                         <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateQRData('approver'))}`} alt="QR" className="w-full h-full" />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-[8px] text-slate-300 italic font-mono bg-slate-50">NOT SIGNED</div>
+                                        <div className="w-full h-full flex items-center justify-center text-[8px] text-slate-300 italic">PENDING</div>
                                     )}
                                 </div>
-                                <p className="text-[10px] font-black mt-2 text-sky-800 underline decoration-sky-300">{(approval?.asmen?.name || 'BELUM DISETUJUI').toUpperCase()}</p>
+                                <p className="text-[11px] font-black mt-2 text-sky-800 underline decoration-sky-300">{(approval?.asmen?.name || 'BELUM DISETUJUI').toUpperCase()}</p>
                                 <p className="text-[8px] font-bold text-slate-500 uppercase">{(approval?.asmen?.role || 'ASMEN / KKU').toUpperCase()}</p>
                             </div>
 
                             {/* Surat Jalan */}
                             <div className="flex flex-col items-center">
-                                <p className="text-[9px] font-bold mb-2 text-slate-600">DITETAPKAN OLEH,</p>
-                                <div className="w-24 h-24 border border-slate-300 p-1 bg-white shadow-sm rounded-lg">
+                                <p className="text-[11px] font-bold mb-2 text-slate-700">SURAT JALAN</p>
+                                <div className="w-24 h-24 border-2 border-black p-1 bg-white shadow-sm rounded-lg">
                                     {fleet?.barcode_fleet ? (
                                         <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateQRData('fleet'))}`} alt="QR" className="w-full h-full" />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-[8px] text-slate-300 italic font-mono bg-slate-50">UNAVAILABLE</div>
+                                        <div className="w-full h-full flex items-center justify-center text-[8px] text-slate-300 italic">BELUM TERBIT</div>
                                     )}
                                 </div>
-                                <p className="text-[10px] font-black mt-2 text-sky-800 underline decoration-sky-300">{(fleet?.admin?.name || 'BELUM DITETAPKAN').toUpperCase()}</p>
-                                <p className="text-[8px] font-bold text-slate-500 uppercase">{(fleet?.admin?.role || 'ADMIN FLEET').toUpperCase()}</p>
+                                <p className="text-[11px] font-black mt-2 text-sky-800 underline decoration-sky-300">{(fleet?.admin?.name || 'BELUM DITETAPKAN').toUpperCase()}</p>
+                                <p className="text-[8px] font-bold text-slate-500 uppercase">{(fleet?.admin?.role || 'ADMIN FLEET / KKU').toUpperCase()}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div className="pt-2 text-center">
-                    <p className="text-[7px] text-slate-400 font-medium">Dokumen ini sah dan valid secara elektronik melalui Aplikasi E-Transport UP2D Riau | Cetak: {new Date().toLocaleString('id-ID')} WIB</p>
+                    <p className="text-[9px] text-slate-400 font-medium italic">Dokumen ini sah secara elektronik melalui E-Transport UP2D Riau | {new Date().toLocaleString()} WIB</p>
                 </div>
             </div>
 
             <div className="mt-8 no-print flex justify-center gap-4">
-                <button onClick={() => window.print()} className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-all active:scale-95">CETAK ULANG</button>
+                <button onClick={() => window.print()} className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-all active:scale-95">CETAK SURAT</button>
                 <button onClick={() => window.history.back()} className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-8 rounded-xl shadow transition-all active:scale-95">KEMBALI</button>
             </div>
         </div>
