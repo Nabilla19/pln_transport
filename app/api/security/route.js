@@ -43,8 +43,8 @@ export async function POST(req) {
         };
 
         if (type === 'checkin') {
-            const pathDriver = saveImage(fotoDriver, 'driver_in');
-            const pathKm = saveImage(fotoKm, 'km_in');
+            const pathDriver = saveImage(fotoDriver);
+            const pathKm = saveImage(fotoKm);
 
             const kmVal = parseInt(km) || 0;
 
@@ -75,8 +75,8 @@ export async function POST(req) {
 
             if (!existingLog) return NextResponse.json({ message: 'Log Inset Not Found' }, { status: 400 });
 
-            const pathDriver = saveImage(fotoDriver, 'driver_out');
-            const pathKm = saveImage(fotoKm, 'km_out');
+            const pathDriver = saveImage(fotoDriver);
+            const pathKm = saveImage(fotoKm);
 
             const kmAkhir = parseInt(km) || 0;
             const jarak = Math.max(0, kmAkhir - (existingLog.km_awal || 0));
