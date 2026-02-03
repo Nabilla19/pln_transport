@@ -28,25 +28,14 @@ export default function PrintRequestPage() {
     const security = request.securityLogs?.[0];
     const approval = request.approvals?.[0];
 
-    // FIX: Document Numbering (Masking 30xxx to start from 001)
-    const formatDocId = (rawId) => {
-        const num = parseInt(rawId);
-        // If it's in the 30000 range (TiDB CACHED), mask it to start from 1
-        const displayId = num > 30000 ? num - 30000 : num;
-        return displayId.toString().padStart(3, '0');
-    };
-    const displayId = formatDocId(id);
-
-    // FIX: Time Formatting (24h)
-    const formatTimeShort = (dateStr) => {
-        if (!dateStr) return '-';
-        return new Date(dateStr).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hourCycle: 'h12' });
+    const formatId = (rawId) => {
+        const numId = parseInt(rawId);
+        // Map 30000+ to 1+ for cleaner display, or just show as 001 if small
+        const displayId = numId >= 30000 ? (numId - 29999) : numId;
+        return String(displayId).padStart(3, '0');
     };
 
-    const formatTimeFull = (dateStr) => {
-        if (!dateStr) return '-';
-        return new Date(dateStr).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
-    };
+    const displayId = formatId(id);
 
     // Helper to ensure base64 has correct prefix for <img> tag
     const formatBase64 = (str) => {
@@ -57,11 +46,13 @@ export default function PrintRequestPage() {
     };
 
     const generateQRData = (type) => {
+        const docId = String(id).padStart(4, '0');
+
         if (type === 'pemohon') {
             const tgl = new Date(request.created_at || request.tanggal_jam_berangkat).toLocaleString('id-ID', {
                 day: '2-digit', month: 'long', year: 'numeric'
             });
-            const jam = formatTimeShort(request.created_at || request.tanggal_jam_berangkat);
+            const jam = new Date(request.created_at || request.tanggal_jam_berangkat).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
             return `Surat ini sudah diajukan oleh PEMOHON ${request.nama || request.user?.name} pada tanggal ${tgl} dan waktu ${jam} WIB.`;
         }
 
@@ -69,7 +60,7 @@ export default function PrintRequestPage() {
             const tgl = new Date(approval.approved_at).toLocaleString('id-ID', {
                 day: '2-digit', month: 'long', year: 'numeric'
             });
-            const jam = formatTimeShort(approval.approved_at);
+            const jam = new Date(approval.approved_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
             let role = approval.asmen?.role || 'ASMEN';
             if (role === 'Admin Fleet') role = 'KKU';
             return `Surat ini sudah di-approve oleh ${role} ${approval.asmen?.name || '-'} pada tanggal ${tgl} dan waktu ${jam} WIB.`;
@@ -79,22 +70,11 @@ export default function PrintRequestPage() {
             const tgl = new Date(fleet.created_at).toLocaleString('id-ID', {
                 day: '2-digit', month: 'long', year: 'numeric'
             });
-            const jam = formatTimeShort(fleet.created_at);
+            const jam = new Date(fleet.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
             return `Surat ini sudah di-approve oleh KKU ${fleet.admin?.name || '-'} pada tanggal ${tgl} dan waktu ${jam} WIB.`;
         }
 
         return `DOKUMEN E-TRANSPORT ID: #${displayId}`;
-    };
-
-    const handleBack = () => {
-        // Robust back button logic
-        if (typeof window !== 'undefined') {
-            if (window.history.length > 2) {
-                router.back();
-            } else {
-                router.push(`/request/${id}`);
-            }
-        }
     };
 
     return (
@@ -206,12 +186,12 @@ export default function PrintRequestPage() {
                                     <td className="w-32 py-0.5 font-bold pl-4 text-gray-700">KM Akhir</td><td className="w-3">:</td><td className="font-normal">{security?.km_akhir ? `${security.km_akhir} KM` : '..........'}</td>
                                 </tr>
                                 <tr className="border-b border-gray-100">
-                                    <td className="py-0.5 font-bold text-gray-700">Jarak</td><td>:</td><td className="font-normal">{security?.jarak_tempuh ? `${security.jarak_tempuh} KM` : '..........'}</td>
+                                    <td className="py-0.5 font-bold text-gray-700">Jarak</td><td>:</td><td className="font-normal">{(security?.jarak_tempuh !== null && security?.jarak_tempuh !== undefined) ? `${security.jarak_tempuh} KM` : '..........'}</td>
                                     <td className="py-0.5 font-bold pl-4 text-gray-700">Waktu Pakai</td><td>:</td><td className="font-normal">{security?.lama_waktu || '............'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-0.5 font-bold text-gray-700">Jam Keluar</td><td>:</td><td className="font-normal">{formatTimeFull(security?.jam_berangkat)} WIB</td>
-                                    <td className="py-0.5 font-bold pl-4 text-gray-700">Jam Masuk</td><td>:</td><td className="font-normal">{formatTimeFull(security?.jam_kembali)} WIB</td>
+                                    <td className="py-0.5 font-bold text-gray-700">Jam Keluar</td><td>:</td><td className="font-normal">{security?.jam_berangkat ? new Date(security.jam_berangkat).toLocaleTimeString('id-ID') : '-'}</td>
+                                    <td className="py-0.5 font-bold pl-4 text-gray-700">Jam Masuk</td><td>:</td><td className="font-normal">{security?.jam_kembali ? new Date(security.jam_kembali).toLocaleTimeString('id-ID') : '-'}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -297,7 +277,7 @@ export default function PrintRequestPage() {
                     PRINT SEKARANG
                 </button>
                 <button
-                    onClick={handleBack}
+                    onClick={() => router.push(`/request/${id}`)}
                     className="bg-white border border-black text-black px-10 py-3 rounded-lg font-bold shadow hover:bg-gray-50 active:scale-95 transition-all"
                 >
                     KEMBALI

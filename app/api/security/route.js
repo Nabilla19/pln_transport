@@ -80,13 +80,20 @@ export async function POST(req) {
             const pathKm = saveImage(fotoKm);
 
             const kmAkhir = parseInt(km) || 0;
-            const jarak = Math.max(0, kmAkhir - (existingLog.km_awal || 0));
+            const kmAwal = existingLog.km_awal || 0;
+            const jarak = Math.max(0, kmAkhir - kmAwal);
 
-            const jamMasuk = new Date(jam);
-            const diff = Math.abs(jamMasuk - existingLog.jam_berangkat);
-            const minutes = Math.floor(diff / (1000 * 60));
-            const hours = Math.floor(minutes / 60);
-            const lamaWaktu = `${hours} Jam ${minutes % 60} Menit`;
+            const jamMasuk = jam ? new Date(jam) : new Date();
+            const jamKeluar = existingLog.jam_berangkat;
+
+            // Calculate duration
+            const diff = Math.abs(jamMasuk - jamKeluar);
+            const minutesTotal = Math.floor(diff / (1000 * 60));
+            const hours = Math.floor(minutesTotal / 60);
+            const minutes = minutesTotal % 60;
+            const lamaWaktu = `${hours} Jam ${minutes} Menit`;
+
+            console.log(`[Security API] Checkout Debug: KM(${kmAwal}->${kmAkhir}), Jarak(${jarak}), Lama(${lamaWaktu})`);
 
             const platNomor = request.fleet?.[0]?.plat_nomor;
 
