@@ -28,17 +28,6 @@ export default function PrintRequestPage() {
     const security = request.securityLogs?.[0];
     const approval = request.approvals?.[0];
 
-    // FIX: Generate a more robust public URL for the QR code
-    const getPublicUrl = () => {
-        if (typeof window === 'undefined') return '';
-        // If it's localhost, we can't do much for external scan, 
-        // but if it's on Vercel, this will be the real URL.
-        const origin = window.location.origin;
-        return `${origin}/request/${id}/print`;
-    };
-
-    const currentUrl = getPublicUrl();
-
     // Helper to ensure base64 has correct prefix for <img> tag
     const formatBase64 = (str) => {
         if (!str) return null;
@@ -108,16 +97,8 @@ export default function PrintRequestPage() {
             `}</style>
 
             <div className="mx-auto max-w-[21cm] document-body border border-gray-100 p-4 print:border-0 print:p-0">
-                {/* TOP BARCODE */}
-                <div className="flex justify-end mb-4 h-24">
-                    <div className="flex flex-col items-center border border-black p-1 bg-white">
-                        <img src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(currentUrl)}`} alt="ScanDoc" className="w-18 h-18" />
-                        <span className="text-[6px] font-bold mt-0.5">VERIFIKASI SISTEM</span>
-                    </div>
-                </div>
-
                 {/* 1. KOP SURAT */}
-                <div className="flex items-center gap-4 border-b-4 border-black pb-2 mb-4 -mt-24">
+                <div className="flex items-center gap-4 border-b-4 border-black pb-2 mb-4">
                     <img src="/images/logo-pln.png" alt="Logo PLN" className="w-14 h-auto" />
                     <div className="flex-1">
                         <h1 className="text-[12px] font-bold leading-tight uppercase">PT PLN (PERSERO) DISTRIBUSI RIAU DAN KEPULAUAN RIAU</h1>
@@ -217,7 +198,7 @@ export default function PrintRequestPage() {
                             <p className="text-[9px] underline uppercase">{request.nama || request.user?.name}</p>
                         </div>
                         <div className="flex flex-col items-center">
-                            <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">Menganulir / Menyetujui,</p>
+                            <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">Menyetujui,</p>
                             <div className="w-16 h-16 border border-black p-0.5 mb-1">
                                 {approval?.barcode_asmen ? (
                                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateQRData('approver'))}`} alt="QR" className="w-full h-full" />
