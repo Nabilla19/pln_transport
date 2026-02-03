@@ -61,16 +61,24 @@ export async function POST(req) {
         // Menangani jika terjadi error sistem
         console.error('💥 Error saat login:', err);
 
+        // Cek jika JWT_SECRET hilang
+        if (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'your_jwt_secret_key_here') {
+            return NextResponse.json({
+                message: 'JWT_SECRET Belum Diatur',
+                details: 'Pastikan JWT_SECRET sudah diisi di Environment Variables Vercel.'
+            }, { status: 500 });
+        }
+
         // Cek jika error dari Prisma (database)
         if (err.code && err.code.startsWith('P')) {
             return NextResponse.json({
-                message: 'Kesalahan Database (Cek DATABASE_URL di Vercel)',
-                details: err.message
+                message: 'Kesalahan Database',
+                details: `Kode: ${err.code}. Pastikan DATABASE_URL benar dan /test disertakan.`
             }, { status: 500 });
         }
 
         return NextResponse.json({
-            message: 'Kesalahan Server',
+            message: 'Kesalahan Server Internal',
             details: err.message
         }, { status: 500 });
     }
