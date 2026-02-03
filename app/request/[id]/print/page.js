@@ -52,7 +52,8 @@ export default function PrintRequestPage() {
                 day: '2-digit', month: 'long', year: 'numeric'
             });
             const jam = new Date(approval.approved_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-            return `Surat ini sudah di-approve oleh ASMEN ${approval.asmen?.name || '-'} pada tanggal ${tgl} dan waktu ${jam} WIB.`;
+            const role = approval.asmen?.role || 'ASMEN';
+            return `Surat ini sudah di-approve oleh ${role} ${approval.asmen?.name || '-'} pada tanggal ${tgl} dan waktu ${jam} WIB.`;
         }
 
         if (type === 'fleet' && fleet) {
@@ -198,7 +199,7 @@ export default function PrintRequestPage() {
                             <p className="text-[9px] underline uppercase">{request.nama || request.user?.name}</p>
                         </div>
                         <div className="flex flex-col items-center">
-                            <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">Menganulir / Menyetujui,</p>
+                            <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">Menyetujui,</p>
                             <div className="w-20 h-20 border border-black p-0.5 mb-1">
                                 {approval?.barcode_asmen ? (
                                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateQRData('approver'))}`} alt="QR" className="w-full h-full" />
