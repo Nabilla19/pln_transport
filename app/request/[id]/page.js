@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { api } from '@/lib/api';
+import { api, formatDisplayId } from '@/lib/api';
 import Link from 'next/link';
 import CameraCapture from '@/components/CameraCapture';
 import Shell from '@/components/Shell';
@@ -162,7 +162,7 @@ export default function RequestDetailPage() {
                     <div className="flex items-center justify-between mb-8 overflow-x-auto">
                         <div>
                             <Link href="/my-requests" className="text-slate-500 hover:text-slate-900 mb-2 inline-block font-bold">← Kembali</Link>
-                            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Detail Permohonan #{id}</h1>
+                            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Detail Permohonan #{formatDisplayId(id)}</h1>
                             <div className="flex items-center gap-3 mt-1">
                                 <p className="text-slate-500 font-medium">Status: <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getStatusColor(request.status)}`}>{request.status}</span></p>
                                 {request.status === 'Pending Asmen/KKU' && (

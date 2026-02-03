@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { api } from '@/lib/api';
+import { api, formatDisplayId } from '@/lib/api';
 
 export default function PrintRequestPage() {
     const { id } = useParams();
@@ -28,14 +28,7 @@ export default function PrintRequestPage() {
     const security = request.securityLogs?.[0];
     const approval = request.approvals?.[0];
 
-    const formatId = (rawId) => {
-        const numId = parseInt(rawId);
-        // Map 30000+ to 1+ for cleaner display, or just show as 001 if small
-        const displayId = numId >= 30000 ? (numId - 29999) : numId;
-        return String(displayId).padStart(3, '0');
-    };
-
-    const displayId = formatId(id);
+    const displayId = formatDisplayId(id);
 
     // Helper to ensure base64 has correct prefix for <img> tag
     const formatBase64 = (str) => {

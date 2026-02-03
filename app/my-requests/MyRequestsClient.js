@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { api } from '@/lib/api';
+import { api, formatDisplayId } from '@/lib/api';
 import Shell from '@/components/Shell';
 
 export default function MyRequestsClient() {
@@ -95,7 +95,7 @@ export default function MyRequestsClient() {
                                     ) : (
                                         requests.map((req) => (
                                             <tr key={req.id} className="hover:bg-slate-50 transition-colors group">
-                                                <td className="p-4 text-slate-500 font-mono text-xs font-bold">#{req.id}</td>
+                                                <td className="p-4 text-slate-500 font-mono text-xs font-bold">#{formatDisplayId(req.id)}</td>
                                                 <td className="p-4">
                                                     <div className="text-slate-900 font-bold text-sm">{req.nama || req.user?.name}</div>
                                                     <div className="text-slate-400 text-[10px] font-bold uppercase">{req.bagian}</div>
