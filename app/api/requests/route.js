@@ -22,7 +22,30 @@ export async function GET(req) {
             if (filter === 'all') {
                 whereClause = {};
             } else if (filter === 'approval') {
-                whereClause = { status: { in: ['Pending Asmen/KKU', 'Perlu Revisi'] } };
+                const asmenMap = {
+                    'Asmen Perencanaan': 'Perencanaan',
+                    'Asmen Pemeliharaan': 'Pemeliharaan',
+                    'Asmen Operasi': 'Operasi',
+                    'Asmen Fasilitas Operasi': 'Fasilitas Operasi'
+                };
+
+                if (asmenMap[user.role]) {
+                    // Specific Asmen sees only their department
+                    whereClause = {
+                        status: { in: ['Pending Asmen/KKU', 'Perlu Revisi'] },
+                        bagian: asmenMap[user.role]
+                    };
+                } else if (user.role === 'KKU') {
+                    // KKU sees departments NOT covered by the 4 Asmens
+                    const asmenDepts = Object.values(asmenMap);
+                    whereClause = {
+                        status: { in: ['Pending Asmen/KKU', 'Perlu Revisi'] },
+                        bagian: { notIn: asmenDepts }
+                    };
+                } else {
+                    // Admin or others see all pending
+                    whereClause = { status: { in: ['Pending Asmen/KKU', 'Perlu Revisi'] } };
+                }
             } else if (filter === 'fleet') {
                 whereClause = { status: { in: ['Menunggu Surat Jalan', 'Pending Fleet'] } };
             } else if (filter === 'security') {
@@ -66,10 +89,15 @@ export async function POST(req) {
         });
 
         // Notify relevant roles
-        const targetRoles = ['KKU', 'Security'];
-        // Also notify the specific Asmen for the department
-        if (body.bagian) {
+        const asmenDepts = ['Perencanaan', 'Pemeliharaan', 'Operasi', 'Fasilitas Operasi'];
+        const targetRoles = ['Security']; // Security always notified for monitoring
+
+        if (asmenDepts.includes(body.bagian)) {
+            // If it's a specific Asmen department, ONLY notify that Asmen
             targetRoles.push(`Asmen ${body.bagian}`);
+        } else {
+            // Otherwise, KKU handles it
+            targetRoles.push('KKU');
         }
 
         await notifyRoles(targetRoles, {
