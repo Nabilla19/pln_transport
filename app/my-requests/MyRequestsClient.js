@@ -101,7 +101,12 @@ export default function MyRequestsClient() {
                                                     <div className="text-slate-400 text-[10px] font-bold uppercase">{req.bagian}</div>
                                                 </td>
                                                 <td className="p-4 text-slate-900 font-bold">{req.tujuan}</td>
-                                                <td className="p-4 text-slate-600 text-sm font-medium">{new Date(req.created_at).toLocaleDateString()}</td>
+                                                <td className="p-4 text-slate-900 font-bold">
+                                                    {new Date(req.tanggal_jam_berangkat).toLocaleString('id-ID', {
+                                                        day: '2-digit', month: '2-digit', year: 'numeric',
+                                                        hour: '2-digit', minute: '2-digit'
+                                                    })}
+                                                </td>
                                                 <td className="p-4">
                                                     <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(req.status)}`}>
                                                         {req.status}

@@ -82,6 +82,7 @@ export async function POST(req) {
                 ...body,
                 user_id: user.id,
                 jumlah_penumpang: parseInt(body.jumlah_penumpang),
+                // Parse as local date to prevent timezone shift if the server is in UTC
                 tanggal_jam_berangkat: new Date(body.tanggal_jam_berangkat),
                 status: 'Pending Asmen/KKU',
                 barcode_pemohon: barcode

@@ -72,7 +72,17 @@ export default function RequestFormClient() {
     const handleDateChange = (date) => {
         setSelectedDate(date);
         if (date) {
-            setFormData(prev => ({ ...prev, tanggal_jam_berangkat: date.toISOString() }));
+            // Force Indonesian time (GMT+7) offset for consistency
+            // This ensures 11:00 AM picked by the user IS 11:00 AM Jakarta
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = "00";
+            const offset = "+07:00";
+            const localString = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offset}`;
+            setFormData(prev => ({ ...prev, tanggal_jam_berangkat: localString }));
         } else {
             setFormData(prev => ({ ...prev, tanggal_jam_berangkat: '' }));
         }
