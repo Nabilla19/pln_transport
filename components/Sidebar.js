@@ -15,7 +15,9 @@ export default function Sidebar() {
     const router = useRouter();
     const [user, setUser] = useState(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [unreadCount, setUnreadCount] = useState(0);
+    const [approvalCount, setApprovalCount] = useState(0);
+    const [fleetCount, setFleetCount] = useState(0);
+    const [securityCount, setSecurityCount] = useState(0);
     const searchParams = useSearchParams();
     const currentFilter = searchParams.get('filter');
 
@@ -31,8 +33,17 @@ export default function Sidebar() {
 
         const fetchNotifications = async () => {
             try {
-                const data = await api.get('/api/notifications');
-                setUnreadCount(data.length);
+                // Fetch notifications for approval (Permohonan Baru)
+                const approvalData = await api.get('/api/notifications?type=Permohonan Baru');
+                setApprovalCount(approvalData.length);
+
+                // Fetch notifications for fleet (Assign Fleet Needed)
+                const fleetData = await api.get('/api/notifications?type=Assign Fleet Needed');
+                setFleetCount(fleetData.length);
+
+                // Fetch notifications for security (Ready for Security)
+                const securityData = await api.get('/api/notifications?type=Ready for Security');
+                setSecurityCount(securityData.length);
             } catch (err) {
                 console.error('Gagal mengambil notifikasi:', err);
             }
@@ -122,9 +133,19 @@ export default function Sidebar() {
                             <span className="font-semibold">{item.label}</span>
                         </div>
                         {/* Badge Notifikasi Merah (untuk menu tertentu) */}
-                        {unreadCount > 0 && (item.filter === 'approval' || item.filter === 'security' || item.filter === 'fleet') && (
+                        {item.filter === 'approval' && approvalCount > 0 && (
                             <span className="flex items-center justify-center w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full shadow-sm animate-pulse">
-                                {unreadCount}
+                                {approvalCount}
+                            </span>
+                        )}
+                        {item.filter === 'fleet' && fleetCount > 0 && (
+                            <span className="flex items-center justify-center w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full shadow-sm animate-pulse">
+                                {fleetCount}
+                            </span>
+                        )}
+                        {item.filter === 'security' && securityCount > 0 && (
+                            <span className="flex items-center justify-center w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full shadow-sm animate-pulse">
+                                {securityCount}
                             </span>
                         )}
                     </Link>

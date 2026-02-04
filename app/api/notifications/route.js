@@ -21,16 +21,25 @@ export async function GET(req) {
     try {
         const { searchParams } = new URL(req.url);
         const limit = parseInt(searchParams.get('limit')) || 20;
+        const type = searchParams.get('type'); // Filter by notification type
+
+        // Build where clause
+        const whereClause = {
+            OR: [
+                { user_id: user.id },
+                { role: user.role }
+            ],
+            status_baca: false
+        };
+
+        // Add type filter if provided
+        if (type) {
+            whereClause.jenis_aktivitas = type;
+        }
 
         // Cari notifikasi yang ditujukan untuk user tersebut ATAU untuk role-nya yang belum dibaca
         const notifications = await prisma.notifikasiAktivitas.findMany({
-            where: {
-                OR: [
-                    { user_id: user.id },
-                    { role: user.role }
-                ],
-                status_baca: false
-            },
+            where: whereClause,
             orderBy: { tanggal_waktu: 'desc' },
             take: limit
         });
