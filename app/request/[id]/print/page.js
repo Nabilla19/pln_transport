@@ -116,7 +116,30 @@ export default function PrintRequestPage() {
                     color: black !important;
                     border-color: black !important;
                 }
+
+                /* Watermark C merah di tengah */
+                .watermark-c {
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    font-size: 500px;
+                    font-weight: 900;
+                    color: rgba(220, 38, 38, 0.08);
+                    z-index: 0;
+                    pointer-events: none;
+                    font-family: 'Arial Black', sans-serif;
+                    user-select: none;
+                }
+
+                .document-body {
+                    position: relative;
+                    z-index: 1;
+                }
             `}</style>
+
+            {/* Watermark C */}
+            <div className="watermark-c">C</div>
 
             <div className="mx-auto max-w-[21cm] document-body border border-gray-100 p-4 print:border-0 print:p-0">
                 {/* 1. KOP SURAT (Header PLN) */}
