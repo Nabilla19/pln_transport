@@ -19,6 +19,8 @@ export async function GET(req) {
         const { searchParams } = new URL(req.url);
         const brand = searchParams.get('brand');
 
+        console.log('[Fleet API] Fetching vehicles with brand:', brand);
+
         // 1. Ambil semua penugasan aktif (Ready atau In Progress)
         const activeRequests = await prisma.transportRequest.findMany({
             where: {
@@ -34,19 +36,24 @@ export async function GET(req) {
             .flatMap(req => req.fleet.map(f => f.plat_nomor))
             .filter(Boolean);
 
+        console.log('[Fleet API] Used vehicles:', usedPlatNomors);
+
         // 2. Cari kendaraan yang statusnya 'Available' DAN tidak ada dalam daftar yang sedang digunakan
         let vehicles = await prisma.transportVehicle.findMany({
             where: {
                 status: 'Available',
                 plat_nomor: { notIn: usedPlatNomors },
                 ...(brand && {
-                    brand: { contains: brand }
+                    brand: { contains: brand, mode: 'insensitive' } // Case-insensitive search
                 })
             }
         });
 
+        console.log('[Fleet API] Available vehicles with brand filter:', vehicles.length);
+
         // Jika filter brand tidak ditemukan, tampilkan semua kendaraan yang tersedia
         if (brand && vehicles.length === 0) {
+            console.log('[Fleet API] No vehicles found with brand, fetching all available vehicles');
             vehicles = await prisma.transportVehicle.findMany({
                 where: {
                     status: 'Available',
@@ -55,9 +62,12 @@ export async function GET(req) {
             });
         }
 
+        console.log('[Fleet API] Total vehicles returned:', vehicles.length);
+
         return NextResponse.json(vehicles);
     } catch (err) {
-        return NextResponse.json({ message: 'Kesalahan Server' }, { status: 500 });
+        console.error('[Fleet API] Error:', err);
+        return NextResponse.json({ message: 'Kesalahan Server', error: err.message }, { status: 500 });
     }
 }
 
