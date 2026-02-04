@@ -35,8 +35,8 @@ export async function GET(req) {
                 const asmenMap = {
                     'Asmen Perencanaan': 'Perencanaan',
                     'Asmen Pemeliharaan': 'Pemeliharaan',
-                    'Asmen Operasi': 'Operasi',
-                    'Asmen Fasilitas Operasi': 'Fasilitas Operasi'
+                    'Asmen Operasi': 'Operasi Sistem Distribusi',
+                    'Asmen Fasop': 'Fasilitas Operasi'
                 };
 
                 if (asmenMap[user.role]) {
@@ -111,12 +111,18 @@ export async function POST(req) {
         });
 
         // Logika pengiriman notifikasi ke pihak terkait
-        const asmenDepts = ['Perencanaan', 'Pemeliharaan', 'Operasi', 'Fasilitas Operasi'];
+        const asmenDepts = ['Perencanaan', 'Pemeliharaan', 'Operasi Sistem Distribusi', 'Fasilitas Operasi'];
         const targetRoles = []; // Security TIDAK dapat notif di awal
 
         if (asmenDepts.includes(body.bagian)) {
             // Jika departemen punya Asmen spesifik, kirim ke Asmen tersebut
-            targetRoles.push(`Asmen ${body.bagian}`);
+            const deptToAsmenMap = {
+                'Perencanaan': 'Asmen Perencanaan',
+                'Pemeliharaan': 'Asmen Pemeliharaan',
+                'Operasi Sistem Distribusi': 'Asmen Operasi',
+                'Fasilitas Operasi': 'Asmen Fasop'
+            };
+            targetRoles.push(deptToAsmenMap[body.bagian]);
         } else {
             // Jika departemen lain (e.g. K3L), kirim ke KKU
             targetRoles.push('KKU');

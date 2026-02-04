@@ -180,8 +180,8 @@ export default function RequestDetailPage() {
         const mapping = {
             'Asmen Perencanaan': 'Perencanaan',
             'Asmen Pemeliharaan': 'Pemeliharaan',
-            'Asmen Operasi': 'Operasi',
-            'Asmen Fasilitas Operasi': 'Fasilitas Operasi'
+            'Asmen Operasi': 'Operasi Sistem Distribusi',
+            'Asmen Fasop': 'Fasilitas Operasi'
         };
 
         const asmenFields = Object.values(mapping);
