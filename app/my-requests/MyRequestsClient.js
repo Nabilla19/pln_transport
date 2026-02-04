@@ -30,9 +30,9 @@ export default function MyRequestsClient() {
                 const data = await api.get(url);
                 setRequests(data);
 
-                // Jika user sedang membuka halaman "Persetujuan" atau "Security",
+                // Jika user sedang membuka halaman "Persetujuan", "Fleet", atau "Security",
                 // tandai semua notifikasi terkait sebagai "sudah dibaca".
-                if (filter === 'approval' || filter === 'security') {
+                if (filter === 'approval' || filter === 'fleet' || filter === 'security') {
                     await api.put('/api/notifications');
                 }
             } catch (err) {
