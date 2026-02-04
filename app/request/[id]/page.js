@@ -40,6 +40,7 @@ export default function RequestDetailPage() {
         fotoDriver: null,
         fotoKm: null
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [isEditingApprover, setIsEditingApprover] = useState(false);
     const [editForm, setEditForm] = useState(null);
@@ -129,10 +130,19 @@ export default function RequestDetailPage() {
      * Fungsi handle Pencatatan Security (Check-in/out)
      */
     const handleSecurityLog = async (type) => {
+        // Prevent double submission
+        if (isSubmitting) {
+            console.log('[Security] Already submitting, ignoring duplicate request');
+            return;
+        }
+
         try {
+            setIsSubmitting(true);
+
             // Validasi: KM harus diisi
             if (!securityData.km || securityData.km.trim() === '') {
                 showToast('❌ Kilometer (KM) harus diisi!', 'error');
+                setIsSubmitting(false);
                 return;
             }
 
@@ -140,6 +150,7 @@ export default function RequestDetailPage() {
             const kmValue = parseInt(securityData.km);
             if (isNaN(kmValue) || kmValue < 0) {
                 showToast('❌ Kilometer harus berupa angka positif!', 'error');
+                setIsSubmitting(false);
                 return;
             }
 
@@ -167,6 +178,7 @@ export default function RequestDetailPage() {
         } catch (err) {
             console.error('[Security Submit Error]:', err);
             showToast(`❌ ${err.message || 'Terjadi kesalahan saat submit'}`, 'error');
+            setIsSubmitting(false);
         }
     };
 
@@ -486,9 +498,10 @@ export default function RequestDetailPage() {
                                     </div>
                                     <button
                                         onClick={() => handleSecurityLog(request.status === 'Ready' ? 'checkin' : 'checkout')}
-                                        className="btn-primary w-full py-5 text-xl rounded-xl shadow-xl font-bold active:scale-[0.98] transition-all"
+                                        disabled={isSubmitting}
+                                        className={`btn-primary w-full py-5 text-xl rounded-xl shadow-xl font-bold transition-all ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'active:scale-[0.98]'}`}
                                     >
-                                        {request.status === 'Ready' ? '✅ Konfirmasi Keberangkatan' : '🏁 Konfirmasi Kedatangan'}
+                                        {isSubmitting ? '⏳ Memproses...' : (request.status === 'Ready' ? '✅ Konfirmasi Keberangkatan' : '🏁 Konfirmasi Kedatangan')}
                                     </button>
                                 </div>
                             ) : (
