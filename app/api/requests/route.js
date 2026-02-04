@@ -97,9 +97,18 @@ export async function POST(req) {
             .update(`PEMOHON-${user.id}-${Date.now()}`)
             .digest('hex');
 
-        // Simpan permohonan baru ke database
+        // MANUAL ID GENERATION: Cari ID terakhir dan tambah 1
+        // Ini untuk bypass auto-increment yang loncat-loncat di TiDB Cloud
+        const lastRequest = await prisma.transportRequest.findFirst({
+            orderBy: { id: 'desc' },
+            select: { id: true }
+        });
+        const nextId = lastRequest ? lastRequest.id + 1 : 1;
+
+        // Simpan permohonan baru ke database dengan ID manual
         const newRequest = await prisma.transportRequest.create({
             data: {
+                id: nextId, // Set ID manual
                 ...body,
                 user_id: user.id,
                 jumlah_penumpang: parseInt(body.jumlah_penumpang),

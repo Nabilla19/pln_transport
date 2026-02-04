@@ -41,6 +41,7 @@ export default function RequestDetailPage() {
         fotoKm: null
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [minId, setMinId] = useState(null); // Untuk display ID sequential
 
     const [isEditingApprover, setIsEditingApprover] = useState(false);
     const [editForm, setEditForm] = useState(null);
@@ -86,9 +87,21 @@ export default function RequestDetailPage() {
             }
         };
 
+        const fetchMinId = async () => {
+            try {
+                const allRequests = await api.get('/api/requests');
+                if (allRequests.length > 0) {
+                    const min = Math.min(...allRequests.map(r => r.id));
+                    setMinId(min);
+                }
+            } catch (err) {
+                console.error('[Request Detail] Error fetching minId:', err);
+            }
+        };
+
         fetchRequest();
-        fetchVehicles();
-    }, [id, request?.status]);
+        fetchMinId();
+    }, [id, request?.status, request?.macam_kendaraan]);
 
     /**
      * Fungsi handle Persetujuan (Approval)
@@ -240,7 +253,7 @@ export default function RequestDetailPage() {
                     <div className="flex items-center justify-between mb-8 overflow-x-auto">
                         <div>
                             <button onClick={() => window.location.href = '/my-requests'} className="text-slate-500 hover:text-slate-900 mb-2 inline-block font-bold">← Kembali</button>
-                            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Detail Permohonan #{formatDisplayId(id)}</h1>
+                            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Detail Permohonan #{formatDisplayId(id, minId)}</h1>
                             <div className="flex items-center gap-3 mt-1">
                                 <p className="text-slate-500 font-medium">Status: <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getStatusColor(request.status)}`}>{request.status}</span></p>
                                 {request.status === 'Pending Asmen/KKU' && (

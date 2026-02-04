@@ -42,8 +42,11 @@ export default function MyRequestsClient() {
         fetchRequests();
     }, [filter]);
 
+    // Hitung ID minimum untuk display sequential
+    const minId = requests.length > 0 ? Math.min(...requests.map(r => r.id)) : 0;
+
     /**
-     * Helper untuk menentukan warna label status (Badge)
+     * Helper: Mendapatkan skema warna label status (Badge)
      */
     const getStatusColor = (status) => {
         switch (status) {
@@ -111,7 +114,7 @@ export default function MyRequestsClient() {
                                         requests.map((req) => (
                                             <tr key={req.id} className="hover:bg-slate-50 transition-colors group">
                                                 {/* ID Format (Misal: #001) */}
-                                                <td className="p-4 text-slate-500 font-mono text-xs font-bold">#{formatDisplayId(req.id)}</td>
+                                                <td className="p-4 text-slate-500 font-mono text-xs font-bold">#{formatDisplayId(req.id, minId)}</td>
                                                 <td className="p-4">
                                                     <div className="text-slate-900 font-bold text-sm">{req.nama || req.user?.name}</div>
                                                     <div className="text-slate-400 text-[10px] font-bold uppercase">{req.bagian}</div>

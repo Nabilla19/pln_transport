@@ -13,6 +13,7 @@ export default function PrintRequestPage() {
     const { id } = useParams();
     const router = useRouter();
     const [request, setRequest] = useState(null);
+    const [minId, setMinId] = useState(null);
 
     useEffect(() => {
         const fetchRequest = async () => {
@@ -25,7 +26,21 @@ export default function PrintRequestPage() {
                 console.error(err);
             }
         };
+
+        const fetchMinId = async () => {
+            try {
+                const allRequests = await api.get('/api/requests');
+                if (allRequests.length > 0) {
+                    const min = Math.min(...allRequests.map(r => r.id));
+                    setMinId(min);
+                }
+            } catch (err) {
+                console.error('Error fetching minId:', err);
+            }
+        };
+
         fetchRequest();
+        fetchMinId();
     }, [id]);
 
     if (!request) return <div className="p-8 text-center text-black font-sans">Memuat data cetak...</div>;
@@ -34,7 +49,7 @@ export default function PrintRequestPage() {
     const security = request.securityLogs?.[0];
     const approval = request.approvals?.[0];
 
-    const displayId = formatDisplayId(id);
+    const displayId = formatDisplayId(id, minId);
 
     /**
      * Helper: Memastikan format Base64 memiliki prefix yang benar untuk tag <img>
@@ -49,7 +64,7 @@ export default function PrintRequestPage() {
      * Helper: Menghasilkan teks deskriptif untuk dimasukkan ke dalam QR Code Verifikasi
      */
     const generateQRData = (type) => {
-        const docId = formatDisplayId(id);
+        const docId = formatDisplayId(id, minId);
 
         if (type === 'pemohon') {
             const tgl = new Date(request.created_at || request.tanggal_jam_berangkat).toLocaleString('id-ID', {
