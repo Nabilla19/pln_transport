@@ -207,8 +207,7 @@ export default function PrintRequestPage() {
                                     <td className="w-32 py-1 font-bold pl-4">No. Polisi</td><td className="w-3">:</td><td className="py-1 tracking-wider">{fleet?.plat_nomor || '............'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-1 font-bold">Pengemudi</td><td>:</td><td className="py-1 uppercase">{fleet?.pengemudi || '.....................'}</td>
-                                    <td className="py-1 font-bold pl-4">Dispatcher</td><td>:</td><td className="py-1">{fleet?.admin?.name || '-'}</td>
+                                    <td className="py-1 font-bold">Pengemudi</td><td>:</td><td className="py-1 uppercase" colSpan="4">{fleet?.pengemudi || '.....................'}</td>
                                 </tr>
                             </tbody>
                         </table>
