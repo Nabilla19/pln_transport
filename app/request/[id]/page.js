@@ -101,6 +101,7 @@ export default function RequestDetailPage() {
 
         fetchRequest();
         fetchMinId();
+        fetchVehicles();
     }, [id, request?.status, request?.macam_kendaraan]);
 
     /**

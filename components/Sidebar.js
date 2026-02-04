@@ -134,19 +134,13 @@ export default function Sidebar() {
                         </div>
                         {/* Badge Notifikasi Merah (untuk menu tertentu) */}
                         {item.filter === 'approval' && approvalCount > 0 && (
-                            <span className="flex items-center justify-center w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full shadow-sm animate-pulse">
-                                {approvalCount}
-                            </span>
+                            <span className="w-2.5 h-2.5 bg-rose-500 rounded-full shadow-sm animate-pulse"></span>
                         )}
                         {item.filter === 'fleet' && fleetCount > 0 && (
-                            <span className="flex items-center justify-center w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full shadow-sm animate-pulse">
-                                {fleetCount}
-                            </span>
+                            <span className="w-2.5 h-2.5 bg-rose-500 rounded-full shadow-sm animate-pulse"></span>
                         )}
                         {item.filter === 'security' && securityCount > 0 && (
-                            <span className="flex items-center justify-center w-5 h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full shadow-sm animate-pulse">
-                                {securityCount}
-                            </span>
+                            <span className="w-2.5 h-2.5 bg-rose-500 rounded-full shadow-sm animate-pulse"></span>
                         )}
                     </Link>
                 ))}
