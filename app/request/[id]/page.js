@@ -130,6 +130,19 @@ export default function RequestDetailPage() {
      */
     const handleSecurityLog = async (type) => {
         try {
+            // Validasi: KM harus diisi
+            if (!securityData.km || securityData.km.trim() === '') {
+                showToast('❌ Kilometer (KM) harus diisi!', 'error');
+                return;
+            }
+
+            // Validasi: KM harus angka positif
+            const kmValue = parseInt(securityData.km);
+            if (isNaN(kmValue) || kmValue < 0) {
+                showToast('❌ Kilometer harus berupa angka positif!', 'error');
+                return;
+            }
+
             const now = new Date();
             // Format waktu khusus GMT+7 untuk ketaatan database
             const year = now.getFullYear();
@@ -152,7 +165,8 @@ export default function RequestDetailPage() {
             showToast(`✅ Berhasil: Data ${type === 'checkin' ? 'Keberangkatan' : 'Kepulangan'} tercatat`, 'success');
             setTimeout(() => window.location.reload(), 2000);
         } catch (err) {
-            showToast(`❌ ${err.message}`, 'error');
+            console.error('[Security Submit Error]:', err);
+            showToast(`❌ ${err.message || 'Terjadi kesalahan saat submit'}`, 'error');
         }
     };
 
