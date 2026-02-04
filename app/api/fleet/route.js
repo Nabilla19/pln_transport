@@ -39,28 +39,21 @@ export async function GET(req) {
         console.log('[Fleet API] Used vehicles:', usedPlatNomors);
 
         // 2. Cari kendaraan yang statusnya 'Available' DAN tidak ada dalam daftar yang sedang digunakan
+        // Note: MySQL doesn't support mode: 'insensitive', so we fetch all and filter in JS
         let vehicles = await prisma.transportVehicle.findMany({
             where: {
                 status: 'Available',
-                plat_nomor: { notIn: usedPlatNomors },
-                ...(brand && {
-                    brand: { contains: brand, mode: 'insensitive' } // Case-insensitive search
-                })
+                plat_nomor: { notIn: usedPlatNomors }
             }
         });
 
-        console.log('[Fleet API] Available vehicles with brand filter:', vehicles.length);
-
-        // Jika filter brand tidak ditemukan, tampilkan semua kendaraan yang tersedia
-        if (brand && vehicles.length === 0) {
-            console.log('[Fleet API] No vehicles found with brand, fetching all available vehicles');
-            vehicles = await prisma.transportVehicle.findMany({
-                where: {
-                    status: 'Available',
-                    plat_nomor: { notIn: usedPlatNomors }
-                }
-            });
+        // Filter by brand in JavaScript (case-insensitive)
+        if (brand) {
+            const brandLower = brand.toLowerCase();
+            vehicles = vehicles.filter(v => v.brand.toLowerCase().includes(brandLower));
         }
+
+        console.log('[Fleet API] Available vehicles with brand filter:', vehicles.length);
 
         console.log('[Fleet API] Total vehicles returned:', vehicles.length);
 
