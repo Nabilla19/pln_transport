@@ -213,7 +213,6 @@ export default function CameraCapture({ onCapture, label }) {
                             ref={fileInputRef}
                             className="hidden"
                             accept="image/*"
-                            capture="environment"
                             onChange={handleFileUpload}
                         />
                     </>

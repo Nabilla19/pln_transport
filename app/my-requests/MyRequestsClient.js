@@ -65,7 +65,7 @@ export default function MyRequestsClient() {
 
     return (
         <Shell>
-            <div className="min-h-screen p-4 pt-6 md:p-8 lg:p-12 bg-white">
+            <div className="min-h-screen p-4 pt-8 md:p-8 lg:p-12 bg-white">
                 <div className="max-w-6xl mx-auto">
                     {/* Header Halaman (Judul berubah sesuai filter) */}
                     <div className="mb-8">
