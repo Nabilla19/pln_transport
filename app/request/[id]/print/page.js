@@ -79,8 +79,7 @@ export default function PrintRequestPage() {
                 day: '2-digit', month: 'long', year: 'numeric'
             });
             const jam = new Date(approval.approved_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-            let role = user?.role || 'N/A';
-            return `Surat ini sudah di-approve oleh ${role} ${approval.asmen?.name || '-'} pada tanggal ${tgl} dan waktu ${jam} WIB.`;
+            return `Surat ini sudah di-approve oleh ${approval.asmen?.name || '-'} pada tanggal ${tgl} dan waktu ${jam} WIB.`;
         }
 
         if (type === 'fleet' && fleet) {
