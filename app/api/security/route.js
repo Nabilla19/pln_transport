@@ -21,8 +21,15 @@ export async function POST(req) {
         return NextResponse.json({ message: `Terlarang: Role ${user.role} tidak memiliki akses ini` }, { status: 403 });
     }
 
+    let body;
     try {
-        const body = await req.json();
+        body = await req.json();
+    } catch (parseError) {
+        console.error('[Security API] JSON Parse Error:', parseError);
+        return NextResponse.json({ message: 'Format data tidak valid' }, { status: 400 });
+    }
+
+    try {
         const { requestId, type, km, jam, fotoDriver, fotoKm } = body;
 
         console.log(`[Security API] Memproses ${type} untuk Permohonan #${requestId}`, { km, jam });

@@ -6,7 +6,7 @@ async function seedAdmin() {
     try {
         console.log('🌱 Menyiapkan Akun Admin di Database Baru...');
 
-        const email = 'admin@pln.local';
+        const email = 'admin@pln.co.id';
         const password = 'admin123';
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -27,7 +27,7 @@ async function seedAdmin() {
         });
 
         console.log('\n✅ SELESAI!');
-        console.log('📧 Email: admin@pln.local');
+        console.log('📧 Email: admin@pln.co.id');
         console.log('🔑 Password: admin123');
 
     } catch (err) {

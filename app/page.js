@@ -170,7 +170,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-slate-50 border-2 border-slate-200 text-slate-900 font-medium focus:bg-white focus:border-sky-500 focus:outline-none transition-all"
-                    placeholder="nama@pln.local"
+                    placeholder="nama@pln.co.id"
                     required
                     disabled={isLoading}
                   />
