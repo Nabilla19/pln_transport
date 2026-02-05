@@ -46,8 +46,8 @@ export async function GET(req) {
                         bagian: asmenMap[user.role]
                     };
                 } else if (user.role === 'KKU') {
-                    // KKU melihat departemen yang tidak dicover oleh 4 Asmen di atas
-                    const asmenDepts = Object.values(asmenMap);
+                    // KKU melihat departemen: KKU, K3L & KAM, Pengadaan, UP3
+                    const asmenDepts = ['Perencanaan', 'Pemeliharaan', 'Operasi Sistem Distribusi', 'Fasilitas Operasi'];
                     whereClause = {
                         status: { in: ['Pending Asmen/KKU', 'Perlu Revisi'] },
                         bagian: { notIn: asmenDepts }
@@ -120,20 +120,23 @@ export async function POST(req) {
         });
 
         // Logika pengiriman notifikasi ke pihak terkait
-        const asmenDepts = ['Perencanaan', 'Pemeliharaan', 'Operasi Sistem Distribusi', 'Fasilitas Operasi'];
+        // Mapping departemen ke Asmen yang sesuai
+        const deptToAsmenMap = {
+            'Perencanaan': 'Asmen Perencanaan',
+            'Pemeliharaan': 'Asmen Pemeliharaan',
+            'Operasi Sistem Distribusi': 'Asmen Operasi',
+            'Fasilitas Operasi': 'Asmen Fasop',
+            // Departemen lain yang dihandle KKU:
+            // KKU, K3L & KAM, Pengadaan, UP3
+        };
+
         const targetRoles = []; // Security TIDAK dapat notif di awal
 
-        if (asmenDepts.includes(body.bagian)) {
+        if (deptToAsmenMap[body.bagian]) {
             // Jika departemen punya Asmen spesifik, kirim ke Asmen tersebut
-            const deptToAsmenMap = {
-                'Perencanaan': 'Asmen Perencanaan',
-                'Pemeliharaan': 'Asmen Pemeliharaan',
-                'Operasi Sistem Distribusi': 'Asmen Operasi',
-                'Fasilitas Operasi': 'Asmen Fasop'
-            };
             targetRoles.push(deptToAsmenMap[body.bagian]);
         } else {
-            // Jika departemen lain (e.g. K3L), kirim ke KKU
+            // Jika departemen lain (KKU, K3L & KAM, Pengadaan, UP3), kirim ke KKU
             targetRoles.push('KKU');
         }
 

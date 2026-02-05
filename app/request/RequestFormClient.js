@@ -218,7 +218,7 @@ export default function RequestFormClient() {
                                         <option value="" disabled>-- Pilih Bidang --</option>
                                         <option value="Perencanaan">Perencanaan</option>
                                         <option value="Pemeliharaan">Pemeliharaan</option>
-                                        <option value="Operasi">Operasi</option>
+                                        <option value="Operasi Sistem Distribusi">Operasi Sistem Distribusi</option>
                                         <option value="Fasilitas Operasi">Fasilitas Operasi</option>
                                         <option value="KKU">KKU</option>
                                         <option value="K3L & KAM">K3L & KAM</option>
