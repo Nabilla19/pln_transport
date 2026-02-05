@@ -16,7 +16,7 @@ import { NextResponse } from 'next/server';
  */
 export async function GET(req, { params }) {
     const user = await verifyAuth(req);
-    if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    if (!user) return NextResponse.json({ message: 'Tidak terautentikasi' }, { status: 401 });
 
     try {
         // Penanganan parameter dinamis untuk kompatibilitas Next.js 14/15/16
@@ -58,7 +58,7 @@ export async function GET(req, { params }) {
  */
 export async function PUT(req, { params }) {
     const user = await verifyAuth(req);
-    if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    if (!user) return NextResponse.json({ message: 'Tidak terautentikasi' }, { status: 401 });
 
     try {
         const resolvedParams = params instanceof Promise ? await params : params;

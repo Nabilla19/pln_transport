@@ -13,7 +13,7 @@ import { notifyRoles } from '@/lib/notifications';
 export async function GET(req) {
     // Verifikasi autentikasi user
     const user = await verifyAuth(req);
-    if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    if (!user) return NextResponse.json({ message: 'Tidak terautentikasi' }, { status: 401 });
 
     try {
         const { searchParams } = new URL(req.url);
@@ -21,7 +21,7 @@ export async function GET(req) {
 
         const userRole = user?.role || '';
         // Cek apakah user memiliki role yang diizinkan melihat semua data
-        const canSeeAll = ['Asmen', 'KKU', 'Admin', 'Security', 'Admin Fleet'].some(r => userRole.includes(r));
+        const canSeeAll = ['Asmen', 'KKU', 'Admin', 'Security'].some(r => userRole.includes(r));
 
         // Default: Pemohon hanya bisa melihat permohonan miliknya sendiri
         let whereClause = { user_id: user.id };
@@ -88,7 +88,7 @@ export async function GET(req) {
 export async function POST(req) {
     // Verifikasi autentikasi user
     const user = await verifyAuth(req);
-    if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    if (!user) return NextResponse.json({ message: 'Tidak terautentikasi' }, { status: 401 });
 
     try {
         const body = await req.json();

@@ -15,7 +15,7 @@ export async function GET(req) {
         // Validasi Sesi
         const user = await verifyAuth(req);
         if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 });
         }
 
         // Eksekusi beberapa penghitungan sekaligus dalam satu transaksi database

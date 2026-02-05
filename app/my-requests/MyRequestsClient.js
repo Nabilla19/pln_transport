@@ -61,7 +61,7 @@ export default function MyRequestsClient() {
     };
 
     const user_role = user?.role || '';
-    const canSeeAll = user && ['Asmen', 'KKU', 'Admin', 'Security', 'Admin Fleet'].some(r => user_role.includes(r));
+    const canSeeAll = user && ['Asmen', 'KKU', 'Admin', 'Security'].some(r => user_role.includes(r));
 
     return (
         <Shell>

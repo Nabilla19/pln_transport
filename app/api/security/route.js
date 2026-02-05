@@ -13,10 +13,10 @@ import path from 'path';
 export async function POST(req) {
     // Verifikasi autentikasi user
     const user = await verifyAuth(req);
-    if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    if (!user) return NextResponse.json({ message: 'Tidak terautentikasi' }, { status: 401 });
 
-    // Hanya Security, Admin, atau Admin Fleet yang diizinkan mencatatkan log security
-    const allowedRoles = ['Security', 'Admin', 'Admin Fleet'];
+    // Hanya Security atau Admin yang diizinkan mencatatkan log security
+    const allowedRoles = ['Security', 'Admin'];
     if (!allowedRoles.includes(user.role)) {
         return NextResponse.json({ message: `Terlarang: Role ${user.role} tidak memiliki akses ini` }, { status: 403 });
     }

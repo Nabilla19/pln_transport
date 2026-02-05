@@ -69,7 +69,7 @@ Sistem ini mengimplementasikan Role-Based Access Control (RBAC) yang ketat:
 - **Security**: Implementasi fitur **Auto-Logout** otomatis jika pengguna tidak melakukan aktivitas (mouse/keyboard/scroll) selama **10 menit** untuk meningkatkan keamanan workstation.
 
 ## Dokumentasi Teknis
-| **Admin Fleet** | Penugasan kendaraan (Unit & Driver) & cetak Surat Jalan. |
+
 | **Security** | Dokumentasi real-time (Check-in/Check-out pintu masuk). |
 | **Admin IT** | Manajemen akun pengguna & pemeliharaan teknis sistem. |
 
@@ -84,7 +84,7 @@ Mendefinisikan interaksi personil dengan sistem.
 usecaseDiagram
     actor "Pegawai/User" as U
     actor "Asmen/KKU" as A
-    actor "Admin Fleet" as F
+
     actor "Security" as S
     actor "IT Admin" as AD
 

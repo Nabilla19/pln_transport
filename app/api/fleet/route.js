@@ -60,7 +60,7 @@ export async function GET(req) {
         return NextResponse.json(vehicles);
     } catch (err) {
         console.error('[Fleet API] Error:', err);
-        return NextResponse.json({ message: 'Kesalahan Server', error: err.message }, { status: 500 });
+        return NextResponse.json({ message: 'Kesalahan server', error: err.message }, { status: 500 });
     }
 }
 
@@ -73,16 +73,24 @@ export async function GET(req) {
 export async function POST(req) {
     // Verifikasi autentikasi user
     const user = await verifyAuth(req);
-    if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    if (!user) return NextResponse.json({ message: 'Tidak terautentikasi' }, { status: 401 });
 
-    // Hanya KKU atau Admin Fleet yang boleh menugaskan armada
-    const allowedRoles = ['KKU', 'Admin Fleet', 'Admin'];
+    // Hanya KKU atau Admin yang boleh menugaskan armada
+    const allowedRoles = ['KKU', 'Admin'];
     if (!allowedRoles.includes(user.role)) {
         return NextResponse.json({ message: 'Terlarang' }, { status: 403 });
     }
 
+    let body;
     try {
-        const { requestId, mobil, platNomor, pengemudi } = await req.json();
+        body = await req.json();
+    } catch (parseError) {
+        console.error('[Fleet API] JSON Parse Error:', parseError);
+        return NextResponse.json({ message: 'Format data tidak valid' }, { status: 400 });
+    }
+
+    try {
+        const { requestId, mobil, platNomor, pengemudi } = body;
 
         // Generate barcode unik untuk penugasan fleet
         const barcode = crypto.createHash('md5')
@@ -124,6 +132,81 @@ export async function POST(req) {
         });
 
         return NextResponse.json({ message: 'Fleet berhasil ditugaskan' });
+    } catch (err) {
+        console.error(err);
+        return NextResponse.json({ message: 'Kesalahan Server' }, { status: 500 });
+    }
+}
+
+/**
+ * Endpoint PUT: Menolak Penugasan Fleet
+ * 
+ * Deskripsi: Menolak penugasan armada dengan alasan dropdown,
+ * mengembalikan status request ke 'Pending Fleet', dan mengirim notifikasi.
+ */
+export async function PUT(req) {
+    const user = await verifyAuth(req);
+    if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+
+    // Hanya KKU atau Admin yang boleh menolak penugasan armada
+    const allowedRoles = ['KKU', 'Admin'];
+    if (!allowedRoles.includes(user.role)) {
+        return NextResponse.json({ message: 'Terlarang' }, { status: 403 });
+    }
+
+    let body;
+    try {
+        body = await req.json();
+    } catch (parseError) {
+        console.error('[Fleet Rejection API] JSON Parse Error:', parseError);
+        return NextResponse.json({ message: 'Format data tidak valid' }, { status: 400 });
+    }
+
+    try {
+        const { requestId, rejection_reason } = body;
+
+        // Validasi alasan penolakan
+        const validReasons = ['BBM Habis/Kritis', 'Mobil lagi service', 'Mobil lagi dipakai Manager'];
+        if (!validReasons.includes(rejection_reason)) {
+            return NextResponse.json({ message: 'Alasan penolakan tidak valid' }, { status: 400 });
+        }
+
+        const request = await prisma.transportRequest.findUnique({
+            where: { id: parseInt(requestId) }
+        });
+
+        if (!request) {
+            return NextResponse.json({ message: 'Permohonan tidak ditemukan' }, { status: 404 });
+        }
+
+        // Simpan data penolakan fleet dan update status request
+        await prisma.$transaction([
+            // 1. Buat record penolakan di tabel transport_fleet
+            prisma.transportFleet.create({
+                data: {
+                    request_id: parseInt(requestId),
+                    admin_id: user.id,
+                    is_rejected: true,
+                    rejection_reason
+                }
+            }),
+            // 2. Update status permohonan kembali ke 'Pending Fleet'
+            prisma.transportRequest.update({
+                where: { id: parseInt(requestId) },
+                data: { status: 'Pending Fleet' }
+            })
+        ]);
+
+        // Kirim notifikasi ke Asmen/KKU tentang penolakan fleet
+        await notifyRoles(['Asmen', 'KKU'], {
+            type: 'Fleet Rejected',
+            module: 'Transport',
+            recordId: parseInt(requestId),
+            recordName: request.nama,
+            deskripsi: `Penugasan armada untuk ${request.nama} ditolak. Alasan: ${rejection_reason}`
+        });
+
+        return NextResponse.json({ message: 'Penugasan fleet ditolak' });
     } catch (err) {
         console.error(err);
         return NextResponse.json({ message: 'Kesalahan Server' }, { status: 500 });

@@ -4,7 +4,7 @@ Sistem Manajemen Kendaraan Dinas Digital yang dirancang untuk efisiensi operasio
 
 ## Fitur Utama
 - Digital Branding: Login page modern dengan identitas PLN yang kuat.
-- Role-Based Access Control: Manajemen hak akses untuk Admin, Asmen, KKU, Admin Fleet, dan Security.
+- Role-Based Access Control: Manajemen hak akses untuk Admin, Asmen, KKU, dan Security.
 - Smart Approval: Alur persetujuan berjenjang sesuai dengan Bidang/Bagian user.
 - Fleet Control & Monitoring: Penugasan unit (Innova Zenix, Terios, dll) dan pengemudi secara real-time.
 - Security Check Point: Integrasi Live Camera Capture (WebRTC) untuk dokumentasi foto driver dan odometer (KM) saat kendaraan berangkat (Check-in) dan kembali (Check-out).

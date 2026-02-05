@@ -70,9 +70,7 @@ export default function Sidebar() {
     const isKKU = user.role === 'KKU';
     const isSecurity = user.role === 'Security';
     const isAdmin = user.role === 'Admin';
-    const isAdminFleet = user.role === 'Admin Fleet';
-
-    const canSeeAll = ['Asmen', 'KKU', 'Admin', 'Security', 'Admin Fleet'].some(r => user.role.includes(r));
+    const canSeeAll = ['Asmen', 'KKU', 'Admin', 'Security'].some(r => user.role.includes(r));
 
     /**
      * Konfigurasi menu navigasi

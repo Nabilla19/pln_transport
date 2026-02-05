@@ -13,18 +13,25 @@ import { notifyRoles } from '@/lib/notifications';
 export async function POST(req) {
     // Verifikasi autentikasi user
     const user = await verifyAuth(req);
-    if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    if (!user) return NextResponse.json({ message: 'Tidak terautentikasi' }, { status: 401 });
 
     // Membatasi akses: Hanya Asmen atau KKU yang boleh melakukan approval
     if (!user.role.includes('Asmen') && user.role !== 'KKU') {
         return NextResponse.json({ message: 'Terlarang: Anda tidak memiliki hak akses persetujuan' }, { status: 403 });
     }
 
+    let body;
     try {
-        const body = await req.json();
-        const { requestId, catatan, tujuan, keperluan, macam_kendaraan, jumlah_penumpang } = body;
+        body = await req.json();
+    } catch (parseError) {
+        console.error('[Approval API] JSON Parse Error:', parseError);
+        return NextResponse.json({ message: 'Format data tidak valid' }, { status: 400 });
+    }
 
-        // Mencari data permohonan yang akan di-approve
+    try {
+        const { requestId, action, catatan, rejection_reason, tujuan, keperluan, macam_kendaraan, jumlah_penumpang } = body;
+
+        // Mencari data permohonan yang akan di-approve/reject
         const request = await prisma.transportRequest.findUnique({
             where: { id: parseInt(requestId) }
         });
@@ -55,7 +62,42 @@ export async function POST(req) {
             .update(`ASMEN-${user.id}-${Date.now()}-${requestId}`)
             .digest('hex');
 
-        // Menggunakan Transaksi Database untuk memastikan kedua operasi berhasil
+        // Handle REJECTION
+        if (action === 'reject') {
+            await prisma.$transaction([
+                // 1. Simpan data penolakan ke tabel transport_approvals
+                prisma.transportApproval.create({
+                    data: {
+                        request_id: parseInt(requestId),
+                        asmen_id: user.id,
+                        is_approved: false,
+                        is_rejected: true,
+                        rejection_reason,
+                        catatan,
+                        approved_at: new Date(),
+                        barcode_asmen: barcode
+                    }
+                }),
+                // 2. Update status permohonan menjadi 'Ditolak'
+                prisma.transportRequest.update({
+                    where: { id: parseInt(requestId) },
+                    data: { status: 'Ditolak' }
+                })
+            ]);
+
+            // Kirim notifikasi ke Pemohon tentang penolakan
+            await notifyRoles(['Pemohon'], {
+                type: 'Request Rejected',
+                module: 'Transport',
+                recordId: parseInt(requestId),
+                recordName: request.nama,
+                deskripsi: `Permohonan Anda ditolak oleh ${user.role}. Alasan: ${rejection_reason || 'Tidak disebutkan'}`
+            });
+
+            return NextResponse.json({ message: 'Permohonan telah ditolak' });
+        }
+
+        // Handle APPROVAL (default)
         await prisma.$transaction([
             // 1. Simpan data persetujuan ke tabel transport_approvals
             prisma.transportApproval.create({
@@ -63,6 +105,7 @@ export async function POST(req) {
                     request_id: parseInt(requestId),
                     asmen_id: user.id,
                     is_approved: true,
+                    is_rejected: false,
                     catatan,
                     approved_at: new Date(),
                     barcode_asmen: barcode
@@ -93,7 +136,7 @@ export async function POST(req) {
 
         return NextResponse.json({ message: `Permohonan Bidang ${request.bagian} telah disetujui` });
     } catch (err) {
-        console.error(err);
-        return NextResponse.json({ message: 'Kesalahan Server' }, { status: 500 });
+        console.error("API Error [POST /api/approval]:", err);
+        return NextResponse.json({ message: 'Kesalahan server', error: err.message }, { status: 500 });
     }
 }

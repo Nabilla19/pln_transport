@@ -16,7 +16,7 @@ import { NextResponse } from 'next/server';
  */
 export async function GET(req) {
     const user = await verifyAuth(req);
-    if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    if (!user) return NextResponse.json({ message: 'Tidak terautentikasi' }, { status: 401 });
 
     try {
         const { searchParams } = new URL(req.url);
@@ -57,7 +57,7 @@ export async function GET(req) {
  */
 export async function PUT(req) {
     const user = await verifyAuth(req);
-    if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    if (!user) return NextResponse.json({ message: 'Tidak terautentikasi' }, { status: 401 });
 
     try {
         await prisma.notifikasiAktivitas.updateMany({

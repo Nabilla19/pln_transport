@@ -152,7 +152,7 @@ export default function UsersPage() {
         'Asmen Operasi',
         'Asmen Fasop',
         'KKU',
-        'Admin Fleet',
+
         'Security',
         'Admin'
     ];
@@ -165,7 +165,7 @@ export default function UsersPage() {
         'Asmen Operasi': 'bg-green-100 text-green-700 border-green-300',
         'Asmen Pemeliharaan': 'bg-green-100 text-green-700 border-green-300',
         'Asmen Fasop': 'bg-green-100 text-green-700 border-green-300',
-        'Admin Fleet': 'bg-amber-100 text-amber-700 border-amber-300',
+
         'Security': 'bg-red-100 text-red-700 border-red-300',
         'UP3': 'bg-sky-100 text-sky-700 border-sky-300',
         'Perencanaan': 'bg-slate-100 text-slate-700 border-slate-300',
