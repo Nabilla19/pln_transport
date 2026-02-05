@@ -13,7 +13,7 @@ import { notifyRoles } from '@/lib/notifications';
 export async function GET(req) {
     // Verifikasi autentikasi user
     const user = await verifyAuth(req);
-    if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    if (!user) return NextResponse.json({ message: 'Tidak terautentikasi' }, { status: 401 });
 
     try {
         const { searchParams } = new URL(req.url);
@@ -146,7 +146,7 @@ export async function POST(req) {
  */
 export async function PUT(req) {
     const user = await verifyAuth(req);
-    if (!user) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    if (!user) return NextResponse.json({ message: 'Tidak terautentikasi' }, { status: 401 });
 
     // Hanya KKU atau Admin yang boleh menolak penugasan armada
     const allowedRoles = ['KKU', 'Admin'];
