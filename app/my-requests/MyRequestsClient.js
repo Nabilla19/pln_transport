@@ -94,27 +94,28 @@ export default function MyRequestsClient() {
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="border-b border-slate-100 bg-slate-50/50">
-                                        <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-widest">ID</th>
-                                        <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Pemohon</th>
-                                        <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Tujuan</th>
-                                        <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Waktu Berangkat</th>
-                                        <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
-                                        <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">Aksi</th>
+                                    <tr className="bg-slate-50 border-b border-slate-200">
+                                        {/* ID hanya muncul di Monitoring Seluruh */}
+                                        {filter === 'all' && <th className="p-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">ID</th>}
+                                        <th className="p-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Pemohon</th>
+                                        <th className="p-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Tujuan</th>
+                                        <th className="p-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Tanggal</th>
+                                        <th className="p-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                                        <th className="p-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
                                     {requests.length === 0 ? (
                                         <tr>
-                                            <td colSpan="6" className="p-12 text-center text-slate-400 font-medium">
+                                            <td colSpan={filter === 'all' ? "6" : "5"} className="p-12 text-center text-slate-400 font-medium">
                                                 Belum ada permohonan.
                                             </td>
                                         </tr>
                                     ) : (
                                         requests.map((req) => (
                                             <tr key={req.id} className="hover:bg-slate-50 transition-colors group">
-                                                {/* ID Format (Misal: #001) */}
-                                                <td className="p-4 text-slate-500 font-mono text-xs font-bold">#{formatDisplayId(req.id, minId)}</td>
+                                                {/* ID hanya muncul di Monitoring Seluruh */}
+                                                {filter === 'all' && <td className="p-4 text-slate-500 font-mono text-xs font-bold">{formatDisplayId(req.id, minId)}</td>}
                                                 <td className="p-4">
                                                     <div className="text-slate-900 font-bold text-sm">{req.nama || req.user?.name}</div>
                                                     <div className="text-slate-400 text-[10px] font-bold uppercase">{req.bagian}</div>
