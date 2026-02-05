@@ -190,20 +190,20 @@ export async function PUT(req) {
                     rejection_reason
                 }
             }),
-            // 2. Update status permohonan kembali ke 'Pending Fleet'
+            // 2. Update status permohonan menjadi 'Ditolak' (final, tidak bisa di-assign lagi)
             prisma.transportRequest.update({
                 where: { id: parseInt(requestId) },
-                data: { status: 'Pending Fleet' }
+                data: { status: 'Ditolak' }
             })
         ]);
 
-        // Kirim notifikasi ke Asmen/KKU tentang penolakan fleet
-        await notifyRoles(['Asmen', 'KKU'], {
+        // Kirim notifikasi ke pemohon tentang penolakan fleet
+        await notifyRoles(['Pemohon'], {
             type: 'Fleet Rejected',
             module: 'Transport',
             recordId: parseInt(requestId),
             recordName: request.nama,
-            deskripsi: `Penugasan armada untuk ${request.nama} ditolak. Alasan: ${rejection_reason}`
+            deskripsi: `Permohonan transport untuk ${request.nama} ditolak oleh KKU. Alasan: ${rejection_reason}. Silakan buat pengajuan baru.`
         });
 
         return NextResponse.json({ message: 'Penugasan fleet ditolak' });
