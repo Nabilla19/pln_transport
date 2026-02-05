@@ -206,7 +206,7 @@ export default function Sidebar() {
             </aside>
 
             {/* Spacer untuk header mobile agar konten tidak tertutup */}
-            <div className="md:hidden h-20"></div>
+            <div className="md:hidden h-28"></div>
         </>
     );
 }

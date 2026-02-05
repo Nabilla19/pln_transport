@@ -41,7 +41,7 @@ export default function DashboardPage() {
 
     return (
         <Shell>
-            <div className="p-4 pt-8 md:p-8 lg:p-12">
+            <div className="p-4 pt-12 md:p-8 lg:p-12">
                 <div className="max-w-6xl mx-auto">
                     {/* Header Selamat Datang */}
                     <header className="mb-12">

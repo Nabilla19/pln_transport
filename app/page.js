@@ -254,7 +254,7 @@ export default function LoginPage() {
           {/* Teks Bantuan */}
           <div className="mt-6 text-center">
             <p className="text-sm text-slate-500">
-              Butuh bantuan? Hubungi <span className="text-sky-600 font-semibold">Admin IT</span>
+              Butuh bantuan? Hubungi <a href="mailto:pln123@pln.co.id" className="text-sky-600 font-semibold hover:underline">pln123@pln.co.id</a>
             </p>
           </div>
         </div>
