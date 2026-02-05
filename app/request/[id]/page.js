@@ -432,16 +432,42 @@ export default function RequestDetailPage() {
                     {/* Info Alur Kerja (Workflow Steps) */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {/* Status Persetujuan */}
-                        <div className={`glass-card p-4 border-l-4 bg-white shadow-sm border-slate-100 ${request.approvals?.[0]?.is_approved ? 'border-l-emerald-500' : 'border-l-amber-500'}`}>
+                        <div className={`glass-card p-4 border-l-4 bg-white shadow-sm border-slate-100 ${request.approvals?.[0]?.is_rejected
+                                ? 'border-l-rose-500'
+                                : request.approvals?.[0]?.is_approved
+                                    ? 'border-l-emerald-500'
+                                    : 'border-l-amber-500'
+                            }`}>
                             <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Persetujuan Asmen</h3>
-                            <p className="text-slate-900 text-sm font-bold">{request.approvals?.[0]?.is_approved ? 'Disetujui' : 'Menunggu'}</p>
-                            {request.approvals?.[0]?.catatan && <p className="text-xs text-slate-500 mt-1 italic font-medium">"{request.approvals[0].catatan}"</p>}
+                            {request.approvals?.[0]?.is_rejected ? (
+                                <div className="text-xs space-y-1">
+                                    <p className="text-rose-600 font-bold">❌ Ditolak</p>
+                                    <p className="text-slate-700 text-[11px] italic">Alasan: {request.approvals[0].rejection_reason}</p>
+                                </div>
+                            ) : request.approvals?.[0]?.is_approved ? (
+                                <div>
+                                    <p className="text-emerald-600 text-sm font-bold">✅ Disetujui</p>
+                                    {request.approvals[0].catatan && <p className="text-xs text-slate-500 mt-1 italic font-medium">"{request.approvals[0].catatan}"</p>}
+                                </div>
+                            ) : (
+                                <p className="text-slate-900 text-sm font-bold">Menunggu</p>
+                            )}
                         </div>
 
                         {/* Status Armada */}
-                        <div className={`glass-card p-4 border-l-4 bg-white shadow-sm border-slate-100 ${request.fleet?.[0] ? 'border-l-sky-500' : 'border-l-slate-200'}`}>
+                        <div className={`glass-card p-4 border-l-4 bg-white shadow-sm border-slate-100 ${request.fleet?.[0]?.is_rejected
+                            ? 'border-l-rose-500'
+                            : request.fleet?.[0]?.mobil
+                                ? 'border-l-sky-500'
+                                : 'border-l-slate-200'
+                            }`}>
                             <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Penugasan Kendaraan</h3>
-                            {request.fleet?.[0] ? (
+                            {request.fleet?.[0]?.is_rejected ? (
+                                <div className="text-xs space-y-1">
+                                    <p className="text-rose-600 font-bold">❌ Ditolak</p>
+                                    <p className="text-slate-700 text-[11px] italic">Alasan: {request.fleet[0].rejection_reason}</p>
+                                </div>
+                            ) : request.fleet?.[0]?.mobil ? (
                                 <div className="text-xs space-y-1 font-medium">
                                     <p className="text-slate-900 font-bold">{request.fleet[0].mobil} ({request.fleet[0].plat_nomor})</p>
                                     <p className="text-slate-500">Driver: {request.fleet[0].pengemudi}</p>
