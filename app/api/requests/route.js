@@ -26,11 +26,11 @@ export async function GET(req) {
         // Default: Pemohon hanya bisa melihat permohonan miliknya sendiri
         let whereClause = { user_id: user.id };
 
-        if (canSeeAll) {
-            if (filter === 'all') {
-                // Admin/Role tertentu melihat semua data
-                whereClause = {};
-            } else if (filter === 'approval') {
+        // MONITORING SELURUH: Semua role bisa lihat semua data
+        if (filter === 'all') {
+            whereClause = {}; // Tampilkan semua permohonan
+        } else if (canSeeAll) {
+            if (filter === 'approval') {
                 // Filter untuk halaman persetujuan
                 const asmenMap = {
                     'Asmen Perencanaan': 'Perencanaan',
