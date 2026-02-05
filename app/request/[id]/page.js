@@ -433,10 +433,10 @@ export default function RequestDetailPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {/* Status Persetujuan */}
                         <div className={`glass-card p-4 border-l-4 bg-white shadow-sm border-slate-100 ${request.approvals?.[0]?.is_rejected
-                                ? 'border-l-rose-500'
-                                : request.approvals?.[0]?.is_approved
-                                    ? 'border-l-emerald-500'
-                                    : 'border-l-amber-500'
+                            ? 'border-l-rose-500'
+                            : request.approvals?.[0]?.is_approved
+                                ? 'border-l-emerald-500'
+                                : 'border-l-amber-500'
                             }`}>
                             <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Persetujuan Asmen</h3>
                             {request.approvals?.[0]?.is_rejected ? (
@@ -556,87 +556,90 @@ export default function RequestDetailPage() {
                     )}
 
                     {/* AKSI: Penugasan Unit (Hanya muncul untuk KKU/Admin) */}
-                    {['Menunggu Surat Jalan', 'Pending Fleet'].includes(request.status) && user && (['KKU', 'Admin'].includes(user.role)) && (
-                        <div className="glass-card p-4 sm:p-6 mt-8 border-t-4 border-sky-500 bg-white shadow-xl">
-                            <h2 className="text-base sm:text-lg font-bold text-slate-900 mb-4 tracking-tight">Penerbitan Surat Jalan</h2>
+                    {['Menunggu Surat Jalan', 'Pending Fleet'].includes(request.status) &&
+                        user &&
+                        (['KKU', 'Admin'].includes(user.role)) &&
+                        !request.fleet?.[0]?.is_rejected && (
+                            <div className="glass-card p-4 sm:p-6 mt-8 border-t-4 border-sky-500 bg-white shadow-xl">
+                                <h2 className="text-base sm:text-lg font-bold text-slate-900 mb-4 tracking-tight">Penerbitan Surat Jalan</h2>
 
-                            {!isRejectingFleet ? (
-                                <>
-                                    <form onSubmit={handleFleetAssignment} className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-2">Pilih Kendaraan ({request.macam_kendaraan})</label>
+                                {!isRejectingFleet ? (
+                                    <>
+                                        <form onSubmit={handleFleetAssignment} className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-bold text-slate-700 mb-2">Pilih Kendaraan ({request.macam_kendaraan})</label>
+                                                <select
+                                                    className="glass-input w-full p-4 rounded-xl bg-slate-50 border-slate-200 text-slate-900 font-bold"
+                                                    required
+                                                    onChange={(e) => {
+                                                        const v = vehicles.find(v => v.plat_nomor === e.target.value);
+                                                        setFleetData(prev => ({ ...prev, mobil: v ? `${v.brand} ${v.model}` : '', platNomor: e.target.value }));
+                                                    }}
+                                                >
+                                                    <option value="">-- Pilih Unit Tersedia --</option>
+                                                    {vehicles.map(v => (
+                                                        <option key={v.id} value={v.plat_nomor}>{v.brand} {v.model} - {v.plat_nomor}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-bold text-slate-700 mb-2">Nama Pengemudi</label>
+                                                <input
+                                                    type="text"
+                                                    className="glass-input w-full p-4 rounded-xl bg-slate-50 border-slate-200 text-slate-900 font-bold"
+                                                    placeholder="Masukkan nama driver..."
+                                                    required
+                                                    value={fleetData.pengemudi}
+                                                    onChange={(e) => setFleetData(prev => ({ ...prev, pengemudi: e.target.value }))}
+                                                />
+                                            </div>
+                                            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                                                <button type="submit" className="flex-1 btn-primary py-3 sm:py-4 rounded-xl shadow-lg font-bold text-sm sm:text-lg active:scale-[0.98] transition-all">
+                                                    🚀 Konfirmasi & Terbitkan Surat Jalan
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsRejectingFleet(true)}
+                                                    className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg active:scale-95 text-sm sm:text-base"
+                                                >
+                                                    ❌ Tolak Penugasan
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="bg-rose-50 border-2 border-rose-200 rounded-xl p-3 sm:p-4 mb-4">
+                                            <h3 className="text-rose-700 font-bold mb-2 text-sm sm:text-base">Alasan Penolakan Fleet</h3>
                                             <select
-                                                className="glass-input w-full p-4 rounded-xl bg-slate-50 border-slate-200 text-slate-900 font-bold"
-                                                required
-                                                onChange={(e) => {
-                                                    const v = vehicles.find(v => v.plat_nomor === e.target.value);
-                                                    setFleetData(prev => ({ ...prev, mobil: v ? `${v.brand} ${v.model}` : '', platNomor: e.target.value }));
-                                                }}
+                                                value={fleetRejectionReason}
+                                                onChange={(e) => setFleetRejectionReason(e.target.value)}
+                                                className="w-full p-3 border border-rose-300 rounded-lg bg-white font-bold text-sm sm:text-base"
                                             >
-                                                <option value="">-- Pilih Unit Tersedia --</option>
-                                                {vehicles.map(v => (
-                                                    <option key={v.id} value={v.plat_nomor}>{v.brand} {v.model} - {v.plat_nomor}</option>
-                                                ))}
+                                                <option value="">-- Pilih Alasan --</option>
+                                                <option value="BBM Habis/Kritis">BBM Habis/Kritis</option>
+                                                <option value="Mobil lagi service">Mobil lagi service</option>
+                                                <option value="Mobil lagi dipakai Manager">Mobil lagi dipakai Manager</option>
                                             </select>
                                         </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-2">Nama Pengemudi</label>
-                                            <input
-                                                type="text"
-                                                className="glass-input w-full p-4 rounded-xl bg-slate-50 border-slate-200 text-slate-900 font-bold"
-                                                placeholder="Masukkan nama driver..."
-                                                required
-                                                value={fleetData.pengemudi}
-                                                onChange={(e) => setFleetData(prev => ({ ...prev, pengemudi: e.target.value }))}
-                                            />
-                                        </div>
                                         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                                            <button type="submit" className="flex-1 btn-primary py-3 sm:py-4 rounded-xl shadow-lg font-bold text-sm sm:text-lg active:scale-[0.98] transition-all">
-                                                🚀 Konfirmasi & Terbitkan Surat Jalan
+                                            <button
+                                                onClick={() => setIsRejectingFleet(false)}
+                                                className="flex-1 bg-slate-400 hover:bg-slate-500 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg active:scale-95 text-sm sm:text-base"
+                                            >
+                                                Batal
                                             </button>
                                             <button
-                                                type="button"
-                                                onClick={() => setIsRejectingFleet(true)}
+                                                onClick={handleFleetRejection}
                                                 className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg active:scale-95 text-sm sm:text-base"
                                             >
-                                                ❌ Tolak Penugasan
+                                                ❌ Konfirmasi Penolakan
                                             </button>
                                         </div>
-                                    </form>
-                                </>
-                            ) : (
-                                <>
-                                    <div className="bg-rose-50 border-2 border-rose-200 rounded-xl p-3 sm:p-4 mb-4">
-                                        <h3 className="text-rose-700 font-bold mb-2 text-sm sm:text-base">Alasan Penolakan Fleet</h3>
-                                        <select
-                                            value={fleetRejectionReason}
-                                            onChange={(e) => setFleetRejectionReason(e.target.value)}
-                                            className="w-full p-3 border border-rose-300 rounded-lg bg-white font-bold text-sm sm:text-base"
-                                        >
-                                            <option value="">-- Pilih Alasan --</option>
-                                            <option value="BBM Habis/Kritis">BBM Habis/Kritis</option>
-                                            <option value="Mobil lagi service">Mobil lagi service</option>
-                                            <option value="Mobil lagi dipakai Manager">Mobil lagi dipakai Manager</option>
-                                        </select>
-                                    </div>
-                                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                                        <button
-                                            onClick={() => setIsRejectingFleet(false)}
-                                            className="flex-1 bg-slate-400 hover:bg-slate-500 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg active:scale-95 text-sm sm:text-base"
-                                        >
-                                            Batal
-                                        </button>
-                                        <button
-                                            onClick={handleFleetRejection}
-                                            className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg active:scale-95 text-sm sm:text-base"
-                                        >
-                                            ❌ Konfirmasi Penolakan
-                                        </button>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    )}
+                                    </>
+                                )}
+                            </div>
+                        )}
 
                     {/* AKSI: Pos Security (Check-in/out KM & Foto) */}
                     {(['Ready', 'In Progress'].includes(request.status)) && user && (user.role === 'Security') && (
