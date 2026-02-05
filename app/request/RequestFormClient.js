@@ -299,17 +299,33 @@ export default function RequestFormClient() {
                                         <label className="block text-sm font-bold text-slate-700 mb-2">
                                             Jumlah Penumpang
                                         </label>
-                                        <input
-                                            type="number"
-                                            name="jumlah_penumpang"
-                                            value={formData.jumlah_penumpang}
-                                            onChange={handleChange}
-                                            min="1"
-                                            max="20"
-                                            className="glass-input w-full p-4 rounded-xl bg-slate-50 border-2 border-slate-200 text-slate-900 font-bold focus:border-sky-500 focus:ring-2 focus:ring-sky-200 transition-all"
-                                            placeholder="Jumlah penumpang"
-                                            required
-                                        />
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData(prev => ({ ...prev, jumlah_penumpang: Math.max(1, prev.jumlah_penumpang - 1) }))}
+                                                className="w-12 h-12 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xl transition-all active:scale-95 flex items-center justify-center shadow-sm"
+                                            >
+                                                −
+                                            </button>
+                                            <input
+                                                type="number"
+                                                name="jumlah_penumpang"
+                                                value={formData.jumlah_penumpang}
+                                                onChange={handleChange}
+                                                min="1"
+                                                max="20"
+                                                className="flex-1 glass-input p-4 rounded-xl bg-slate-50 border-2 border-slate-200 text-slate-900 font-bold text-center focus:border-sky-500 focus:ring-2 focus:ring-sky-200 transition-all"
+                                                placeholder="1"
+                                                required
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData(prev => ({ ...prev, jumlah_penumpang: Math.min(20, prev.jumlah_penumpang + 1) }))}
+                                                className="w-12 h-12 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-xl transition-all active:scale-95 flex items-center justify-center shadow-lg"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                                 <div>

@@ -38,6 +38,16 @@ export async function POST(req) {
             return NextResponse.json({ message: 'ID Permohonan tidak valid' }, { status: 400 });
         }
 
+        // Validasi foto untuk mobile - pastikan format base64 valid
+        if (fotoDriver && typeof fotoDriver !== 'string') {
+            console.error('[Security API] Invalid fotoDriver format');
+            return NextResponse.json({ message: 'Format foto driver tidak valid' }, { status: 400 });
+        }
+        if (fotoKm && typeof fotoKm !== 'string') {
+            console.error('[Security API] Invalid fotoKm format');
+            return NextResponse.json({ message: 'Format foto KM tidak valid' }, { status: 400 });
+        }
+
         // Cari data permohonan beserta data armada terkait
         const request = await prisma.transportRequest.findUnique({
             where: { id: parseInt(requestId) },
