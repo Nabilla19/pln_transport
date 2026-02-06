@@ -1,0 +1,256 @@
+<mxfile host="app.diagrams.net" modified="2026-02-06T03:38:51.000Z" agent="5.0" version="24.0.0" type="device">
+  <diagram name="E-Transport Swimlane" id="swimlane-etransport">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1654" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Swimlane: PEMOHON -->
+        <mxCell id="lane-pemohon" value="PEMOHON (Pegawai)" style="swimlane;html=1;startSize=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="40" y="40" width="200" height="1500" as="geometry" />
+        </mxCell>
+        <mxCell id="pemohon-start" value="Mulai" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" parent="lane-pemohon" vertex="1">
+          <mxGeometry x="50" y="60" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="pemohon-login" value="Login ke Sistem" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane-pemohon" vertex="1">
+          <mxGeometry x="30" y="140" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="pemohon-form" value="Isi Form Pengajuan:&#xa;- Nama &amp; Jabatan&#xa;- Bagian&#xa;- Tujuan&#xa;- Tanggal &amp; Jam&#xa;- Jenis Kendaraan&#xa;- Jumlah Penumpang" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;" parent="lane-pemohon" vertex="1">
+          <mxGeometry x="20" y="220" width="160" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="pemohon-valid" value="Data&#xa;Valid?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" parent="lane-pemohon" vertex="1">
+          <mxGeometry x="50" y="360" width="100" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="pemohon-perbaiki" value="Perbaiki&#xa;Data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane-pemohon" vertex="1">
+          <mxGeometry x="30" y="470" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="pemohon-submit" value="Submit&#xa;Pengajuan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" parent="lane-pemohon" vertex="1">
+          <mxGeometry x="30" y="560" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="pemohon-notif" value="Terima&#xa;Notifikasi Status" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane-pemohon" vertex="1">
+          <mxGeometry x="30" y="1100" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="pemohon-monitor" value="Monitor&#xa;Dashboard" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane-pemohon" vertex="1">
+          <mxGeometry x="30" y="1180" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="pemohon-cetak" value="Cetak&#xa;Surat Jalan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane-pemohon" vertex="1">
+          <mxGeometry x="30" y="1260" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Swimlane: ASMEN -->
+        <mxCell id="lane-asmen" value="ASMEN (Asisten Manager)" style="swimlane;html=1;startSize=40;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="240" y="40" width="200" height="1500" as="geometry" />
+        </mxCell>
+        <mxCell id="asmen-notif" value="Terima Notifikasi&#xa;Pengajuan Baru" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane-asmen" vertex="1">
+          <mxGeometry x="30" y="640" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="asmen-detail" value="Buka Detail&#xa;Pengajuan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane-asmen" vertex="1">
+          <mxGeometry x="30" y="720" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="asmen-review" value="Review:&#xa;- Validitas Data&#xa;- Kesesuaian Bagian&#xa;- Urgensi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;" parent="lane-asmen" vertex="1">
+          <mxGeometry x="30" y="800" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="asmen-decision" value="Setujui?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" parent="lane-asmen" vertex="1">
+          <mxGeometry x="50" y="910" width="100" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="asmen-tolak-reason" value="Input Alasan&#xa;Penolakan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane-asmen" vertex="1">
+          <mxGeometry x="30" y="1020" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="asmen-approve" value="Setujui +&#xa;Input Catatan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" parent="lane-asmen" vertex="1">
+          <mxGeometry x="30" y="1100" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="asmen-qr" value="Generate&#xa;QR Code Asmen" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane-asmen" vertex="1">
+          <mxGeometry x="30" y="1180" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Swimlane: KKU -->
+        <mxCell id="lane-kku" value="KKU (Kepala Kantor Unit)" style="swimlane;html=1;startSize=40;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="440" y="40" width="200" height="1500" as="geometry" />
+        </mxCell>
+        <mxCell id="kku-notif" value="Terima dari&#xa;Asmen" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="lane-kku" vertex="1">
+          <mxGeometry x="30" y="1260" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="kku-detail" value="Buka Detail &amp;&#xa;Approval Asmen" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="lane-kku" vertex="1">
+          <mxGeometry x="30" y="1340" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="kku-review" value="Review Final:&#xa;- Approval Asmen&#xa;- Ketersediaan&#xa;- Prioritas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;" parent="lane-kku" vertex="1">
+          <mxGeometry x="30" y="1420" width="140" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Swimlane: ADMIN FLEET -->
+        <mxCell id="lane-fleet" value="ADMIN FLEET" style="swimlane;html=1;startSize=40;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="640" y="40" width="200" height="1500" as="geometry" />
+        </mxCell>
+        <mxCell id="fleet-notif" value="Terima Notifikasi&#xa;Penugasan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane-fleet" vertex="1">
+          <mxGeometry x="30" y="640" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="fleet-cek" value="Cek Ketersediaan:&#xa;- Unit Kendaraan&#xa;- Pengemudi&#xa;- Jadwal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;" parent="lane-fleet" vertex="1">
+          <mxGeometry x="30" y="720" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="fleet-decision" value="Armada&#xa;Tersedia?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" parent="lane-fleet" vertex="1">
+          <mxGeometry x="50" y="830" width="100" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="fleet-assign" value="Assign:&#xa;- Pilih Mobil&#xa;- Pilih Driver&#xa;- Plat Nomor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;fontStyle=1;" parent="lane-fleet" vertex="1">
+          <mxGeometry x="30" y="940" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="fleet-qr" value="Generate&#xa;QR Code Fleet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane-fleet" vertex="1">
+          <mxGeometry x="30" y="1050" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="fleet-status" value="Update Status:&#xa;Siap Berangkat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane-fleet" vertex="1">
+          <mxGeometry x="30" y="1130" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Swimlane: SECURITY -->
+        <mxCell id="lane-security" value="SECURITY (Pos Keamanan)" style="swimlane;html=1;startSize=40;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="840" y="40" width="200" height="1500" as="geometry" />
+        </mxCell>
+        <mxCell id="sec-notif" value="Terima Notifikasi&#xa;Kendaraan Siap" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane-security" vertex="1">
+          <mxGeometry x="30" y="1210" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sec-checkin" value="CHECK-IN&#xa;Scan QR Code" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" parent="lane-security" vertex="1">
+          <mxGeometry x="30" y="1290" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sec-foto-driver" value="Foto Driver&#xa;Berangkat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane-security" vertex="1">
+          <mxGeometry x="30" y="1370" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sec-foto-km" value="Foto Odometer&#xa;KM Awal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane-security" vertex="1">
+          <mxGeometry x="30" y="1450" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Swimlane: SISTEM -->
+        <mxCell id="lane-system" value="SISTEM (Backend)" style="swimlane;html=1;startSize=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="40" width="200" height="1500" as="geometry" />
+        </mxCell>
+        <mxCell id="sys-validasi" value="Validasi Form" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane-system" vertex="1">
+          <mxGeometry x="30" y="560" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sys-simpan" value="Simpan ke DB:&#xa;transport_requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane-system" vertex="1">
+          <mxGeometry x="30" y="640" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sys-notif-asmen" value="Kirim Notifikasi&#xa;ke Asmen" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane-system" vertex="1">
+          <mxGeometry x="30" y="720" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sys-approval" value="Simpan Approval:&#xa;transport_approvals" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane-system" vertex="1">
+          <mxGeometry x="30" y="1180" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sys-fleet-data" value="Simpan Fleet:&#xa;transport_fleet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane-system" vertex="1">
+          <mxGeometry x="30" y="1130" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sys-security-log" value="Simpan Security Log:&#xa;transport_security_logs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane-system" vertex="1">
+          <mxGeometry x="30" y="1370" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sys-end" value="Selesai" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" parent="lane-system" vertex="1">
+          <mxGeometry x="50" y="1460" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows/Connections -->
+        <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="pemohon-start" target="pemohon-login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="pemohon-login" target="pemohon-form">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="pemohon-form" target="pemohon-valid">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="pemohon-valid" target="pemohon-perbaiki">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="pemohon-perbaiki" target="pemohon-form">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="pemohon-valid" target="pemohon-submit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="pemohon-submit" target="sys-validasi">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="sys-validasi" target="sys-simpan">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="sys-simpan" target="sys-notif-asmen">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="sys-notif-asmen" target="asmen-notif">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="asmen-notif" target="asmen-detail">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="asmen-detail" target="asmen-review">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="asmen-review" target="asmen-decision">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="asmen-decision" target="asmen-tolak-reason">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="asmen-decision" target="asmen-approve">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="asmen-approve" target="asmen-qr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="asmen-qr" target="sys-approval">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="sys-approval" target="kku-notif">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="kku-notif" target="kku-detail">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="kku-detail" target="kku-review">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;entryX=0.5;entryY=0;" edge="1" parent="1" source="sys-fleet-data" target="fleet-notif">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="fleet-notif" target="fleet-cek">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="fleet-cek" target="fleet-decision">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="fleet-decision" target="fleet-assign">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="fleet-assign" target="fleet-qr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="fleet-qr" target="fleet-status">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="fleet-status" target="sec-notif">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="sec-notif" target="sec-checkin">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="sec-checkin" target="sec-foto-driver">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="sec-foto-driver" target="sec-foto-km">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="sec-foto-km" target="sys-security-log">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="sys-security-log" target="sys-end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;dashed=1;" edge="1" parent="1" source="asmen-tolak-reason" target="pemohon-notif">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="pemohon-notif" target="pemohon-monitor">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="pemohon-monitor" target="pemohon-cetak">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

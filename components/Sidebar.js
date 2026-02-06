@@ -82,7 +82,7 @@ export default function Sidebar() {
         { label: 'Monitoring Seluruh', href: '/my-requests?filter=all', icon: '🔍', show: true, filter: 'all' }, // Visible to ALL roles
         { label: 'Persetujuan', href: '/my-requests?filter=approval', icon: '✅', show: isAsmen || isKKU, filter: 'approval' },
         { label: 'Manajemen Fleet', href: '/my-requests?filter=fleet', icon: '🚗', show: isKKU, filter: 'fleet' },
-        { label: 'Pos Security', href: '/my-requests?filter=security', icon: '👮', show: isSecurity, filter: 'security' },
+        { label: 'Pos Security', href: '/my-requests?filter=security', icon: '👮', show: true, filter: 'security' },
         { label: 'Manajemen Akun', href: '/users', icon: '👥', show: isAdmin },
     ];
 

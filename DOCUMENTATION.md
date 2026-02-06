@@ -81,22 +81,47 @@ Sistem ini mengimplementasikan Role-Based Access Control (RBAC) yang ketat:
 Mendefinisikan interaksi personil dengan sistem.
 
 ```mermaid
-usecaseDiagram
-    actor "Pegawai/User" as U
-    actor "Asmen/KKU" as A
-
-    actor "Security" as S
-    actor "IT Admin" as AD
-
-    U --> (Input Pengajuan)
-    U --> (Cek Status)
-    A --> (Verifikasi & Approval)
-    F --> (Assign Mobil & Driver)
-    F --> (Cetak Surat Jalan)
-    S --> (Check-In: Foto KM & Driver)
-    S --> (Check-Out: Foto KM & Driver)
-    AD --> (Manajemen User)
-    AD --> (Monitoring Log Sistem)
+graph LR
+    U["👤 Pegawai/User"]
+    A["👔 Asmen/KKU"]
+    F["🚗 Fleet Admin"]
+    S["🛡️ Security"]
+    AD["💻 IT Admin"]
+    
+    UC1((Input<br/>Pengajuan))
+    UC2((Cek<br/>Status))
+    UC3((Verifikasi &<br/>Approval))
+    UC4((Assign Mobil<br/>& Driver))
+    UC5((Cetak<br/>Surat Jalan))
+    UC6((Check-In:<br/>Foto KM))
+    UC7((Check-Out:<br/>Foto KM))
+    UC8((Manajemen<br/>User))
+    UC9((Monitoring<br/>Log Sistem))
+    
+    U -.-> UC1
+    U -.-> UC2
+    A -.-> UC3
+    F -.-> UC4
+    F -.-> UC5
+    S -.-> UC6
+    S -.-> UC7
+    AD -.-> UC8
+    AD -.-> UC9
+    
+    style UC1 fill:#fff,stroke:#000,stroke-width:2px
+    style UC2 fill:#fff,stroke:#000,stroke-width:2px
+    style UC3 fill:#fff,stroke:#000,stroke-width:2px
+    style UC4 fill:#fff,stroke:#000,stroke-width:2px
+    style UC5 fill:#fff,stroke:#000,stroke-width:2px
+    style UC6 fill:#fff,stroke:#000,stroke-width:2px
+    style UC7 fill:#fff,stroke:#000,stroke-width:2px
+    style UC8 fill:#fff,stroke:#000,stroke-width:2px
+    style UC9 fill:#fff,stroke:#000,stroke-width:2px
+    style U fill:#fff,stroke:#000,stroke-width:2px
+    style A fill:#fff,stroke:#000,stroke-width:2px
+    style F fill:#fff,stroke:#000,stroke-width:2px
+    style S fill:#fff,stroke:#000,stroke-width:2px
+    style AD fill:#fff,stroke:#000,stroke-width:2px
 ```
 
 ### B. Flowchart Operasional
