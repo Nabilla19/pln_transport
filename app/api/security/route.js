@@ -78,7 +78,8 @@ export async function POST(req) {
                         jam_berangkat: jam ? new Date(jam) : new Date(),
                         foto_driver_berangkat: pathDriver,
                         foto_km_berangkat: pathKm,
-                        logged_by: user.id
+                        logged_by: user.id,
+                        security_berangkat: user.name
                     }
                 }),
                 // 2. Tandai status permohonan sedang berjalan (In Progress)
@@ -130,6 +131,7 @@ export async function POST(req) {
                         jarak_tempuh: jarak,
                         foto_driver_kembali: pathDriver,
                         foto_km_kembali: pathKm,
+                        security_kembali: user.name,
                         updated_at: new Date()
                     }
                 }),

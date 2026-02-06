@@ -484,6 +484,12 @@ export default function RequestDetailPage() {
                                 <div className="text-xs space-y-1 font-medium">
                                     <p className="text-slate-900 font-bold">KM Awal: {request.securityLogs[0].km_awal || '-'}</p>
                                     <p className="text-slate-900 font-bold">KM Akhir: {request.securityLogs[0].km_akhir || '-'}</p>
+                                    {request.securityLogs[0].security_berangkat && (
+                                        <p className="text-slate-600 text-[11px]">Security Berangkat: {request.securityLogs[0].security_berangkat}</p>
+                                    )}
+                                    {request.securityLogs[0].security_kembali && (
+                                        <p className="text-slate-600 text-[11px]">Security Kembali: {request.securityLogs[0].security_kembali}</p>
+                                    )}
                                 </div>
                             ) : (
                                 <p className="text-slate-400 text-sm italic font-medium">Belum tercatat</p>
