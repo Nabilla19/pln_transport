@@ -33,6 +33,41 @@ Lakukan ini dari terminal laptop Anda (VS Code) agar database online Anda punya 
 
 ---
 
+## 🧹 Langkah 2.5: Bersihkan Data Dummy (PENTING!)
+**Lakukan ini SEBELUM deployment ke production jika database lokal Anda masih ada data dummy/testing.**
+
+> ⚠️ **PERINGATAN**: Pastikan backup database terlebih dahulu!
+
+1.  **Backup Database Lokal**:
+    - Export database Anda terlebih dahulu sebagai backup
+    - Via phpMyAdmin: Export > SQL > Go
+    
+2.  **Jalankan Script Cleanup**:
+    - Buka file `migrations/clean_all_dummy_data.sql`
+    - Copy seluruh isi script
+    - Paste dan jalankan di phpMyAdmin atau MySQL Workbench
+    
+3.  **Verifikasi Hasil**:
+    - Script akan menampilkan jumlah data di setiap tabel
+    - Pastikan semua tabel permohonan menunjukkan **0 records**
+    - Pastikan tabel master (users, vehicles) masih ada datanya
+    
+4.  **Apa yang Dihapus**:
+    - ✅ Semua permohonan transport
+    - ✅ Semua approval
+    - ✅ Semua fleet assignments
+    - ✅ Semua security logs
+    - ✅ Semua notifikasi
+    
+5.  **Apa yang TIDAK Dihapus**:
+    - ✅ Data users/pegawai
+    - ✅ Data kendaraan
+    - ✅ Data roles
+    
+Setelah cleanup, permohonan baru akan mulai dari ID #1 dengan database yang bersih!
+
+---
+
 ## 🚀 Langkah 3: Hubungkan ke Vercel
 Vercel akan mengambil kode dari GitHub Anda secara otomatis.
 
