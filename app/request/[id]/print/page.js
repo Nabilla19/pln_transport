@@ -230,6 +230,10 @@ export default function PrintRequestPage() {
                                     <td className="py-1 font-bold">Jam Keluar</td><td>:</td><td className="py-1">{security?.jam_berangkat ? new Date(security.jam_berangkat).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                                     <td className="py-1 font-bold pl-4">Jam Masuk</td><td>:</td><td className="py-1">{security?.jam_kembali ? new Date(security.jam_kembali).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                                 </tr>
+                                <tr>
+                                    <td className="py-1 font-bold">Security Keluar</td><td>:</td><td className="py-1">{security?.security_berangkat || '-'}</td>
+                                    <td className="py-1 font-bold pl-4">Security Masuk</td><td>:</td><td className="py-1">{security?.security_kembali || '-'}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
