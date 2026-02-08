@@ -40,7 +40,7 @@ export async function POST(req) {
 
         // Membuat token JWT yang berlaku selama 1 hari
         const token = jwt.sign(
-            { id: user.id, role: user.role, email: user.email },
+            { id: user.id, name: user.name, role: user.role, email: user.email },
             process.env.JWT_SECRET,
             { expiresIn: '1d' }
         );
