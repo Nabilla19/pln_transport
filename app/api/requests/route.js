@@ -92,6 +92,17 @@ export async function POST(req) {
 
     try {
         const body = await req.json();
+
+        // Validasi waktu keberangkatan tidak boleh di masa lalu
+        const departureTime = new Date(body.tanggal_jam_berangkat);
+        const now = new Date();
+
+        if (departureTime < now) {
+            return NextResponse.json({
+                message: 'Waktu keberangkatan tidak boleh di masa lalu. Silakan pilih waktu yang akan datang.'
+            }, { status: 400 });
+        }
+
         // Generate barcode unik untuk pemohon menggunakan MD5 hash
         const barcode = crypto.createHash('md5')
             .update(`PEMOHON-${user.id}-${Date.now()}`)

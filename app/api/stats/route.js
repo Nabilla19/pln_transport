@@ -21,7 +21,13 @@ export async function GET(req) {
         // Eksekusi beberapa penghitungan sekaligus dalam satu transaksi database
         const stats = await prisma.$transaction([
             prisma.transportRequest.count(), // Total seluruh pengajuan
-            prisma.transportRequest.count({ where: { status: 'Pending Asmen/KKU' } }), // Menunggu persetujuan
+            prisma.transportRequest.count({
+                where: {
+                    status: {
+                        in: ['Pending Asmen', 'Pending KKU', 'Menunggu Surat Jalan', 'Ready']
+                    }
+                }
+            }), // Menunggu persetujuan (semua status sebelum berangkat)
             prisma.transportRequest.count({ where: { status: 'In Progress' } }), // Kendaraan sedang digunakan
             prisma.transportRequest.count({ where: { status: 'Selesai' } }) // Penggunaan sudah selesai
         ]);
