@@ -126,17 +126,60 @@ export default function CameraCapture({ onCapture, label }) {
     };
 
     /**
-     * Menangani input file gambar dari galeri/folder
+     * Menangani input file gambar dari galeri/folder dengan kompresi
      */
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Validasi tipe file
+            if (!file.type.startsWith('image/')) {
+                setError('Hanya file gambar yang diperbolehkan.');
+                return;
+            }
+
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreview(reader.result);
-                onCapture(reader.result);
-                setError('');
-                setIsStreaming(false);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Setup canvas untuk resizing & kompresi
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const max_size = 1024; // Ukuran maksimum (px) agar tidak terlalu berat
+
+                    // Hitung rasio aspek
+                    if (width > height) {
+                        if (width > max_size) {
+                            height *= max_size / width;
+                            width = max_size;
+                        }
+                    } else {
+                        if (height > max_size) {
+                            width *= max_size / height;
+                            height = max_size;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Konversi ke Base64 dengan kualitas 0.6 (JPEG)
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+
+                    setPreview(dataUrl);
+                    onCapture(dataUrl);
+                    setError('');
+                    setIsStreaming(false);
+
+                    console.log(`[CameraCapture] Uploaded image compressed from ~${Math.round(file.size / 1024)}KB to ~${Math.round(dataUrl.length / 1.33 / 1024)}KB`);
+                };
+                img.onerror = () => {
+                    setError('Gagal memproses file gambar.');
+                };
+                img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         }
