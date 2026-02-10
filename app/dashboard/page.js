@@ -22,6 +22,9 @@ export default function DashboardPage() {
         // Ambil statistik permohonan dari API
         const fetchStats = async () => {
             try {
+                // Jalankan cleanup otomatis (passive)
+                api.get('/api/cron/cleanup').catch(e => console.error("Cleanup Error:", e));
+
                 const data = await api.get('/api/stats');
                 setStats(data);
             } catch (err) {

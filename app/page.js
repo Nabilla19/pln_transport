@@ -125,7 +125,7 @@ export default function LoginPage() {
 
           <div className="mt-12 text-center text-blue-100 text-sm">
             <p className="font-semibold">PLN UP2D RIAU</p>
-            <p className="mt-1">Unit Pelaksana Pelayanan Distribusi</p>
+            <p className="mt-1">Unit Pelaksana Pengatur Distribusi</p>
           </div>
         </div>
       </div>
@@ -246,7 +246,7 @@ export default function LoginPage() {
             {/* Footer Form */}
             <div className="mt-8 pt-6 border-t border-slate-200 text-center">
               <p className="text-sm text-slate-500">
-                © 2026 PT PLN (Persero) - Unit Pelaksana Pelayanan Distribusi Riau
+                © 2026 PT PLN (Persero) - Unit Pelaksana Pengatur Distribusi Riau
               </p>
             </div>
           </div>

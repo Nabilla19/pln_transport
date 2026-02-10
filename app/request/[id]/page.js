@@ -81,17 +81,22 @@ export default function RequestDetailPage() {
 
         const fetchVehicles = async () => {
             const isWaitingFleet = ['Menunggu Surat Jalan', 'Pending Fleet'].includes(request?.status);
-            console.log('[Request Detail] Fetching vehicles. Status:', request?.status, 'Brand:', request?.macam_kendaraan);
+            if (!isWaitingFleet || !user) return;
 
-            // Jika status membutuhkan penugasan armada, ambil daftar kendaraan tersedia
-            if (isWaitingFleet && request?.macam_kendaraan) {
-                try {
-                    const data = await api.get(`/api/fleet?brand=${request.macam_kendaraan}`);
-                    console.log('[Request Detail] Vehicles received:', data.length, data);
-                    setVehicles(data);
-                } catch (err) {
-                    console.error('[Request Detail] Error fetching vehicles:', err);
-                }
+            console.log('[Request Detail] Fetching vehicles. Role:', user.role);
+
+            try {
+                // Jika user adalah KKU atau Admin, ambil semua merk (jangan pakai filter brand)
+                const isManagement = ['KKU', 'Admin'].includes(user.role);
+                const url = (isManagement)
+                    ? '/api/fleet'
+                    : `/api/fleet?brand=${request.macam_kendaraan}`;
+
+                const data = await api.get(url);
+                console.log('[Request Detail] Vehicles received:', data.length);
+                setVehicles(data);
+            } catch (err) {
+                console.error('[Request Detail] Error fetching vehicles:', err);
             }
         };
 
