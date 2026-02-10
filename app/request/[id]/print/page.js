@@ -147,7 +147,7 @@ export default function PrintRequestPage() {
                         <h1 className="text-[12px] font-bold leading-tight uppercase">PT PLN (PERSERO) DISTRIBUSI RIAU DAN KEPULAUAN RIAU</h1>
                         <div className="h-px bg-black my-0.5"></div>
                         <p className="text-[10px] font-semibold">UNIT PELAKSANA PENGATUR DISTRIBUSI RIAU (UP2D)</p>
-                        <p className="text-[8px]">Alamat: Jl. Setia Budi No. 96, Pekanbaru</p>
+                        <p className="text-[8px]">Alamat: Jln. Dr. Sutomo, Sekip. Kec, Lima Puluh. Kota Pekanbaru</p>
                     </div>
                 </div>
 
