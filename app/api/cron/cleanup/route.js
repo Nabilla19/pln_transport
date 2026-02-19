@@ -12,25 +12,41 @@ export async function GET() {
     try {
         console.log('[Cleanup Job] Memulai pengecekan permohonan basi...');
 
-        // Ambil waktu tengah malam hari ini (00:00:00)
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        // Ambil waktu sekarang
+        const now = new Date();
 
-        // 1. Cari permohonan yang statusnya 'Ready' tapi tanggal berangkat < hari ini
-        const staleRequests = await prisma.transportRequest.findMany({
+        // Ambil waktu tengah malam hari ini (00:00:00) untuk rule "lewat hari"
+        const todayAtMidnight = new Date();
+        todayAtMidnight.setHours(0, 0, 0, 0);
+
+        // 1. Cari permohonan yang statusnya 'Ready'
+        const readyRequests = await prisma.transportRequest.findMany({
             where: {
-                status: 'Ready',
-                tanggal_jam_berangkat: {
-                    lt: today
-                }
+                status: 'Ready'
             },
             include: {
-                fleet: true
+                fleet: {
+                    orderBy: { created_at: 'desc' },
+                    take: 1
+                }
             }
         });
 
+        // Tentukan mana yang "basi" berdasarkan aturan:
+        // Rule: Sudah lewat 1 jam dari waktu penugasan armada (Fleet Assignment)
+        const staleRequests = readyRequests.filter(request => {
+            // Kita hanya mengecek permohonan yang sudah ada penugasan fleet-nya
+            const fleetAssignment = request.fleet?.[0];
+            if (!fleetAssignment) return false;
+
+            const jamPenugasan = new Date(fleetAssignment.created_at);
+            const oneHourLater = new Date(jamPenugasan.getTime() + (60 * 60 * 1000));
+
+            return now > oneHourLater;
+        });
+
         if (staleRequests.length === 0) {
-            return NextResponse.json({ message: 'Tidak ada permohonan basi hari ini.' });
+            return NextResponse.json({ message: 'Tidak ada permohonan basi saat ini.' });
         }
 
         console.log(`[Cleanup Job] Menemukan ${staleRequests.length} permohonan basi.`);
@@ -60,7 +76,6 @@ export async function GET() {
                     }
                 }
             }
-
             return await Promise.all(updates);
         });
 

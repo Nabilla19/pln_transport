@@ -92,6 +92,15 @@ export async function POST(req) {
     try {
         const { requestId, mobil, platNomor, pengemudi } = body;
 
+        // 0. Ambil detail kendaraan untuk sinkronisasi Merk (macam_kendaraan)
+        const vehicle = await prisma.transportVehicle.findUnique({
+            where: { plat_nomor: platNomor }
+        });
+
+        if (!vehicle) {
+            return NextResponse.json({ message: 'Kendaraan tidak ditemukan' }, { status: 404 });
+        }
+
         // Generate barcode unik untuk penugasan fleet
         const barcode = crypto.createHash('md5')
             .update(`KKU-${user.id}-${Date.now()}-${requestId}`)
@@ -115,10 +124,14 @@ export async function POST(req) {
                 where: { plat_nomor: platNomor },
                 data: { status: 'In Use', last_request_id: parseInt(requestId) }
             }),
-            // 3. Update status permohonan menjadi 'Ready' (siap berangkat)
+            // 3. Update status permohonan menjadi 'Ready' (siap berangkat) 
+            // DAN sinkronisasi macam_kendaraan sesuai unit yang dipilih
             prisma.transportRequest.update({
                 where: { id: parseInt(requestId) },
-                data: { status: 'Ready' }
+                data: {
+                    status: 'Ready',
+                    macam_kendaraan: vehicle.brand
+                }
             })
         ]);
 
