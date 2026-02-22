@@ -141,53 +141,53 @@ export default function PrintRequestPage() {
 
             <div className="mx-auto max-w-[21cm] document-body border border-gray-100 p-4 print:border-0 print:p-0">
                 {/* 1. KOP SURAT (Header PLN) */}
-                <div className="flex items-center gap-4 border-b-4 border-black pb-2 mb-4">
-                    <img src="/images/logo-pln.png" alt="Logo PLN" className="w-14 h-auto" />
+                <div className="flex items-center gap-4 border-b-[3px] border-black pb-2 mb-2">
+                    <img src="/images/logo-pln.png" alt="Logo PLN" className="w-12 h-auto" />
                     <div className="flex-1">
-                        <h1 className="text-[12px] font-bold leading-tight uppercase">PT PLN (PERSERO) DISTRIBUSI RIAU DAN KEPULAUAN RIAU</h1>
+                        <h1 className="text-[11px] font-bold leading-tight uppercase">PT PLN (PERSERO) DISTRIBUSI RIAU DAN KEPULAUAN RIAU</h1>
                         <div className="h-px bg-black my-0.5"></div>
-                        <p className="text-[10px] font-semibold">UNIT PELAKSANA PENGATUR DISTRIBUSI RIAU (UP2D)</p>
+                        <p className="text-[9px] font-semibold">UNIT PELAKSANA PENGATUR DISTRIBUSI RIAU (UP2D)</p>
                         <p className="text-[8px]">Alamat: Jln. Dr. Sutomo, Sekip. Kec, Lima Puluh. Kota Pekanbaru</p>
                     </div>
                 </div>
 
                 {/* JUDUL DOKUMEN */}
-                <div className="text-center mb-6">
-                    <h2 className="text-lg font-bold uppercase underline decoration-2">SURAT JALAN KENDARAAN DINAS</h2>
-                    <p className="text-[10px] font-bold uppercase tracking-widest mt-1">
+                <div className="text-center mb-3">
+                    <h2 className="text-base font-bold uppercase underline decoration-2">SURAT JALAN KENDARAAN DINAS</h2>
+                    <p className="text-[9px] font-bold uppercase tracking-widest mt-0.5">
                         NOMOR SURAT: #{displayId}/{new Date(request.created_at || request.tanggal_jam_berangkat).toLocaleString('id-ID', { month: 'short' }).toUpperCase().slice(0, 3)}/UP2D-RIAU/{new Date(request.created_at || request.tanggal_jam_berangkat).getFullYear()}
                     </p>
                 </div>
 
                 {/* 2. DATA PEMOHON */}
-                <div className="border border-black mb-2">
-                    <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[10pt] uppercase">I. DATA PEMOHON</div>
-                    <div className="p-3">
-                        <table className="w-full text-[11pt]">
+                <div className="border border-black mb-1">
+                    <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9pt] uppercase">I. DATA PEMOHON</div>
+                    <div className="p-2">
+                        <table className="w-full text-[9pt] leading-tight">
                             <tbody>
                                 <tr>
-                                    <td className="w-32 py-1 font-bold">Nama</td><td className="w-3">:</td><td className="py-1">{request.nama || request.user?.name}</td>
-                                    <td className="w-32 py-1 font-bold pl-4">Jabatan</td><td className="w-3">:</td><td className="py-1">{request.jabatan || request.user?.role}</td>
+                                    <td className="w-32 py-0.5 font-bold">Nama</td><td className="w-3">:</td><td className="py-0.5">{request.nama || request.user?.name}</td>
+                                    <td className="w-32 py-0.5 font-bold pl-4">Jabatan</td><td className="w-3">:</td><td className="py-0.5">{request.jabatan || request.user?.role}</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-1 font-bold">Bidang</td><td>:</td><td className="py-1">{request.bagian}</td>
-                                    <td className="py-1 font-bold pl-4">Unit Kendaraan</td><td>:</td><td className="py-1">{request.macam_kendaraan || '-'}</td>
+                                    <td className="py-0.5 font-bold">Bidang</td><td>:</td><td className="py-0.5">{request.bagian}</td>
+                                    <td className="py-0.5 font-bold pl-4">Unit Kendaraan</td><td>:</td><td className="py-0.5">{request.macam_kendaraan || '-'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-1 font-bold">Tujuan</td><td>:</td><td className="py-1 uppercase">{request.tujuan}</td>
-                                    <td className="py-1 font-bold pl-4">Penumpang</td><td>:</td><td className="py-1">{request.jumlah_penumpang || '-'} orang</td>
+                                    <td className="py-0.5 font-bold">Tujuan</td><td>:</td><td className="py-0.5 uppercase">{request.tujuan}</td>
+                                    <td className="py-0.5 font-bold pl-4">Penumpang</td><td>:</td><td className="py-0.5">{request.jumlah_penumpang || '-'} orang</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-1 font-bold">Berangkat</td><td>:</td><td className="py-1">
+                                    <td className="py-0.5 font-bold">Berangkat</td><td>:</td><td className="py-0.5">
                                         {new Date(request.tanggal_jam_berangkat).toLocaleString('id-ID', {
                                             day: '2-digit', month: '2-digit', year: 'numeric',
                                             hour: '2-digit', minute: '2-digit'
                                         })}
                                     </td>
-                                    <td className="py-1 font-bold pl-4">Etimasi Pakai</td><td>:</td><td className="py-1">{request.lama_pakai || '-'}</td>
+                                    <td className="py-0.5 font-bold pl-4">Etimasi Pakai</td><td>:</td><td className="py-0.5">{request.lama_pakai || '-'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-1 font-bold align-top">Keperluan</td><td className="align-top">:</td><td colSpan="4" className="py-1">{request.keperluan}</td>
+                                    <td className="py-0.5 font-bold align-top">Keperluan</td><td className="align-top">:</td><td colSpan="4" className="py-0.5">{request.keperluan}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -195,17 +195,17 @@ export default function PrintRequestPage() {
                 </div>
 
                 {/* 3. SURAT PERINTAH JALAN (Data Armada) */}
-                <div className="border border-black mb-2">
-                    <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[10pt] uppercase">II. SURAT PERINTAH JALAN</div>
-                    <div className="p-3">
-                        <table className="w-full text-[11pt]">
+                <div className="border border-black mb-1">
+                    <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9pt] uppercase">II. SURAT PERINTAH JALAN</div>
+                    <div className="p-2">
+                        <table className="w-full text-[9pt] leading-tight">
                             <tbody>
                                 <tr>
-                                    <td className="w-32 py-1 font-bold">Kendaraan</td><td className="w-3">:</td><td className="py-1 uppercase">{fleet?.mobil || '.....................'}</td>
-                                    <td className="w-32 py-1 font-bold pl-4">No. Polisi</td><td className="w-3">:</td><td className="py-1 tracking-wider">{fleet?.plat_nomor || '............'}</td>
+                                    <td className="w-32 py-0.5 font-bold">Kendaraan</td><td className="w-3">:</td><td className="py-0.5 uppercase">{fleet?.mobil || '.....................'}</td>
+                                    <td className="w-32 py-0.5 font-bold pl-4">No. Polisi</td><td className="w-3">:</td><td className="py-0.5 tracking-wider">{fleet?.plat_nomor || '............'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-1 font-bold">Pengemudi</td><td>:</td><td className="py-1 uppercase" colSpan="4">{fleet?.pengemudi || '.....................'}</td>
+                                    <td className="py-0.5 font-bold">Pengemudi</td><td>:</td><td className="py-0.5 uppercase" colSpan="4">{fleet?.pengemudi || '.....................'}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -213,26 +213,26 @@ export default function PrintRequestPage() {
                 </div>
 
                 {/* 4. DATA SECURITY CHECK (Monitoring KM) */}
-                <div className="border border-black mb-2">
-                    <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[10pt] uppercase">III. MONITORING POS SECURITY</div>
-                    <div className="p-3">
-                        <table className="w-full text-[11pt]">
+                <div className="border border-black mb-1">
+                    <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9pt] uppercase">III. MONITORING POS SECURITY</div>
+                    <div className="p-2">
+                        <table className="w-full text-[9pt] leading-tight">
                             <tbody>
                                 <tr>
-                                    <td className="w-32 py-1 font-bold">KM Awal</td><td className="w-3">:</td><td className="py-1">{security?.km_awal} KM</td>
-                                    <td className="w-32 py-1 font-bold pl-4">KM Akhir</td><td className="w-3">:</td><td className="py-1">{security?.km_akhir ? `${security.km_akhir} KM` : '..........'}</td>
+                                    <td className="w-32 py-0.5 font-bold">KM Awal</td><td className="w-3">:</td><td className="py-0.5">{security?.km_awal} KM</td>
+                                    <td className="w-32 py-0.5 font-bold pl-4">KM Akhir</td><td className="w-3">:</td><td className="py-0.5">{security?.km_akhir ? `${security.km_akhir} KM` : '..........'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-1 font-bold">Jarak</td><td>:</td><td className="py-1">{(security?.jarak_tempuh !== null && security?.jarak_tempuh !== undefined) ? `${security.jarak_tempuh} KM` : '..........'}</td>
-                                    <td className="py-1 font-bold pl-4">Waktu Pakai</td><td>:</td><td className="py-1">{security?.lama_waktu || '............'}</td>
+                                    <td className="py-0.5 font-bold">Jarak</td><td>:</td><td className="py-0.5">{(security?.jarak_tempuh !== null && security?.jarak_tempuh !== undefined) ? `${security.jarak_tempuh} KM` : '..........'}</td>
+                                    <td className="py-0.5 font-bold pl-4">Waktu Pakai</td><td>:</td><td className="py-0.5">{security?.lama_waktu || '............'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-1 font-bold">Jam Keluar</td><td>:</td><td className="py-1">{security?.jam_berangkat ? new Date(security.jam_berangkat).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
-                                    <td className="py-1 font-bold pl-4">Jam Masuk</td><td>:</td><td className="py-1">{security?.jam_kembali ? new Date(security.jam_kembali).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                                    <td className="py-0.5 font-bold">Jam Keluar</td><td>:</td><td className="py-0.5">{security?.jam_berangkat ? new Date(security.jam_berangkat).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                                    <td className="py-0.5 font-bold pl-4">Jam Masuk</td><td>:</td><td className="py-0.5">{security?.jam_kembali ? new Date(security.jam_kembali).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-1 font-bold">Security Keluar</td><td>:</td><td className="py-1">{security?.security_berangkat || '-'}</td>
-                                    <td className="py-1 font-bold pl-4">Security Masuk</td><td>:</td><td className="py-1">{security?.security_kembali || '-'}</td>
+                                    <td className="py-0.5 font-bold">Security Keluar</td><td>:</td><td className="py-0.5">{security?.security_berangkat || '-'}</td>
+                                    <td className="py-0.5 font-bold pl-4">Security Masuk</td><td>:</td><td className="py-0.5">{security?.security_kembali || '-'}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -240,20 +240,20 @@ export default function PrintRequestPage() {
                 </div>
 
                 {/* 5. TANDA TANGAN DIGITAL (E-SIGNATURE) */}
-                <div className="border border-black mb-2 p-3">
-                    <div className="grid grid-cols-3 gap-12 text-center">
+                <div className="border border-black mb-1 p-2">
+                    <div className="grid grid-cols-3 gap-8 text-center">
                         {/* TTD Pemohon */}
                         <div className="flex flex-col items-center">
-                            <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">Pemohon</p>
-                            <div className="w-20 h-20 border border-black p-0.5 mb-1">
+                            <p className="text-[8px] font-bold mb-0.5 uppercase text-gray-400 font-sans">Pemohon</p>
+                            <div className="w-16 h-16 border border-black p-0.5 mb-1">
                                 <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateQRData('pemohon'))}`} alt="QR" className="w-full h-full" />
                             </div>
                             <p className="text-[9px] underline uppercase">{request.nama || request.user?.name}</p>
                         </div>
                         {/* TTD Approver (Asmen/KKU) */}
                         <div className="flex flex-col items-center">
-                            <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">Menyetujui,</p>
-                            <div className="w-20 h-20 border border-black p-0.5 mb-1">
+                            <p className="text-[8px] font-bold mb-0.5 uppercase text-gray-400 font-sans">Menyetujui,</p>
+                            <div className="w-16 h-16 border border-black p-0.5 mb-1">
                                 {approval?.barcode_asmen ? (
                                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateQRData('approver'))}`} alt="QR" className="w-full h-full" />
                                 ) : (
@@ -264,8 +264,8 @@ export default function PrintRequestPage() {
                         </div>
                         {/* TTD Bagian Fleet/KKU */}
                         <div className="flex flex-col items-center">
-                            <p className="text-[8px] font-bold mb-1 uppercase text-gray-400 font-sans">KKU</p>
-                            <div className="w-20 h-20 border border-black p-0.5 mb-1">
+                            <p className="text-[8px] font-bold mb-0.5 uppercase text-gray-400 font-sans">KKU</p>
+                            <div className="w-16 h-16 border border-black p-0.5 mb-1">
                                 {fleet?.barcode_fleet ? (
                                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(generateQRData('fleet'))}`} alt="QR" className="w-full h-full" />
                                 ) : (
