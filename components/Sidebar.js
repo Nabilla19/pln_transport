@@ -110,7 +110,7 @@ export default function Sidebar() {
         <>
             {/* Logo & Info Unit */}
             <div className="mb-8 font-primary">
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight">E-Transport</h1>
+                <h1 className="text-xl font-bold text-slate-900 tracking-tight">SI-PINTER</h1>
                 <p className="text-slate-500 text-xs font-medium">PLN UP2D RIAU</p>
             </div>
 
@@ -176,7 +176,7 @@ export default function Sidebar() {
             <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-lg border-b border-slate-200 shadow-sm">
                 <div className="flex items-center justify-between p-4">
                     <div>
-                        <h1 className="text-lg font-bold text-slate-900">E-Transport</h1>
+                        <h1 className="text-lg font-bold text-slate-900">SI-PINTER</h1>
                         <p className="text-slate-500 text-[10px] font-medium">PLN UP2D RIAU</p>
                     </div>
                     <button

@@ -90,7 +90,7 @@ export default function PrintRequestPage() {
             return `Surat ini sudah di-approve oleh KKU ${fleet.admin?.name || '-'} pada tanggal ${tgl} dan waktu ${jam} WIB.`;
         }
 
-        return `DOKUMEN E-TRANSPORT ID: #${displayId}`;
+        return `DOKUMEN SI-PINTER ID: #${displayId}`;
     };
 
     return (
@@ -311,7 +311,7 @@ export default function PrintRequestPage() {
                 </div>
 
                 <div className="text-center">
-                    <p className="text-[6pt] italic font-bold text-gray-300">Sistem E-Transport UP2D Riau | Doc Created: {new Date().toLocaleString('id-ID')} WIB</p>
+                    <p className="text-[6pt] italic font-bold text-gray-300">Sistem SI-PINTER UP2D Riau | Doc Created: {new Date().toLocaleString('id-ID')} WIB</p>
                 </div>
             </div>
 

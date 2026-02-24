@@ -182,7 +182,7 @@ export default function UsersPage() {
                 {/* Judul Halaman */}
                 <div className="mb-6 md:mb-8">
                     <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">👥 Manajemen Akun</h1>
-                    <p className="text-sm md:text-base text-slate-600">Kelola pengguna sistem E-Transport</p>
+                    <p className="text-sm md:text-base text-slate-600">Kelola pengguna sistem SI-PINTER</p>
                 </div>
 
                 {/* Tombol Tampil/Sembunyikan Form Tambah */}

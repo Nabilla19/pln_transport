@@ -4,7 +4,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "E-Transport PLN UP2D RIAU",
+  title: "SI-PINTER PLN UP2D RIAU",
   description: "Transport Management System for PLN UP2D RIAU",
 };
 

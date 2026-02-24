@@ -31,3 +31,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# documentation and diagrams
+*.md
+*.drawio
+/diagram/
+diagram/

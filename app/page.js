@@ -7,7 +7,7 @@ import Toast from '@/components/Toast';
 /**
  * Halaman Login Utama
  * 
- * Deskripsi: Gerbang masuk aplikasi E-Transport.
+ * Deskripsi: Gerbang masuk aplikasi SI-PINTER.
  * Menangani otentikasi pengguna, penyimpanan token JWT, 
  * dan memiliki desain modern dengan split-screen (branding & form).
  */
@@ -78,7 +78,7 @@ export default function LoginPage() {
           </div>
 
           <h1 className="text-5xl font-bold mb-4 text-center animate-slide-up">
-            E-Transport
+            SI-PINTER
           </h1>
           <p className="text-xl text-blue-100 mb-8 text-center animate-slide-up delay-100">
             Sistem Manajemen Kendaraan Dinas
@@ -142,7 +142,7 @@ export default function LoginPage() {
                 className="w-32 h-auto"
               />
             </div>
-            <h1 className="text-2xl font-bold text-slate-900">E-Transport</h1>
+            <h1 className="text-2xl font-bold text-slate-900">SI-PINTER</h1>
             <p className="text-slate-500">PLN UP2D RIAU</p>
           </div>
 
