@@ -566,10 +566,10 @@ export default function RequestDetailPage() {
                         </div>
                     )}
 
-                    {/* AKSI: Penugasan Unit (Hanya muncul untuk KKU/Admin) */}
+                    {/* AKSI: Penugasan Unit (Hanya muncul untuk KKU) */}
                     {['Menunggu Surat Jalan', 'Pending Fleet'].includes(request.status) &&
                         user &&
-                        (['KKU', 'Admin'].includes(user.role)) &&
+                        user.role === 'KKU' &&
                         !request.fleet?.[0]?.is_rejected && (
                             <div className="glass-card p-4 sm:p-6 mt-8 border-t-4 border-sky-500 bg-white shadow-xl">
                                 <h2 className="text-base sm:text-lg font-bold text-slate-900 mb-4 tracking-tight">Penerbitan Surat Jalan</h2>

@@ -75,8 +75,8 @@ export async function POST(req) {
     const user = await verifyAuth(req);
     if (!user) return NextResponse.json({ message: 'Tidak terautentikasi' }, { status: 401 });
 
-    // Hanya KKU atau Admin yang boleh menugaskan armada
-    const allowedRoles = ['KKU', 'Admin'];
+    // Hanya KKU yang boleh menugaskan armada
+    const allowedRoles = ['KKU'];
     if (!allowedRoles.includes(user.role)) {
         return NextResponse.json({ message: 'Terlarang' }, { status: 403 });
     }
@@ -161,8 +161,8 @@ export async function PUT(req) {
     const user = await verifyAuth(req);
     if (!user) return NextResponse.json({ message: 'Tidak terautentikasi' }, { status: 401 });
 
-    // Hanya KKU atau Admin yang boleh menolak penugasan armada
-    const allowedRoles = ['KKU', 'Admin'];
+    // Hanya KKU yang boleh menolak penugasan armada
+    const allowedRoles = ['KKU'];
     if (!allowedRoles.includes(user.role)) {
         return NextResponse.json({ message: 'Terlarang' }, { status: 403 });
     }
