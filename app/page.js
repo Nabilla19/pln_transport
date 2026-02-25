@@ -81,7 +81,7 @@ export default function LoginPage() {
             SI-PINTER
           </h1>
           <p className="text-xl text-blue-100 mb-8 text-center animate-slide-up delay-100">
-            Sistem Manajemen Kendaraan Dinas
+            Sistem Perizinan Transportasi Terintegrasi
           </p>
 
           {/* Kartu Informasi Fitur Utama */}
