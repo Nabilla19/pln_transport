@@ -33,6 +33,9 @@ export default function UsersPage() {
         role: ''
     });
 
+    // State untuk modal konfirmasi hapus
+    const [deleteTarget, setDeleteTarget] = useState(null); // { id, name }
+
     useEffect(() => {
         // Proteksi Halaman: Hanya Role 'Admin' yang boleh mengakses
         const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -124,11 +127,19 @@ export default function UsersPage() {
     };
 
     /**
-     * Menangani penghapusan akun pengguna
+     * Menampilkan modal konfirmasi hapus
      */
-    const handleDelete = async (id, name) => {
-        if (!confirm(`Hapus pengguna "${name}"?`)) return;
+    const handleDelete = (id, name) => {
+        setDeleteTarget({ id, name });
+    };
 
+    /**
+     * Mengeksekusi penghapusan setelah konfirmasi
+     */
+    const confirmDelete = async () => {
+        if (!deleteTarget) return;
+        const { id } = deleteTarget;
+        setDeleteTarget(null);
         try {
             await api.delete(`/api/users/${id}`);
             showToast('✓ Pengguna berhasil dihapus!', 'success');
@@ -433,6 +444,37 @@ export default function UsersPage() {
                                     </button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* MODAL KONFIRMASI HAPUS USER */}
+                {deleteTarget && (
+                    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full transform animate-slideUp overflow-hidden">
+                            <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 flex items-center gap-3">
+                                <span className="text-2xl">🗑️</span>
+                                <h3 className="text-lg font-bold">Hapus Pengguna</h3>
+                            </div>
+                            <div className="p-6">
+                                <p className="text-slate-600 text-sm mb-1">Anda yakin ingin menghapus pengguna:</p>
+                                <p className="font-bold text-slate-900 text-base mb-4">&quot;{deleteTarget.name}&quot;?</p>
+                                <p className="text-xs text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2">⚠️ Tindakan ini tidak dapat dibatalkan.</p>
+                                <div className="flex gap-3 mt-5">
+                                    <button
+                                        onClick={confirmDelete}
+                                        className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold py-3 rounded-xl hover:shadow-lg transition-all active:scale-95"
+                                    >
+                                        Ya, Hapus
+                                    </button>
+                                    <button
+                                        onClick={() => setDeleteTarget(null)}
+                                        className="flex-1 bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition-all"
+                                    >
+                                        Batal
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}
