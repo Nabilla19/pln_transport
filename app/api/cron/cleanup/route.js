@@ -33,16 +33,16 @@ export async function GET() {
         });
 
         // Tentukan mana yang "basi" berdasarkan aturan:
-        // Rule: Sudah lewat 1 jam dari waktu penugasan armada (Fleet Assignment)
+        // Rule: Sudah lewat 2 jam dari waktu penugasan armada (Fleet Assignment)
         const staleRequests = readyRequests.filter(request => {
             // Kita hanya mengecek permohonan yang sudah ada penugasan fleet-nya
             const fleetAssignment = request.fleet?.[0];
             if (!fleetAssignment) return false;
 
             const jamPenugasan = new Date(fleetAssignment.created_at);
-            const oneHourLater = new Date(jamPenugasan.getTime() + (60 * 60 * 1000));
+            const expirationTime = new Date(jamPenugasan.getTime() + (2 * 60 * 60 * 1000));
 
-            return now > oneHourLater;
+            return now > expirationTime;
         });
 
         if (staleRequests.length === 0) {
